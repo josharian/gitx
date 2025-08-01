@@ -417,27 +417,34 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
     }
     
 	
-	// REPLACE WITH GIT EXEC - Comment out GTReference lookup
-	// NSError* error = nil;
-	// GTReference* gtRef = [GTReference referenceByLookingUpReferencedNamed:ref.ref
-	// 														 inRepository:self.gtRepo
-	// 																error:&error];
-	// if (error)
-	// {
-	// 	NSLog(@"Error looking up ref for %@", ref.ref);
-	// 	return nil;
-	// }
-	// const git_oid* refOid = gtRef.git_oid;
-	// 
-	// if (refOid)
-	// {
-	// 	char buffer[41];
-	// 	buffer[40] = '\0';
-	// 	git_oid_fmt(buffer, refOid);
-	// 	NSString* shaForRef = [NSString stringWithUTF8String:buffer];
-	// 	GTOID* result = [GTOID oidWithSHA: shaForRef];
-	// 	return result;
-	// }
+	// Use git rev-parse to resolve the ref to a SHA
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"rev-parse", ref.ref];
+	task.currentDirectoryPath = [self workingDirectory];
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *shaString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			shaString = [shaString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			if (shaString.length > 0) {
+				return [GTOID oidWithSHA:shaString];
+			}
+		}
+	}
+	@catch (NSException *exception) {
+		NSLog(@"Error looking up ref for %@: %@", ref.ref, exception.reason);
+	}
+	
 	return nil;
 }
 
