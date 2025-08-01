@@ -42,7 +42,6 @@
         return nil;
     }
 
-    // REPLACE WITH GIT EXEC - Use git init instead of GTRepository
     NSTask *task = [[NSTask alloc] init];
     task.launchPath = @"/usr/bin/git";
     task.arguments = @[@"init"];
