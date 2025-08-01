@@ -92,10 +92,32 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
     NSError *error = nil;
 	NSURL *repoURL = [GitRepoFinder gitDirForURL:absoluteURL];
-    // REPLACE WITH GIT EXEC - Comment out GTRepository initialization
-    // _gtRepo = [GTRepository repositoryWithURL:repoURL error:&error];
+    
+    // Use git rev-parse to validate this is a git repository
+    NSTask *validateTask = [[NSTask alloc] init];
+    validateTask.launchPath = @"/usr/bin/git";
+    validateTask.arguments = @[@"rev-parse", @"--git-dir"];
+    validateTask.currentDirectoryPath = [absoluteURL path];
+    
+    NSPipe *validatePipe = [NSPipe pipe];
+    validateTask.standardOutput = validatePipe;
+    validateTask.standardError = [NSPipe pipe];
+    
+    BOOL isValidRepo = NO;
+    @try {
+        [validateTask launch];
+        [validateTask waitUntilExit];
+        
+        if (validateTask.terminationStatus == 0) {
+            isValidRepo = YES;
+        }
+    }
+    @catch (NSException *exception) {
+        isValidRepo = NO;
+    }
+    
     _gtRepo = nil; // Stub for now
-	if (!_gtRepo) {
+	if (!isValidRepo) {
 		if (outError) {
 			NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                       [NSString stringWithFormat:@"%@ does not appear to be a git repository.", [[self fileURL] path]], NSLocalizedRecoverySuggestionErrorKey,
