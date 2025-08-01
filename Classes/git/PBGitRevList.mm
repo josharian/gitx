@@ -13,63 +13,9 @@
 #import "PBGitRevSpecifier.h"
 #import "PBEasyPipe.h"
 #import "PBGitBinary.h"
-// REPLACE WITH GIT EXEC - Removed GTObjectiveGitStubs.h
-
-// REPLACE WITH GIT EXEC - Minimal stub implementations for ObjectiveGit classes
-typedef NSUInteger GTEnumeratorOptions;
-typedef NSUInteger GTObjectType;
-static const GTEnumeratorOptions GTEnumeratorOptionsTimeSort = 1;
-static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
-static const GTObjectType GTObjectTypeCommit = 1;
-
-@interface GTRepository : NSObject
-@end
-
-@interface GTCommit : NSObject  
-@property (nonatomic, strong) NSDate *commitDate;
-@property (nonatomic, strong) NSString *SHA;
-@property (nonatomic, strong) GTOID *OID;
-@end
-
-@interface GTObject : NSObject
-- (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error;
-@end
-
-@interface GTBranch : NSObject
-@property (nonatomic, strong) NSString *SHA;
-@end
-
-@interface GTTag : NSObject
-- (GTCommit *)objectByPeelingTagError:(NSError **)error;
-@end
-
-@interface GTEnumerator : NSObject
-@property (nonatomic, strong) GTRepository *repository;
-- (id)initWithRepository:(id)repo error:(NSError **)error;
-- (void)resetWithOptions:(GTEnumeratorOptions)options;
-- (void)pushGlob:(NSString *)glob error:(NSError **)error;  
-- (void)pushSHA:(NSString *)sha error:(NSError **)error;
-- (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error;
-@end
+#import "GTObjectiveGitStubs.h"
 
 @implementation GTRepository
-@end
-
-// GTCommit implementation is in PBGitCommit.m
-
-@implementation GTObject
-- (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error {
-    return [[GTCommit alloc] init];
-}
-@end
-
-@implementation GTBranch
-@end
-
-@implementation GTTag
-- (GTCommit *)objectByPeelingTagError:(NSError **)error {
-    return [[GTCommit alloc] init];
-}
 @end
 
 @implementation GTEnumerator
@@ -85,6 +31,7 @@ static const GTObjectType GTObjectTypeCommit = 1;
     return nil;
 }
 @end
+
 
 // REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
 // #import <ObjectiveGit/ObjectiveGit.h>
@@ -218,12 +165,11 @@ using namespace std;
 
 - (void) addGitBranches:(NSArray *)branches fromRepo:(GTRepository *)repo toCommitSet:(NSMutableSet *)set
 {
-	// REPLACE WITH GIT EXEC - Comment out GTRepository usage
-	// for (GTBranch *branch in branches) {
-	// 	NSError *objectLookupError = nil;
-	// 	GTObject *gtObject = [repo lookUpObjectBySHA:branch.SHA error:&objectLookupError];
-	// 	[self addGitObject:gtObject toCommitSet:set];
-	// }
+	for (GTBranch *branch in branches) {
+		GTCommit *commit = [[GTCommit alloc] init];
+		commit.SHA = branch.SHA;
+		[self addGitObject:commit toCommitSet:set];
+	}
 }
 
 - (void) setupEnumerator:(GTEnumerator*)enumerator

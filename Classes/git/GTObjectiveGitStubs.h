@@ -9,17 +9,28 @@
 
 // Forward declarations
 @class GTOID;
+@class GTRepository;
 
 // GTObjectType constants
 typedef enum {
     GTObjectTypeCommit = 1
 } GTObjectType;
 
+// GTEnumeratorOptions constants
+typedef NSUInteger GTEnumeratorOptions;
+static const GTEnumeratorOptions GTEnumeratorOptionsTimeSort = 1;
+static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
+
 @interface GTSignature : NSObject
 @property (nonatomic, strong) NSString *name;
 @end
 
-@interface GTCommit : NSObject
+@interface GTObject : NSObject
+@property (nonatomic, strong) NSString *SHA;
+- (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error;
+@end
+
+@interface GTCommit : GTObject
 @property (nonatomic, strong) NSDate *commitDate;
 @property (nonatomic, strong) NSString *messageSummary;
 @property (nonatomic, strong) NSString *message;
@@ -27,13 +38,7 @@ typedef enum {
 @property (nonatomic, strong) GTSignature *committer;
 @property (nonatomic, strong) NSArray *parents;
 @property (nonatomic, strong) GTOID *OID;
-@property (nonatomic, strong) NSString *SHA;
 @property (nonatomic, strong) NSString *shortSHA;
-@end
-
-@interface GTObject : NSObject
-@property (nonatomic, strong) NSString *SHA;
-- (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error;
 @end
 
 @interface GTBranch : NSObject
@@ -44,10 +49,13 @@ typedef enum {
 - (GTCommit *)objectByPeelingTagError:(NSError **)error;
 @end
 
+@interface GTRepository : NSObject
+@end
+
 @interface GTEnumerator : NSObject
-@property (nonatomic, strong) id repository; // GTRepository stub
+@property (nonatomic, strong) GTRepository *repository;
 - (id)initWithRepository:(id)repo error:(NSError **)error;
-- (void)resetWithOptions:(NSUInteger)options;
+- (void)resetWithOptions:(GTEnumeratorOptions)options;
 - (void)pushGlob:(NSString *)glob error:(NSError **)error;
 - (void)pushSHA:(NSString *)sha error:(NSError **)error;
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error;

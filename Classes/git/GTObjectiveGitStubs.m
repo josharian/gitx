@@ -39,12 +39,15 @@
 }
 @end
 
+@implementation GTRepository
+@end
+
 @implementation GTEnumerator
 - (id)initWithRepository:(id)repo error:(NSError **)error { 
     self.repository = repo;
     return self; 
 }
-- (void)resetWithOptions:(NSUInteger)options { }
+- (void)resetWithOptions:(GTEnumeratorOptions)options { }
 - (void)pushGlob:(NSString *)glob error:(NSError **)error { }
 - (void)pushSHA:(NSString *)sha error:(NSError **)error { }
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error {
