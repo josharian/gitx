@@ -124,8 +124,37 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 		
 	}
 	{
-		// REPLACE WITH GIT EXEC - Assume not bare for now, use workingDirectory
-		workDir = [repository workingDirectory];
+		// Use git rev-parse --is-bare-repository to check if repository is bare
+		NSTask *bareCheckTask = [[NSTask alloc] init];
+		bareCheckTask.launchPath = @"/usr/bin/git";
+		bareCheckTask.arguments = @[@"rev-parse", @"--is-bare-repository"];
+		bareCheckTask.currentDirectoryPath = [repository workingDirectory];
+		
+		NSPipe *bareCheckPipe = [NSPipe pipe];
+		bareCheckTask.standardOutput = bareCheckPipe;
+		bareCheckTask.standardError = [NSPipe pipe];
+		
+		BOOL isBare = NO;
+		@try {
+			[bareCheckTask launch];
+			[bareCheckTask waitUntilExit];
+			
+			if (bareCheckTask.terminationStatus == 0) {
+				NSData *data = [[bareCheckPipe fileHandleForReading] readDataToEndOfFile];
+				NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+				result = [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+				isBare = [result isEqualToString:@"true"];
+			}
+		}
+		@catch (NSException *exception) {
+			// Assume not bare on error
+			isBare = NO;
+		}
+		
+		// Only set up working directory watcher for non-bare repositories
+		if (!isBare) {
+			workDir = [repository workingDirectory];
+		}
 		if (workDir) {
 			workDirChangedBlock = ^(NSArray *changeEvents){
 				NSMutableArray *filteredEvents = [NSMutableArray new];
