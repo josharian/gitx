@@ -247,8 +247,30 @@ using namespace std;
 					}
 				}
 			} else if ([param isEqualToString:@"--remotes"]) {
-				// NSArray *branches = [repo remoteBranchesWithError:&error];
-				// [self addGitBranches:branches fromRepo:repo toCommitSet:enumCommits];
+				NSTask *gitTask = [[NSTask alloc] init];
+				gitTask.launchPath = @"/usr/bin/git";
+				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", @"refs/remotes/"];
+				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				
+				NSPipe *outputPipe = [NSPipe pipe];
+				gitTask.standardOutput = outputPipe;
+				gitTask.standardError = [NSPipe pipe];
+				
+				[gitTask launch];
+				[gitTask waitUntilExit];
+				
+				if (gitTask.terminationStatus == 0) {
+					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+					NSArray *shas = [output componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+					
+					for (NSString *sha in shas) {
+						NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if ([trimmedSHA length] >= 40) {
+							[enumerator pushSHA:trimmedSHA error:nil];
+						}
+					}
+				}
 			} else if ([param isEqualToString:@"--tags"]) {
 				// for (NSString *ref in allRefs) {
 				// 	if ([ref hasPrefix:@"refs/tags/"]) {
