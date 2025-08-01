@@ -22,7 +22,6 @@ extern NSString * const kGitXCommitType;
 
 @property (nonatomic, weak, readonly) PBGitRepository* repository;
 
-// REPLACE WITH GIT EXEC - Use GTOID stub instead of ObjectiveGit GTOID
 @property (nonatomic, strong, readonly) GTOID *sha;
 
 @property (nonatomic, strong, readonly) NSDate *date;
