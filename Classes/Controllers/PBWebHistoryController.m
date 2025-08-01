@@ -104,9 +104,37 @@
 
 - (void)selectCommit:(NSString *)sha
 {
-	// REPLACE WITH GIT EXEC - Create a GTOID from SHA string
-	GTOID *oid = [GTOID oidWithSHA:sha];
-	[historyController selectCommit: oid];
+	// Validate SHA using git rev-parse before creating GTOID
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"rev-parse", @"--verify", [NSString stringWithFormat:@"%@^{commit}", sha]];
+	task.currentDirectoryPath = [historyController.repository workingDirectory];
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *validatedSHA = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			validatedSHA = [validatedSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			GTOID *oid = [GTOID oidWithSHA:validatedSHA];
+			[historyController selectCommit: oid];
+		} else {
+			NSLog(@"Invalid commit SHA: %@", sha);
+		}
+	}
+	@catch (NSException *exception) {
+		NSLog(@"Error validating commit SHA: %@", exception.reason);
+		// Fallback to original behavior for compatibility
+		GTOID *oid = [GTOID oidWithSHA:sha];
+		[historyController selectCommit: oid];
+	}
 }
 
 - (void) sendKey: (NSString*) key
