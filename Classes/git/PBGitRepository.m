@@ -819,23 +819,63 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		return [branch remoteRef];
 	}
 
-	// REPLACE WITH GIT EXEC - Comment out GTBranch lookups
-	// NSString *branchRef = branch.ref;
-	// if (branchRef) {
-	// 	NSError *branchError = nil;
-	// 	BOOL lookupSuccess = NO;
-	// 	GTBranch *gtBranch = [self.gtRepo lookUpBranchWithName:branch.branchName type:GTBranchTypeLocal success:&lookupSuccess error:&branchError];
-	// 	if (gtBranch && lookupSuccess) {
-	// 		NSError *trackingError = nil;
-	// 		BOOL trackingSuccess = NO;
-	// 		GTBranch *trackingBranch = [gtBranch trackingBranchWithError:&trackingError success:&trackingSuccess];
-	// 		if (trackingBranch && trackingSuccess) {
-	// 			NSString *trackingBranchRefName = trackingBranch.reference.name;
-	// 			PBGitRef *trackingBranchRef = [PBGitRef refFromString:trackingBranchRefName];
-	// 			return trackingBranchRef;
-	// 		}
-	// 	}
-	// }
+	// Use git config to find the remote tracking branch
+	NSString *branchName = [branch shortName];
+	if (branchName) {
+		NSTask *gitTask = [[NSTask alloc] init];
+		gitTask.launchPath = @"/usr/bin/git";
+		gitTask.arguments = @[@"config", [NSString stringWithFormat:@"branch.%@.merge", branchName]];
+		gitTask.currentDirectoryPath = [self.fileURL path];
+		
+		NSPipe *outputPipe = [NSPipe pipe];
+		gitTask.standardOutput = outputPipe;
+		gitTask.standardError = [NSPipe pipe];
+		
+		@try {
+			[gitTask launch];
+			[gitTask waitUntilExit];
+			
+			if (gitTask.terminationStatus == 0) {
+				NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+				NSString *mergeRef = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+				mergeRef = [mergeRef stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+				
+				if (mergeRef.length > 0) {
+					// Get the remote name
+					NSTask *remoteTask = [[NSTask alloc] init];
+					remoteTask.launchPath = @"/usr/bin/git";
+					remoteTask.arguments = @[@"config", [NSString stringWithFormat:@"branch.%@.remote", branchName]];
+					remoteTask.currentDirectoryPath = [self.fileURL path];
+					
+					NSPipe *remoteOutputPipe = [NSPipe pipe];
+					remoteTask.standardOutput = remoteOutputPipe;
+					remoteTask.standardError = [NSPipe pipe];
+					
+					[remoteTask launch];
+					[remoteTask waitUntilExit];
+					
+					if (remoteTask.terminationStatus == 0) {
+						NSData *remoteOutputData = [[remoteOutputPipe fileHandleForReading] readDataToEndOfFile];
+						NSString *remoteName = [[NSString alloc] initWithData:remoteOutputData encoding:NSUTF8StringEncoding];
+						remoteName = [remoteName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+						
+						if (remoteName.length > 0) {
+							// Convert refs/heads/branch to refs/remotes/remote/branch
+							if ([mergeRef hasPrefix:@"refs/heads/"]) {
+								NSString *branchPart = [mergeRef substringFromIndex:[@"refs/heads/" length]];
+								NSString *trackingRefName = [NSString stringWithFormat:@"refs/remotes/%@/%@", remoteName, branchPart];
+								PBGitRef *trackingBranchRef = [PBGitRef refFromString:trackingRefName];
+								return trackingBranchRef;
+							}
+						}
+					}
+				}
+			}
+		}
+		@catch (NSException *exception) {
+			// Fall through to error handling below
+		}
+	}
 
 	if (error != NULL) {
 		NSString *info = [NSString stringWithFormat:@"There is no remote configured for the %@ '%@'.\n\nPlease select a branch from the popup menu, which has a corresponding remote tracking branch set up.\n\nYou can also use a contextual menu to choose a branch by right clicking on its label in the commit history list.", [branch refishType], [branch shortName]];
