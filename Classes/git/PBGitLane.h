@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-// REPLACE WITH GIT EXEC - Simple git_oid stub to replace libgit2 dependency
 typedef struct {
     unsigned char id[20]; // SHA-1 is 20 bytes
 } git_oid;
