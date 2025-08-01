@@ -13,7 +13,6 @@ typedef struct {
     unsigned char id[20]; // SHA-1 is 20 bytes
 } git_oid;
 
-// REPLACE WITH GIT EXEC - Simple stub functions for git_oid
 static inline void git_oid_cpy(git_oid *out, const git_oid *src) {
     memcpy(out, src, sizeof(git_oid));
 }
