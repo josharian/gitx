@@ -8,7 +8,6 @@
 
 #import "GTOID+JavaScript.h"
 
-// REPLACE WITH GIT EXEC - Basic GTOID implementation
 @implementation GTOID
 
 @synthesize sha = _sha;
@@ -16,9 +15,21 @@
 + (instancetype)oidWithSHA:(NSString *)sha {
 	GTOID *oid = [[GTOID alloc] init];
 	oid->_sha = [sha copy];
-	// Allocate and initialize git_oid struct with zeros for stub
+	
+	// Allocate git_oid struct and parse SHA-1 string into binary format
 	oid->_git_oid = (git_oid*)malloc(sizeof(git_oid));
-	memset(oid->_git_oid, 0, sizeof(git_oid));
+	
+	// Convert hex string to binary SHA-1 (40 hex chars -> 20 bytes)
+	if ([sha length] >= 40) {
+		const char *hexString = [sha UTF8String];
+		for (int i = 0; i < 20; i++) {
+			sscanf(hexString + (i * 2), "%2hhx", &oid->_git_oid->id[i]);
+		}
+	} else {
+		// Invalid SHA, zero out the structure
+		memset(oid->_git_oid, 0, sizeof(git_oid));
+	}
+	
 	return oid;
 }
 
