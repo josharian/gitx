@@ -175,15 +175,31 @@ using namespace std;
 - (void) setupEnumerator:(GTEnumerator*)enumerator
 			  forRevspec:(PBGitRevSpecifier*)rev
 {
-	// REPLACE WITH GIT EXEC - Comment out GTRepository usage
-	// NSError *error = nil;
-	// GTRepository *repo = enumerator.repository;
-	// [enumerator resetWithOptions:GTEnumeratorOptionsTimeSort];
 	[enumerator resetWithOptions:GTEnumeratorOptionsTopologicalSort];
 	NSMutableSet *enumCommits = [NSMutableSet new];
 	if (rev.isSimpleRef) {
-		// GTObject *object = [repo lookUpObjectByRevParse:rev.simpleRef error:&error];
-		// [self addGitObject:object toCommitSet:enumCommits];
+		// Use git show to resolve the ref to a commit SHA
+		NSTask *gitTask = [[NSTask alloc] init];
+		gitTask.launchPath = @"/usr/bin/git";
+		gitTask.arguments = @[@"show", @"--format=%H", @"--no-patch", rev.simpleRef];
+		gitTask.currentDirectoryPath = [rev.workingDirectory path];
+		
+		NSPipe *outputPipe = [NSPipe pipe];
+		gitTask.standardOutput = outputPipe;
+		gitTask.standardError = [NSPipe pipe];
+		
+		[gitTask launch];
+		[gitTask waitUntilExit];
+		
+		if (gitTask.terminationStatus == 0) {
+			NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+			NSString *commitSHA = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+			commitSHA = [commitSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			if ([commitSHA length] >= 40) {
+				[enumerator pushSHA:commitSHA error:nil];
+			}
+		}
 	} else {
 		// NSArray *allRefs = [repo referenceNamesWithError:&error];
 		for (NSString *param in rev.parameters) {
