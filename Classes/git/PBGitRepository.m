@@ -130,11 +130,27 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 - (NSString *)displayName
 {
     // Build our display name depending on the current HEAD and whether it's detached or not
-    // REPLACE WITH GIT EXEC - Assume HEAD is not detached for now
-    if (NO) // self.gtRepo.isHEADDetached
-		return [NSString localizedStringWithFormat:@"%@ (detached HEAD)", self.projectName];
+    // Check if HEAD is detached using git symbolic-ref
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = @"/usr/bin/git";
+    task.arguments = @[@"symbolic-ref", @"HEAD"];
+    task.currentDirectoryPath = [self workingDirectory];
+    task.standardOutput = [NSPipe pipe];
+    task.standardError = [NSPipe pipe];
+    
+    @try {
+        [task launch];
+        [task waitUntilExit];
+        
+        // If symbolic-ref fails, HEAD is detached
+        if (task.terminationStatus != 0)
+            return [NSString localizedStringWithFormat:@"%@ (detached HEAD)", self.projectName];
+    }
+    @catch (NSException *exception) {
+        // If git is not available, assume not detached
+    }
 
-	return [NSString localizedStringWithFormat:@"%@ (branch: %@)", self.projectName, [[self headRef] description]];
+    return [NSString localizedStringWithFormat:@"%@ (branch: %@)", self.projectName, [[self headRef] description]];
 }
 
 - (void)makeWindowControllers
@@ -185,14 +201,55 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (BOOL)isBareRepository
 {
-    // REPLACE WITH GIT EXEC - Assume not bare for now
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = @"/usr/bin/git";
+    task.arguments = @[@"config", @"--get", @"core.bare"];
+    task.currentDirectoryPath = [self workingDirectory];
+    
+    NSPipe *pipe = [NSPipe pipe];
+    task.standardOutput = pipe;
+    task.standardError = [NSPipe pipe];
+    
+    @try {
+        [task launch];
+        [task waitUntilExit];
+        
+        if (task.terminationStatus == 0) {
+            NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+            NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            result = [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            return [result isEqualToString:@"true"];
+        }
+    }
+    @catch (NSException *exception) {
+        // Git not available or other error
+    }
+    
     return NO;
 }
 
 - (BOOL)readHasSVNRemoteFromConfig
 {
-    // REPLACE WITH GIT EXEC - Use git config to check for SVN remote
-    // For now, return NO
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = @"/usr/bin/git";
+    task.arguments = @[@"config", @"--get-regexp", @"^svn-remote\\."];
+    task.currentDirectoryPath = [self workingDirectory];
+    
+    NSPipe *pipe = [NSPipe pipe];
+    task.standardOutput = pipe;
+    task.standardError = [NSPipe pipe];
+    
+    @try {
+        [task launch];
+        [task waitUntilExit];
+        
+        // If we find any svn-remote config, return YES
+        return task.terminationStatus == 0;
+    }
+    @catch (NSException *exception) {
+        // Git not available or other error
+    }
+    
     return NO;
 }
 
@@ -459,21 +516,46 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (BOOL) checkRefFormat:(NSString *)refName
 {
-	// REPLACE WITH GIT EXEC - Comment out GTReference validation
-	// BOOL result = [GTReference isValidReferenceName:refName];
-	// return result;
-	return YES; // Stub return value
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"check-ref-format", refName];
+	task.currentDirectoryPath = [self workingDirectory];
+	task.standardOutput = [NSPipe pipe];
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		// git check-ref-format returns 0 for valid refs
+		return task.terminationStatus == 0;
+	}
+	@catch (NSException *exception) {
+		// If git is not available, assume valid
+		return YES;
+	}
 }
 
 - (BOOL) refExists:(PBGitRef *)ref
 {
-	// REPLACE WITH GIT EXEC - Comment out GTReference lookup
-	// NSError *gtError = nil;
-	// GTReference *gtRef = [GTReference referenceByLookingUpReferencedNamed:ref.ref inRepository:self.gtRepo error:&gtError];
-	// if (gtRef) {
-	// 	return YES;
-	// }
-	return NO; // Stub return value
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"show-ref", @"--verify", @"--quiet", ref.ref];
+	task.currentDirectoryPath = [self workingDirectory];
+	task.standardOutput = [NSPipe pipe];
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		// git show-ref --verify returns 0 if ref exists
+		return task.terminationStatus == 0;
+	}
+	@catch (NSException *exception) {
+		// If git is not available, assume ref doesn't exist
+		return NO;
+	}
 }
 
 // useful for getting the full ref for a user entered name
