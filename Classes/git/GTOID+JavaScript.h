@@ -6,7 +6,6 @@
 //
 //
 
-// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency  
 // #import <ObjectiveGit/ObjectiveGit.h>
 
 #ifdef __cplusplus
