@@ -2,7 +2,6 @@
 
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
-    // REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
     // #import <ObjectiveGit/ObjectiveGit.h>
 #endif
 
