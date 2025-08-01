@@ -18,7 +18,6 @@ typedef struct {
 } git_oid;
 #endif
 
-// Temporary stub for GTOID until replaced with git exec
 @interface GTOID : NSObject {
 	NSString *_sha;
 	git_oid *_git_oid;
