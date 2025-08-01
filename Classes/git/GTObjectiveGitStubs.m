@@ -45,12 +45,34 @@
 @implementation GTEnumerator
 - (id)initWithRepository:(id)repo error:(NSError **)error { 
     self.repository = repo;
+    self.shaQueue = [[NSMutableArray alloc] init];
     return self; 
 }
-- (void)resetWithOptions:(GTEnumeratorOptions)options { }
+- (void)resetWithOptions:(GTEnumeratorOptions)options { 
+    [self.shaQueue removeAllObjects];
+}
 - (void)pushGlob:(NSString *)glob error:(NSError **)error { }
-- (void)pushSHA:(NSString *)sha error:(NSError **)error { }
+- (void)pushSHA:(NSString *)sha error:(NSError **)error { 
+    if (sha && [sha length] > 0) {
+        [self.shaQueue addObject:sha];
+    }
+}
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error {
+    if (self.shaQueue.count > 0) {
+        NSString *sha = [self.shaQueue firstObject];
+        [self.shaQueue removeObjectAtIndex:0];
+        
+        GTCommit *commit = [[GTCommit alloc] init];
+        commit.SHA = sha;
+        commit.shortSHA = [sha substringToIndex:MIN(7, [sha length])];
+        
+        GTOID *oid = [GTOID oidWithSHA:sha];
+        commit.OID = oid;
+        
+        if (success) *success = YES;
+        return commit;
+    }
+    
     if (success) *success = NO;
     return nil;
 }

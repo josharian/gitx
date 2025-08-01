@@ -54,6 +54,7 @@ static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
 
 @interface GTEnumerator : NSObject
 @property (nonatomic, strong) GTRepository *repository;
+@property (nonatomic, strong) NSMutableArray *shaQueue;
 - (id)initWithRepository:(id)repo error:(NSError **)error;
 - (void)resetWithOptions:(GTEnumeratorOptions)options;
 - (void)pushGlob:(NSString *)glob error:(NSError **)error;
