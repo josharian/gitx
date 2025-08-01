@@ -230,7 +230,7 @@ using namespace std;
 	NSError *error = nil;
 	GTEnumerator *enu = [[GTEnumerator alloc] initWithRepository:repo error:&error];
 	
-	[self setupEnumerator:enu forRevspec:rev];
+	[self setupEnumerator:enu forRevspec:rev inRepository:pbRepo];
 	
 	[self addCommitsFromEnumerator:enu inPBRepo:pbRepo];
 }
@@ -267,6 +267,7 @@ using namespace std;
 
 - (void) setupEnumerator:(GTEnumerator*)enumerator
 			  forRevspec:(PBGitRevSpecifier*)rev
+		     inRepository:(PBGitRepository*)pbRepo
 {
 	[enumerator resetWithOptions:GTEnumeratorOptionsTopologicalSort];
 	NSMutableSet *enumCommits = [NSMutableSet new];
@@ -275,7 +276,7 @@ using namespace std;
 		NSTask *gitTask = [[NSTask alloc] init];
 		gitTask.launchPath = @"/usr/bin/git";
 		gitTask.arguments = @[@"show", @"--format=%H", @"--no-patch", rev.simpleRef];
-		gitTask.currentDirectoryPath = [rev.workingDirectory path];
+		gitTask.currentDirectoryPath = [pbRepo workingDirectory];
 		
 		NSPipe *outputPipe = [NSPipe pipe];
 		gitTask.standardOutput = outputPipe;
@@ -300,7 +301,7 @@ using namespace std;
 				NSTask *gitTask = [[NSTask alloc] init];
 				gitTask.launchPath = @"/usr/bin/git";
 				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", @"refs/heads/"];
-				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
 				
 				NSPipe *outputPipe = [NSPipe pipe];
 				gitTask.standardOutput = outputPipe;
@@ -325,7 +326,7 @@ using namespace std;
 				NSTask *gitTask = [[NSTask alloc] init];
 				gitTask.launchPath = @"/usr/bin/git";
 				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", @"refs/remotes/"];
-				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
 				
 				NSPipe *outputPipe = [NSPipe pipe];
 				gitTask.standardOutput = outputPipe;
@@ -350,7 +351,7 @@ using namespace std;
 				NSTask *gitTask = [[NSTask alloc] init];
 				gitTask.launchPath = @"/usr/bin/git";
 				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", @"refs/tags/"];
-				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
 				
 				NSPipe *outputPipe = [NSPipe pipe];
 				gitTask.standardOutput = outputPipe;
@@ -376,7 +377,7 @@ using namespace std;
 				NSTask *gitTask = [[NSTask alloc] init];
 				gitTask.launchPath = @"/usr/bin/git";
 				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", globPattern];
-				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
 				
 				NSPipe *outputPipe = [NSPipe pipe];
 				gitTask.standardOutput = outputPipe;
@@ -401,7 +402,7 @@ using namespace std;
 				NSTask *gitTask = [[NSTask alloc] init];
 				gitTask.launchPath = @"/usr/bin/git";
 				gitTask.arguments = @[@"rev-parse", @"--verify", param];
-				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
 				
 				NSPipe *outputPipe = [NSPipe pipe];
 				gitTask.standardOutput = outputPipe;
@@ -422,7 +423,7 @@ using namespace std;
 					NSTask *globTask = [[NSTask alloc] init];
 					globTask.launchPath = @"/usr/bin/git";
 					globTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", param];
-					globTask.currentDirectoryPath = [rev.workingDirectory path];
+					globTask.currentDirectoryPath = [pbRepo workingDirectory];
 					
 					NSPipe *globOutputPipe = [NSPipe pipe];
 					globTask.standardOutput = globOutputPipe;
