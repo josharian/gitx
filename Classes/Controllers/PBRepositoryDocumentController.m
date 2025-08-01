@@ -13,7 +13,6 @@
 #import "PBGitBinary.h"
 #import "GitRepoFinder.h"
 
-// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
 // #import <ObjectiveGit/GTRepository.h>
 
 @implementation PBRepositoryDocumentController
