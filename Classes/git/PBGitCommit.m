@@ -76,8 +76,57 @@ NSString * const kGitXCommitType = @"commit";
 		return nil;
 	}
 	self.repository = repo;
-	// REPLACE WITH GIT EXEC - Create a stub GTCommit for now
-	self.gtCommit = [[GTCommit alloc] init];
+	
+	// Use git show to populate commit data
+	NSTask *gitTask = [[NSTask alloc] init];
+	gitTask.launchPath = @"/usr/bin/git";
+	gitTask.arguments = @[@"show", @"--format=%H%n%s%n%B%n%an%n%cn%n%ct", @"--no-patch", sha];
+	gitTask.currentDirectoryPath = [repo.fileURL path];
+	
+	NSPipe *outputPipe = [NSPipe pipe];
+	gitTask.standardOutput = outputPipe;
+	gitTask.standardError = [NSPipe pipe];
+	
+	GTCommit *commit = [[GTCommit alloc] init];
+	
+	@try {
+		[gitTask launch];
+		[gitTask waitUntilExit];
+		
+		if (gitTask.terminationStatus == 0) {
+			NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+			NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+			NSArray *lines = [output componentsSeparatedByString:@"\n"];
+			
+			if (lines.count >= 6) {
+				NSString *shaString = lines[0];
+				commit.SHA = shaString;
+				commit.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
+				commit.messageSummary = lines[1];
+				commit.message = lines[2];
+				
+				GTSignature *author = [[GTSignature alloc] init];
+				author.name = lines[3];
+				commit.author = author;
+				
+				GTSignature *committer = [[GTSignature alloc] init];
+				committer.name = lines[4];
+				commit.committer = committer;
+				
+				NSTimeInterval timestamp = [lines[5] doubleValue];
+				commit.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
+				
+				// Create GTOID for the SHA
+				GTOID *oid = [GTOID oidWithSHA:shaString];
+				commit.OID = oid;
+			}
+		}
+	}
+	@catch (NSException *exception) {
+		// Fall back to empty commit on error
+	}
+	
+	self.gtCommit = commit;
 	
 	return self;
 }
