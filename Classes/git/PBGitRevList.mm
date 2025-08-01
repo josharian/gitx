@@ -60,7 +60,6 @@
 #import <iostream>
 #import <string>
 #import <map>
-// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
 // #import <ObjectiveGit/GTOID.h>
 
 // All ObjectiveGit stubs are now in GTObjectiveGitStubs.h/.m
