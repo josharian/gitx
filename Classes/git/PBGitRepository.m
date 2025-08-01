@@ -194,8 +194,32 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSURL *)getIndexURL
 {
-	// REPLACE WITH GIT EXEC - Return standard git index path
-	NSString *indexPath = [[self workingDirectory] stringByAppendingPathComponent:@".git/index"];
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"rev-parse", @"--git-path", @"index"];
+	task.currentDirectoryPath = [self workingDirectory];
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	
+	[task launch];
+	[task waitUntilExit];
+	
+	if (task.terminationStatus != 0) {
+		// Fallback to standard path if git command fails
+		NSString *indexPath = [[self workingDirectory] stringByAppendingPathComponent:@".git/index"];
+		return [NSURL fileURLWithPath:indexPath];
+	}
+	
+	NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+	NSString *indexPath = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	indexPath = [indexPath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	
+	// Convert relative path to absolute path
+	if (![indexPath isAbsolutePath]) {
+		indexPath = [[self workingDirectory] stringByAppendingPathComponent:indexPath];
+	}
+	
 	return [NSURL fileURLWithPath:indexPath];
 }
 
