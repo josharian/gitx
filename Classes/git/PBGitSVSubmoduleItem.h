@@ -9,11 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "PBSourceViewItem.h"
 
-// REPLACE WITH GIT EXEC - Simple submodule data structure instead of GTSubmodule
 @interface PBSubmoduleInfo : NSObject
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *path;
 @property (nonatomic, strong) NSURL *parentRepositoryURL;
+
++ (NSArray<PBSubmoduleInfo *> *)submodulesForRepositoryURL:(NSURL *)repositoryURL;
 @end
 
 @interface PBGitSVSubmoduleItem : PBSourceViewItem
