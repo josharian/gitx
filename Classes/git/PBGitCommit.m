@@ -11,28 +11,9 @@
 #import "PBGitTree.h"
 #import "PBGitRef.h"
 #import "PBGitDefaults.h"
+#import "GTObjectiveGitStubs.h"
 
-@interface GTSignature : NSObject
-@property (nonatomic, strong) NSString *name;
-@end
 
-@interface GTCommit : NSObject  
-@property (nonatomic, strong) NSDate *commitDate;
-@property (nonatomic, strong) NSString *messageSummary;
-@property (nonatomic, strong) NSString *message;
-@property (nonatomic, strong) GTSignature *author;
-@property (nonatomic, strong) GTSignature *committer;
-@property (nonatomic, strong) NSArray *parents;
-@property (nonatomic, strong) GTOID *OID;
-@property (nonatomic, strong) NSString *SHA;
-@property (nonatomic, strong) NSString *shortSHA;
-@end
-
-@implementation GTSignature
-@end
-
-@implementation GTCommit  
-@end
 
 NSString * const kGitXCommitType = @"commit";
 
