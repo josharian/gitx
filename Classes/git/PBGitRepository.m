@@ -404,47 +404,61 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (void) reloadRefs
 {
-	// REPLACE WITH GIT EXEC - Comment out GTReference enumeration
 	// clear out ref caches
 	_headRef = nil;
 	_headSha = nil;
 	self->refs = [NSMutableDictionary dictionary];
 	
-	// NSError* error = nil;
-	// NSArray* allRefs = [self.gtRepo referenceNamesWithError:&error];
+	// Use git for-each-ref to enumerate all references
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"for-each-ref", @"--format=%(refname)%09%(objecttype)"];
+	task.currentDirectoryPath = [self workingDirectory];
 	
-	// // load all named refs
-	// NSMutableOrderedSet *oldBranches = [self.branchesSet mutableCopy];
-	// for (NSString* referenceName in allRefs)
-	// {
-	// 	GTReference* gtRef =
-	// 	[[GTReference alloc] initByLookingUpReferenceNamed:referenceName
-	// 										  inRepository:self.gtRepo
-	// 												 error:&error];
-	// 	
-	// 	if (gtRef == nil)
-	// 	{
-	// 		NSLog(@"Reference \"%@\" could not be found in the repository", referenceName);
-	// 		if (error)
-	// 		{
-	// 			NSLog(@"Error loading reference was: %@", error);
-	// 		}
-	// 		continue;
-	// 	}
-	// 	if (gtRef.remote && gtRef.referenceType == GTReferenceTypeSymbolic) {
-	// 		// Hide remote symbolic references like origin/HEAD
-	// 		continue;
-	// 	}
-	// 	PBGitRef* gitRef = [PBGitRef refFromString:referenceName];
-	// 	PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
-	// 	[self addBranch:revSpec];
-	// 	[self addRef:gtRef];
-	// 	[oldBranches removeObject:revSpec];
-	// }
-	// 
-	// for (PBGitRevSpecifier *branch in oldBranches)
-	// 	if ([branch isSimpleRef] && ![branch isEqual:[self headRef]])
-	// 		[self removeBranch:branch];
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	NSMutableOrderedSet *oldBranches = [self.branchesSet mutableCopy];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			if ([output length] > 0) {
+				NSArray *lines = [output componentsSeparatedByString:@"\n"];
+				for (NSString *line in lines) {
+					// Format: refname<tab>objecttype
+					NSArray *components = [line componentsSeparatedByString:@"\t"];
+					if ([components count] >= 2) {
+						NSString *referenceName = [components objectAtIndex:0];
+						NSString *objectType = [components objectAtIndex:1];
+						
+						// Skip symbolic references like origin/HEAD that point to other refs
+						if ([objectType isEqualToString:@"commit"] || [objectType isEqualToString:@"tag"]) {
+							PBGitRef* gitRef = [PBGitRef refFromString:referenceName];
+							PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
+							[self addBranch:revSpec];
+							[oldBranches removeObject:revSpec];
+						}
+					}
+				}
+			}
+		}
+	}
+	@catch (NSException *exception) {
+		NSLog(@"Error loading refs: %@", exception.reason);
+	}
+	
+	// Remove old branches that no longer exist
+	for (PBGitRevSpecifier *branch in oldBranches)
+		if ([branch isSimpleRef] && ![branch isEqual:[self headRef]])
+			[self removeBranch:branch];
 
     [self loadSubmodules];
     
