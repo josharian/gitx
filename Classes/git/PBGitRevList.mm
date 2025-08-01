@@ -27,7 +27,41 @@
 - (void)resetWithOptions:(GTEnumeratorOptions)options { 
     [self.shaQueue removeAllObjects];
 }
-- (void)pushGlob:(NSString *)glob error:(NSError **)error { }
+- (void)pushGlob:(NSString *)glob error:(NSError **)error { 
+    // Cast repository to access workingDirectory method
+    PBGitRepository *pbRepo = (PBGitRepository *)self.repository;
+    if (!pbRepo) return;
+    
+    // Use git for-each-ref to resolve glob pattern to commit SHAs
+    NSTask *gitTask = [[NSTask alloc] init];
+    gitTask.launchPath = @"/usr/bin/git";
+    gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", glob];
+    gitTask.currentDirectoryPath = [pbRepo workingDirectory];
+    
+    NSPipe *outputPipe = [NSPipe pipe];
+    gitTask.standardOutput = outputPipe;
+    gitTask.standardError = [NSPipe pipe];
+    
+    @try {
+        [gitTask launch];
+        [gitTask waitUntilExit];
+        
+        if (gitTask.terminationStatus == 0) {
+            NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+            NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+            NSArray *lines = [output componentsSeparatedByString:@"\n"];
+            
+            for (NSString *line in lines) {
+                NSString *sha = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                if ([sha length] >= 40) {  // Valid SHA length
+                    [self.shaQueue addObject:sha];
+                }
+            }
+        }
+    } @catch (NSException *exception) {
+        // Git command failed, silently continue
+    }
+}
 - (void)pushSHA:(NSString *)sha error:(NSError **)error { 
     if (sha && [sha length] > 0) {
         [self.shaQueue addObject:sha];
@@ -53,7 +87,6 @@
     return nil;
 }
 @end
-
 
 // #import <ObjectiveGit/ObjectiveGit.h>
 
