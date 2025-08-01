@@ -10,6 +10,7 @@
 #import "PBGitCommit.h"
 #import "PBGitWindowController.h"
 #import "PBGitBinary.h"
+#import "GTObjectiveGitStubs.h"
 
 #import "NSFileHandleExt.h"
 #import "PBEasyPipe.h"
@@ -115,7 +116,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
         isValidRepo = NO;
     }
     
-    _gtRepo = nil; // Stub for now
+    _gtRepo = [[GTRepository alloc] init];
 	if (!isValidRepo) {
 		if (outError) {
 			NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
