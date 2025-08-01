@@ -57,8 +57,6 @@
 
 // #import <ObjectiveGit/ObjectiveGit.h>
 
-// REPLACE WITH GIT EXEC - Remove old GNU C++ extension header
-// #import <ext/stdio_filebuf.h>
 #import <iostream>
 #import <string>
 #import <map>
