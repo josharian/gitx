@@ -2,7 +2,7 @@
 //  GTObjectiveGitStubs.m
 //  GitX
 //
-//  REPLACE WITH GIT EXEC - Temporary stub implementations to replace ObjectiveGit dependencies
+//  Stub implementations to replace ObjectiveGit dependencies
 //
 
 #import "GTObjectiveGitStubs.h"
