@@ -959,25 +959,28 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (BOOL) createTag:(NSString *)tagName message:(NSString *)message atRefish:(id <PBGitRefish>)target
 {
-	// REPLACE WITH GIT EXEC - Comment out GTObject/GTTag creation
 	if (!tagName)
 		return NO;
 
-	// NSError *error = nil;
-	// 
-	// GTObject *object = [self.gtRepo lookUpObjectByRevParse:[target refishName] error:&error];
-	// GTTag *newTag = nil;
-	// if (object && !error) {
-	// 	newTag = [self.gtRepo createTagNamed:tagName target:object tagger:self.gtRepo.userSignatureForNow message:message error:&error];
-	// }
-	// 
-	// if (!newTag || error) {
-	// 	[self.windowController showErrorSheet:error];
-	// 	return NO;
-	// }
+	int retValue = 1;
+	NSArray *arguments;
+	
+	// Create annotated tag if message is provided, otherwise lightweight tag
+	if (message && message.length > 0) {
+		arguments = [NSArray arrayWithObjects:@"tag", @"-a", tagName, @"-m", message, [target refishName], nil];
+	} else {
+		arguments = [NSArray arrayWithObjects:@"tag", tagName, [target refishName], nil];
+	}
+	
+	NSString *output = [self outputForArguments:arguments retValue:&retValue];
+	if (retValue) {
+		NSString *errorMessage = [NSString stringWithFormat:@"There was an error creating the tag '%@' at %@ '%@'.", tagName, [target refishType], [target shortName]];
+		[self.windowController showErrorSheetTitle:@"Create Tag failed!" message:errorMessage arguments:arguments output:output];
+		return NO;
+	}
 
 	[self reloadRefs];
-	return YES; // Stub return value
+	return YES;
 }
 
 - (BOOL) deleteRemote:(PBGitRef *)ref
