@@ -332,15 +332,51 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 				continue;
 			}
 		}
-		// REPLACE WITH GIT EXEC - Disabled git status file checking for now
-		// int statusError = git_status_file(&fileStatus, self.repository.gtRepo.git_repository, eventRepoRelativePath.UTF8String);
-		// if (statusError == GIT_OK) {
-			// NSNumber *newStatus = @(fileStatus);
-			// self.statusCache[eventPath.path] = newStatus;
-
+		
+		// Use git status --porcelain to check file status
+		NSTask *statusTask = [[NSTask alloc] init];
+		statusTask.launchPath = @"/usr/bin/git";
+		statusTask.arguments = @[@"status", @"--porcelain", @"--", eventRepoRelativePath];
+		statusTask.currentDirectoryPath = workDir;
+		
+		NSPipe *statusPipe = [NSPipe pipe];
+		statusTask.standardOutput = statusPipe;
+		statusTask.standardError = [NSPipe pipe];
+		
+		@try {
+			[statusTask launch];
+			[statusTask waitUntilExit];
+			
+			if (statusTask.terminationStatus == 0) {
+				NSData *data = [[statusPipe fileHandleForReading] readDataToEndOfFile];
+				NSString *statusOutput = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+				statusOutput = [statusOutput stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+				
+				// If status output is not empty, the file has changes
+				if ([statusOutput length] > 0) {
+					// Convert git status flags to a simple numeric status for caching
+					NSInteger statusFlag = 1; // Non-zero indicates file has changes
+					if ([statusOutput hasPrefix:@"??"]) statusFlag = 2; // Untracked
+					else if ([statusOutput hasPrefix:@"A"]) statusFlag = 3; // Added
+					else if ([statusOutput hasPrefix:@"M"]) statusFlag = 4; // Modified
+					else if ([statusOutput hasPrefix:@"D"]) statusFlag = 5; // Deleted
+					
+					NSNumber *newStatus = @(statusFlag);
+					self.statusCache[eventPath.path] = newStatus;
+					
+					[paths addObject:eventPath.path];
+					event |= PBGitRepositoryWatcherEventTypeWorkingDirectory;
+				} else {
+					// File is clean, cache as such
+					self.statusCache[eventPath.path] = @(0);
+				}
+			}
+		}
+		@catch (NSException *exception) {
+			// On error, assume file has changes to be safe
 			[paths addObject:eventPath.path];
 			event |= PBGitRepositoryWatcherEventTypeWorkingDirectory;
-		// }
+		}
 	}
 
 	if(event != 0x0){
