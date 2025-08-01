@@ -63,8 +63,41 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 	repository = theRepository;
 
 	{
-		// REPLACE WITH GIT EXEC - Use repository workingDirectory to find git dir
-		gitDir = [[repository workingDirectory] stringByAppendingPathComponent:@".git"];
+		// Use git rev-parse --git-dir to find the actual git directory
+		NSTask *task = [[NSTask alloc] init];
+		task.launchPath = @"/usr/bin/git";
+		task.arguments = @[@"rev-parse", @"--git-dir"];
+		task.currentDirectoryPath = [repository workingDirectory];
+		
+		NSPipe *pipe = [NSPipe pipe];
+		task.standardOutput = pipe;
+		task.standardError = [NSPipe pipe];
+		
+		@try {
+			[task launch];
+			[task waitUntilExit];
+			
+			if (task.terminationStatus == 0) {
+				NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+				NSString *gitDirPath = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+				gitDirPath = [gitDirPath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+				
+				// Handle relative paths by making them absolute
+				if (![gitDirPath isAbsolutePath]) {
+					gitDir = [[[repository workingDirectory] stringByAppendingPathComponent:gitDirPath] stringByStandardizingPath];
+				} else {
+					gitDir = gitDirPath;
+				}
+			} else {
+				// Fallback to the old method
+				gitDir = [[repository workingDirectory] stringByAppendingPathComponent:@".git"];
+			}
+		}
+		@catch (NSException *exception) {
+			// Fallback to the old method on error
+			gitDir = [[repository workingDirectory] stringByAppendingPathComponent:@".git"];
+		}
+		
 		if (!gitDir) {
 			return nil;
 		}
