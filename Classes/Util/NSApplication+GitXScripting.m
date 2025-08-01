@@ -12,7 +12,6 @@
 #import "PBGitRepository.h"
 #import "PBCloneRepositoryPanel.h"
 
-// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
 // #import <ObjectiveGit/GTRepository.h>
 
 
