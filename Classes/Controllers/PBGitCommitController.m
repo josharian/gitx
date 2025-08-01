@@ -107,17 +107,56 @@
 
 - (IBAction)signOff:(id)sender
 {
-	// REPLACE WITH GIT EXEC - Comment out GTConfiguration usage
-	// NSError *error = nil;
-	// GTConfiguration *config = [repository.gtRepo configurationWithError:&error];
-	// NSString* userName = [config stringForKey:@"user.name"];
-	// NSString* userEmail = [config stringForKey:@"user.email"];
-	// if (!(userName && userEmail))
-	// 	return [[repository windowController] showMessageSheet:@"User's name not set" infoText:@"Signing off a commit requires setting user.name and user.email in your git config"];
+	NSString* userName = nil;
+	NSString* userEmail = nil;
 	
-	// Stub values for now
-	NSString* userName = @"User";
-	NSString* userEmail = @"user@example.com";
+	// Get user.name
+	NSTask *nameTask = [[NSTask alloc] init];
+	nameTask.launchPath = @"/usr/bin/git";
+	nameTask.arguments = @[@"config", @"--get", @"user.name"];
+	nameTask.currentDirectoryPath = [repository workingDirectory];
+	
+	NSPipe *namePipe = [NSPipe pipe];
+	nameTask.standardOutput = namePipe;
+	nameTask.standardError = [NSPipe pipe];
+	
+	@try {
+		[nameTask launch];
+		[nameTask waitUntilExit];
+		
+		if (nameTask.terminationStatus == 0) {
+			NSData *data = [[namePipe fileHandleForReading] readDataToEndOfFile];
+			userName = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		}
+	} @catch (NSException *exception) {
+		// Git config failed
+	}
+	
+	// Get user.email
+	NSTask *emailTask = [[NSTask alloc] init];
+	emailTask.launchPath = @"/usr/bin/git";
+	emailTask.arguments = @[@"config", @"--get", @"user.email"];
+	emailTask.currentDirectoryPath = [repository workingDirectory];
+	
+	NSPipe *emailPipe = [NSPipe pipe];
+	emailTask.standardOutput = emailPipe;
+	emailTask.standardError = [NSPipe pipe];
+	
+	@try {
+		[emailTask launch];
+		[emailTask waitUntilExit];
+		
+		if (emailTask.terminationStatus == 0) {
+			NSData *data = [[emailPipe fileHandleForReading] readDataToEndOfFile];
+			userEmail = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		}
+	} @catch (NSException *exception) {
+		// Git config failed
+	}
+	
+	if (!(userName && userEmail && userName.length > 0 && userEmail.length > 0)) {
+		return [[repository windowController] showMessageSheet:@"User's name not set" infoText:@"Signing off a commit requires setting user.name and user.email in your git config"];
+	}
 	NSString *SOBline = [NSString stringWithFormat:@"Signed-off-by: %@ <%@>",
 				userName,
 				userEmail];
