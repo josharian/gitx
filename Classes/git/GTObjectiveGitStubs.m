@@ -48,7 +48,6 @@
 - (void)pushGlob:(NSString *)glob error:(NSError **)error { }
 - (void)pushSHA:(NSString *)sha error:(NSError **)error { }
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error {
-    // REPLACE WITH GIT EXEC - Stub that returns nil to end enumeration
     if (success) *success = NO;
     return nil;
 }
