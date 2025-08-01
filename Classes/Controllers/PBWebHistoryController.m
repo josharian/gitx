@@ -171,7 +171,6 @@ contextMenuItemsForElement:(NSDictionary *)element
 
 - getConfig:(NSString *)key
 {
-	// REPLACE WITH GIT EXEC - Use git config instead of GTConfiguration
 	NSTask *task = [[NSTask alloc] init];
 	task.launchPath = @"/usr/bin/git";
 	task.arguments = @[@"config", @"--get", key];
