@@ -247,7 +247,6 @@
 	if ([[sender refish] refishType] != kGitXTagType)
 		return;
 
-	// REPLACE WITH GIT EXEC - Use git tag -n to get tag message instead of GTObject/GTTag
 	NSString *tagName = [(PBGitRef *)[sender refish] tagName];
 	NSString* title = [NSString stringWithFormat:@"Info for tag: %@", tagName];
 	NSString* info = @"";
