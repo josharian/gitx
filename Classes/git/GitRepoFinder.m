@@ -17,7 +17,6 @@
 		return nil;
 	}
 	
-	// REPLACE WITH GIT EXEC - Use git rev-parse --show-toplevel instead of libgit2
 	NSTask *task = [[NSTask alloc] init];
 	task.launchPath = @"/usr/bin/git";
 	task.arguments = @[@"rev-parse", @"--show-toplevel"];
