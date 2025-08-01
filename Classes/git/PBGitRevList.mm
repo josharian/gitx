@@ -265,7 +265,6 @@ using namespace std;
 			if (cachedCommit) {
 				newCommit = cachedCommit;
 			} else {
-				// REPLACE WITH GIT EXEC - Use SHA instead of GTCommit
 				newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andSHA:commit.SHA];
 				[self.commitCache setObject:newCommit forKey:commit.SHA];
 			}
