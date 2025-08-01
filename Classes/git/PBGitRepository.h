@@ -70,10 +70,6 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 @property (nonatomic, strong) NSMutableArray* submodules;
 
 - (void) cloneRepositoryToPath:(NSString *)path bare:(BOOL)isBare;
-- (void) beginAddRemote:(NSString *)remoteName forURL:(NSString *)remoteURL;
-- (void) beginFetchFromRemoteForRef:(PBGitRef *)ref;
-- (void) beginPullFromRemote:(PBGitRef *)remoteRef forRef:(PBGitRef *)ref;
-- (void) beginPushRef:(PBGitRef *)ref toRemote:(PBGitRef *)remoteRef;
 - (BOOL) checkoutRefish:(id <PBGitRefish>)ref;
 - (BOOL) checkoutFiles:(NSArray *)files fromRefish:(id <PBGitRefish>)ref;
 - (BOOL) mergeWithRefish:(id <PBGitRefish>)ref;
@@ -81,7 +77,6 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 - (BOOL) rebaseBranch:(id <PBGitRefish>)branch onRefish:(id <PBGitRefish>)upstream;
 - (BOOL) createBranch:(NSString *)branchName atRefish:(id <PBGitRefish>)ref;
 - (BOOL) createTag:(NSString *)tagName message:(NSString *)message atRefish:(id <PBGitRefish>)commitSHA;
-- (BOOL) deleteRemote:(PBGitRef *)ref;
 - (BOOL) deleteRef:(PBGitRef *)ref;
 
 - (NSURL *) gitURL ;

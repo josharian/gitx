@@ -13,7 +13,6 @@
 #import "PBRefController.h"
 #import "PBSourceViewCell.h"
 #import "NSOutlineViewExt.h"
-#import "PBAddRemoteSheet.h"
 #import "PBGitDefaults.h"
 #import "PBHistorySearchController.h"
 
@@ -452,50 +451,13 @@ enum  {
 
 - (void) updateRemoteControls
 {
-	BOOL hasRemote = NO;
-
-	PBGitRef *ref = [[self selectedItem] ref];
-	if ([ref isRemote] || ([ref isBranch] && [[repository remoteRefForBranch:ref error:NULL] remoteName]))
-		hasRemote = YES;
-
-	[remoteControls setEnabled:hasRemote forSegment:kFetchSegment];
-	[remoteControls setEnabled:hasRemote forSegment:kPullSegment];
-	[remoteControls setEnabled:hasRemote forSegment:kPushSegment];
+	[remoteControls setEnabled:NO forSegment:kFetchSegment];
+	[remoteControls setEnabled:NO forSegment:kPullSegment];
+	[remoteControls setEnabled:NO forSegment:kPushSegment];
 }
 
 - (IBAction) fetchPullPushAction:(id)sender
 {
-	NSInteger selectedSegment = [sender selectedSegment];
-
-	if (selectedSegment == kAddRemoteSegment) {
-		[[[PBAddRemoteSheet alloc] initWithRepository:repository] show];
-		return;
-	}
-
-	NSInteger index = [sourceView selectedRow];
-	PBSourceViewItem *item = [sourceView itemAtRow:index];
-	PBGitRef *ref = [[item revSpecifier] ref];
-
-	if (!ref && (item.parent == remotes))
-		ref = [PBGitRef refFromString:[kGitXRemoteRefPrefix stringByAppendingString:[item title]]];
-
-	if (![ref isRemote] && ![ref isBranch])
-		return;
-
-	PBGitRef *remoteRef = [repository remoteRefForBranch:ref error:NULL];
-	if (!remoteRef)
-		return;
-
-	if (selectedSegment == kFetchSegment)
-		[repository beginFetchFromRemoteForRef:ref];
-	else if (selectedSegment == kPullSegment)
-		[repository beginPullFromRemote:remoteRef forRef:ref];
-	else if (selectedSegment == kPushSegment) {
-		if ([ref isRemote])
-			[historyViewController.refController showConfirmPushRefSheet:nil remote:remoteRef];
-		else if ([ref isBranch])
-			[historyViewController.refController showConfirmPushRefSheet:ref remote:remoteRef];
-	}
 }
 
 

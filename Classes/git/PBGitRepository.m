@@ -15,7 +15,6 @@
 #import "PBEasyPipe.h"
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
-#import "PBRemoteProgressSheet.h"
 #import "PBGitRevList.h"
 #import "PBGitDefaults.h"
 #import "GitXScriptingConstants.h"
@@ -914,98 +913,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if (isBare)
 		[arguments insertObject:@"--bare" atIndex:1];
 
-	NSString *description = [NSString stringWithFormat:@"Cloning the repository %@ to %@", [self projectName], path];
-	NSString *title = @"Cloning Repository";
-	[PBRemoteProgressSheet beginRemoteProgressSheetForArguments:arguments title:title description:description inRepository:self];
+	// Cloning has been disabled in this version
 }
 
-- (void) beginAddRemote:(NSString *)remoteName forURL:(NSString *)remoteURL
-{
-	NSArray *arguments = [NSArray arrayWithObjects:@"remote",  @"add", @"-f", remoteName, remoteURL, nil];
-
-	NSString *description = [NSString stringWithFormat:@"Adding the remote %@ and fetching tracking branches", remoteName];
-	NSString *title = @"Adding a remote";
-	[PBRemoteProgressSheet beginRemoteProgressSheetForArguments:arguments title:title description:description inRepository:self];
-}
-
-- (void) beginFetchFromRemoteForRef:(PBGitRef *)ref
-{
-	NSMutableArray *arguments = [NSMutableArray arrayWithObject:@"fetch"];
-
-	if (![ref isRemote]) {
-		NSError *error = nil;
-		ref = [self remoteRefForBranch:ref error:&error];
-		if (!ref) {
-			if (error)
-				[self.windowController showErrorSheet:error];
-			return;
-		}
-	}
-	NSString *remoteName = [ref remoteName];
-	[arguments addObject:remoteName];
-
-	NSString *description = [NSString stringWithFormat:@"Fetching all tracking branches from %@", remoteName];
-	NSString *title = @"Fetching from remote";
-	[PBRemoteProgressSheet beginRemoteProgressSheetForArguments:arguments title:title description:description inRepository:self];
-}
-
-- (void) beginPullFromRemote:(PBGitRef *)remoteRef forRef:(PBGitRef *)ref
-{
-	NSMutableArray *arguments = [NSMutableArray arrayWithObject:@"pull"];
-
-	// a nil remoteRef means lookup the ref's default remote
-	if (!remoteRef || ![remoteRef isRemote]) {
-		NSError *error = nil;
-		remoteRef = [self remoteRefForBranch:ref error:&error];
-		if (!remoteRef) {
-			if (error)
-				[self.windowController showErrorSheet:error];
-			return;
-		}
-	}
-	NSString *remoteName = [remoteRef remoteName];
-	[arguments addObject:remoteName];
-
-	NSString *description = [NSString stringWithFormat:@"Pulling all tracking branches from %@", remoteName];
-	NSString *title = @"Pulling from remote";
-	[PBRemoteProgressSheet beginRemoteProgressSheetForArguments:arguments title:title description:description inRepository:self hideSuccessScreen:true];
-}
-
-- (void) beginPushRef:(PBGitRef *)ref toRemote:(PBGitRef *)remoteRef
-{
-	NSMutableArray *arguments = [NSMutableArray arrayWithObject:@"push"];
-
-	// a nil remoteRef means lookup the ref's default remote
-	if (!remoteRef || ![remoteRef isRemote]) {
-		NSError *error = nil;
-		remoteRef = [self remoteRefForBranch:ref error:&error];
-		if (!remoteRef) {
-			if (error)
-				[self.windowController showErrorSheet:error];
-			return;
-		}
-	}
-	NSString *remoteName = [remoteRef remoteName];
-	[arguments addObject:remoteName];
-
-	NSString *branchName = nil;
-	if ([ref isRemote] || !ref) {
-		branchName = @"all updates";
-	}
-	else if ([ref isTag]) {
-		branchName = [NSString stringWithFormat:@"tag '%@'", [ref tagName]];
-		[arguments addObject:@"tag"];
-		[arguments addObject:[ref tagName]];
-	}
-	else {
-		branchName = [ref shortName];
-		[arguments addObject:branchName];
-	}
-
-	NSString *description = [NSString stringWithFormat:@"Pushing %@ to %@", branchName, remoteName];
-	NSString *title = @"Pushing to remote";
-	[PBRemoteProgressSheet beginRemoteProgressSheetForArguments:arguments title:title description:description inRepository:self hideSuccessScreen:true];
-}
 
 - (BOOL) checkoutRefish:(id <PBGitRefish>)ref
 {
@@ -1164,42 +1074,13 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return YES;
 }
 
-- (BOOL) deleteRemote:(PBGitRef *)ref
-{
-	if (!ref || ([ref refishType] != kGitXRemoteType))
-		return NO;
-
-	int retValue = 1;
-	NSArray *arguments = [NSArray arrayWithObjects:@"remote", @"rm", [ref remoteName], nil];
-	NSString * output = [self outputForArguments:arguments retValue:&retValue];
-	if (retValue) {
-		NSString *message = [NSString stringWithFormat:@"There was an error deleting the remote: %@\n\n", [ref remoteName]];
-		[self.windowController showErrorSheetTitle:@"Delete remote failed!" message:message arguments:arguments output:output];
-		return NO;
-	}
-
-	// remove the remote's branches
-	NSString *remoteRef = [kGitXRemoteRefPrefix stringByAppendingString:[ref remoteName]];
-	for (PBGitRevSpecifier *rev in [self.branchesSet copy]) {
-		PBGitRef *branch = [rev ref];
-		if ([[branch ref] hasPrefix:remoteRef]) {
-			[self removeBranch:rev];
-			PBGitCommit *commit = [self commitForRef:branch];
-			[commit removeRef:branch];
-		}
-	}
-
-	[self reloadRefs];
-	return YES;
-}
-
 - (BOOL) deleteRef:(PBGitRef *)ref
 {
 	if (!ref)
 		return NO;
 
 	if ([ref refishType] == kGitXRemoteType)
-		return [self deleteRemote:ref];
+		return NO;
 
 	int retValue = 1;
 	NSArray *arguments = [NSArray arrayWithObjects:@"update-ref", @"-d", [ref ref], nil];

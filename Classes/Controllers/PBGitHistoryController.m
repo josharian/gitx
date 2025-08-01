@@ -20,7 +20,6 @@
 #import "PBCommitList.h"
 #import "PBCreateBranchSheet.h"
 #import "PBCreateTagSheet.h"
-#import "PBAddRemoteSheet.h"
 #import "PBGitSidebarController.h"
 #import "PBGitGradientBarView.h"
 #import "PBDiffWindowController.h"
@@ -746,10 +745,6 @@
 		[PBCreateTagSheet beginCreateTagSheetAtRefish:selectedCommit inRepository:repository];
 }
 
-- (IBAction) showAddRemoteSheet:(id)sender
-{
-	[[[PBAddRemoteSheet alloc] initWithRepository:self.repository] show];
-}
 
 - (IBAction) merge:(id)sender
 {

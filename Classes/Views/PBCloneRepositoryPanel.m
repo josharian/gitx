@@ -7,7 +7,6 @@
 //
 
 #import "PBCloneRepositoryPanel.h"
-#import "PBRemoteProgressSheet.h"
 #import "PBGitDefaults.h"
 
 
@@ -111,17 +110,7 @@
 		return;
 	}
 
-	NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"clone", @"--", url, path, nil];
-	if (isBare)
-		[arguments insertObject:@"--bare" atIndex:1];
-	
-	NSString *description = [NSString stringWithFormat:@"Cloning repository at: %@", url];
-	NSString *title = @"Cloning Repository";
-	[PBRemoteProgressSheet beginRemoteProgressSheetForArguments:arguments
-														  title:title
-													description:description
-														  inDir:nil
-											   windowController:nil/*self?*/];
+	[self.errorMessage setStringValue:@"Cloning is not supported in this version."];
 }
 
 
