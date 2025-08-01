@@ -23,6 +23,7 @@
 #import "PBGitRepositoryWatcher.h"
 #import "GitRepoFinder.h"
 #import "PBGitHistoryList.h"
+#import "PBGitSVSubmoduleItem.h"
 
 
 NSString *PBGitRepositoryDocumentType = @"Git Repository";
@@ -354,12 +355,51 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (void)loadSubmodules
 {
-    // REPLACE WITH GIT EXEC - Comment out GTSubmodule enumeration
     self.submodules = [NSMutableArray array];
     
-    // [self.gtRepo enumerateSubmodulesRecursively:NO usingBlock:^(GTSubmodule *gtSubmodule, NSError *error, BOOL *stop) {
-    //     [self.submodules addObject:gtSubmodule];
-    // }];
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = @"/usr/bin/git";
+    task.arguments = @[@"submodule", @"status"];
+    task.currentDirectoryPath = [self workingDirectory];
+    
+    NSPipe *pipe = [NSPipe pipe];
+    task.standardOutput = pipe;
+    
+    @try {
+        [task launch];
+        [task waitUntilExit];
+        
+        if (task.terminationStatus == 0) {
+            NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+            NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            
+            if ([output length] > 0) {
+                NSArray *lines = [output componentsSeparatedByString:@"\n"];
+                for (NSString *line in lines) {
+                    // Git submodule status format: " <sha> <path> (<description>)"
+                    // First character indicates status: ' ' initialized, '-' not initialized, '+' modified
+                    if ([line length] > 42) { // Minimum: status char + 40 char SHA + space + path
+                        NSString *trimmedLine = [line substringFromIndex:1]; // Skip status character
+                        NSArray *components = [trimmedLine componentsSeparatedByString:@" "];
+                        if ([components count] >= 2) {
+                            NSString *path = [components objectAtIndex:1];
+                            
+                            PBSubmoduleInfo *submoduleInfo = [[PBSubmoduleInfo alloc] init];
+                            submoduleInfo.name = [path lastPathComponent];
+                            submoduleInfo.path = path;
+                            submoduleInfo.parentRepositoryURL = [NSURL fileURLWithPath:[self workingDirectory]];
+                            
+                            [self.submodules addObject:submoduleInfo];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Error loading submodules: %@", exception.reason);
+    }
 }
 
 - (void) reloadRefs
