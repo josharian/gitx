@@ -230,7 +230,6 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 
     NSMutableArray *paths = [NSMutableArray array];
 	for (PBGitRepositoryWatcherEventPath *eventPath in eventPaths) {
-		unsigned int fileStatus = 0;
 		if (![eventPath.path hasPrefix:workDir]) {
 			continue;
 		}
@@ -240,15 +239,34 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 			continue;
 		}
 		NSString *eventRepoRelativePath = [eventPath.path substringFromIndex:(workDir.length + 1)];
-		// REPLACE WITH GIT EXEC - Skip git ignore checking for now
-		int ignoreResult = 0;
-		int ignoreError = 1; // Assume error/not ignored
-		if (0) { // Disabled until replaced with git check-ignore
-			// file is covered by ignore rules
+		// Check if file is ignored using git check-ignore
+		NSTask *ignoreTask = [[NSTask alloc] init];
+		ignoreTask.launchPath = @"/usr/bin/git";
+		ignoreTask.arguments = @[@"check-ignore", eventRepoRelativePath];
+		ignoreTask.currentDirectoryPath = workDir;
+		
+		NSPipe *ignorePipe = [NSPipe pipe];
+		ignoreTask.standardOutput = ignorePipe;
+		ignoreTask.standardError = [NSPipe pipe];
+		
+		BOOL isIgnored = NO;
+		@try {
+			[ignoreTask launch];
+			[ignoreTask waitUntilExit];
+			
+			// git check-ignore returns 0 if the file is ignored, 1 if not ignored
+			isIgnored = (ignoreTask.terminationStatus == 0);
+		}
+		@catch (NSException *exception) {
+			// If git check-ignore fails, assume not ignored
+			isIgnored = NO;
+		}
+		
+		if (isIgnored) {
+			// File is ignored, check if we had a previous status
 			NSNumber *oldStatus = self.statusCache[eventPath.path];
-			// REPLACE WITH GIT EXEC - Remove git status constants
-			if (!oldStatus || [oldStatus isEqualToNumber:@(999)]) { // Placeholder
-				// no cached status or previously ignored - skip this file
+			if (!oldStatus || [oldStatus intValue] == 0) {
+				// No cached status or previously clean - skip this ignored file
 				continue;
 			}
 		}
