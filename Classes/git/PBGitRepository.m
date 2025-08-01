@@ -286,9 +286,38 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 }
 
 - (NSURL *)gitURL {
-    // REPLACE WITH GIT EXEC - Return standard .git directory path
-    NSString *gitPath = [[self workingDirectory] stringByAppendingPathComponent:@".git"];
-    return [NSURL fileURLWithPath:gitPath];
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"rev-parse", @"--git-dir"];
+	task.currentDirectoryPath = [self workingDirectory];
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *gitPath = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			gitPath = [gitPath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			// Convert relative path to absolute path
+			if (![gitPath isAbsolutePath]) {
+				gitPath = [[self workingDirectory] stringByAppendingPathComponent:gitPath];
+			}
+			
+			return [NSURL fileURLWithPath:gitPath];
+		}
+	}
+	@catch (NSException *exception) {
+		NSLog(@"Error getting git directory: %@", exception.reason);
+	}
+	
+	// Fallback to standard path if git command fails
+	NSString *gitPath = [[self workingDirectory] stringByAppendingPathComponent:@".git"];
+	return [NSURL fileURLWithPath:gitPath];
 }
 
 - (void)forceUpdateRevisions
