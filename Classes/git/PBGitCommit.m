@@ -11,7 +11,6 @@
 #import "PBGitTree.h"
 #import "PBGitRef.h"
 #import "PBGitDefaults.h"
-// REPLACE WITH GIT EXEC - Removed GTObjectiveGitStubs.h
 
 // REPLACE WITH GIT EXEC - Minimal stub implementations for ObjectiveGit classes
 @interface GTSignature : NSObject
@@ -77,10 +76,10 @@ NSString * const kGitXCommitType = @"commit";
 	}
 	self.repository = repo;
 	
-	// Use git show to populate commit data
+	// Use git show to populate commit data including parent SHAs
 	NSTask *gitTask = [[NSTask alloc] init];
 	gitTask.launchPath = @"/usr/bin/git";
-	gitTask.arguments = @[@"show", @"--format=%H%n%s%n%B%n%an%n%cn%n%ct", @"--no-patch", sha];
+	gitTask.arguments = @[@"show", @"--format=%H%n%s%n%B%n%an%n%cn%n%ct%n%P", @"--no-patch", sha];
 	gitTask.currentDirectoryPath = [repo.fileURL path];
 	
 	NSPipe *outputPipe = [NSPipe pipe];
@@ -98,7 +97,7 @@ NSString * const kGitXCommitType = @"commit";
 			NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
 			NSArray *lines = [output componentsSeparatedByString:@"\n"];
 			
-			if (lines.count >= 6) {
+			if (lines.count >= 7) {
 				NSString *shaString = lines[0];
 				commit.SHA = shaString;
 				commit.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
@@ -115,6 +114,23 @@ NSString * const kGitXCommitType = @"commit";
 				
 				NSTimeInterval timestamp = [lines[5] doubleValue];
 				commit.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
+				
+				// Parse parent commit SHAs
+				NSString *parentSHAsString = lines[6];
+				NSMutableArray *parentCommits = [NSMutableArray array];
+				if ([parentSHAsString length] > 0) {
+					NSArray *parentSHAs = [parentSHAsString componentsSeparatedByString:@" "];
+					for (NSString *parentSHA in parentSHAs) {
+						NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if ([trimmedSHA length] >= 40) {
+							GTCommit *parentCommit = [[GTCommit alloc] init];
+							parentCommit.SHA = trimmedSHA;
+							parentCommit.OID = [GTOID oidWithSHA:trimmedSHA];
+							[parentCommits addObject:parentCommit];
+						}
+					}
+				}
+				commit.parents = parentCommits;
 				
 				// Create GTOID for the SHA
 				GTOID *oid = [GTOID oidWithSHA:shaString];
