@@ -323,13 +323,52 @@ using namespace std;
 					}
 				}
 			} else {
-				// NSError *lookupError = nil;
-				// GTObject *obj = [repo lookUpObjectByRevParse:param error:&lookupError];
-				// if (obj && !lookupError) {
-				// 	[self addGitObject:obj toCommitSet:enumCommits];
-				// } else {
-				// 	[enumerator pushGlob:param error:&error];
-				// }
+				NSTask *gitTask = [[NSTask alloc] init];
+				gitTask.launchPath = @"/usr/bin/git";
+				gitTask.arguments = @[@"rev-parse", @"--verify", param];
+				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				
+				NSPipe *outputPipe = [NSPipe pipe];
+				gitTask.standardOutput = outputPipe;
+				gitTask.standardError = [NSPipe pipe];
+				
+				[gitTask launch];
+				[gitTask waitUntilExit];
+				
+				if (gitTask.terminationStatus == 0) {
+					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+					NSString *sha = [output stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+					
+					if (sha.length >= 40) {
+						[enumerator pushSHA:sha error:nil];
+					}
+				} else {
+					NSTask *globTask = [[NSTask alloc] init];
+					globTask.launchPath = @"/usr/bin/git";
+					globTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", param];
+					globTask.currentDirectoryPath = [rev.workingDirectory path];
+					
+					NSPipe *globOutputPipe = [NSPipe pipe];
+					globTask.standardOutput = globOutputPipe;
+					globTask.standardError = [NSPipe pipe];
+					
+					[globTask launch];
+					[globTask waitUntilExit];
+					
+					if (globTask.terminationStatus == 0) {
+						NSData *globOutputData = [[globOutputPipe fileHandleForReading] readDataToEndOfFile];
+						NSString *globOutput = [[NSString alloc] initWithData:globOutputData encoding:NSUTF8StringEncoding];
+						NSArray *shas = [globOutput componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+						
+						for (NSString *sha in shas) {
+							NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+							if ([trimmedSHA length] >= 40) {
+								[enumerator pushSHA:trimmedSHA error:nil];
+							}
+						}
+					}
+				}
 			}
 		}
 	}
