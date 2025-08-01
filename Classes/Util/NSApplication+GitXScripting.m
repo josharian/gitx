@@ -30,18 +30,37 @@
 
 - (void)initRepositoryScriptCommand:(NSScriptCommand *)command
 {
-    NSError *error = nil;
 	NSURL *repositoryURL = [command directParameter];
 	if (!repositoryURL)
         return;
 
-    // REPLACE WITH GIT EXEC - Comment out GTRepository initialization
-    // BOOL success = [GTRepository initializeEmptyRepositoryAtFileURL:repositoryURL error:&error];
-    // if (!success) {
-    //     NSLog(@"Failed to create repository at %@: %@", repositoryURL, error);
-    //     return;
-    // }
-    BOOL success = YES; // Stub value
+    // Initialize empty repository using git init
+    NSTask *gitTask = [[NSTask alloc] init];
+    gitTask.launchPath = @"/usr/bin/git";
+    gitTask.arguments = @[@"init"];
+    gitTask.currentDirectoryPath = [repositoryURL path];
+    
+    NSPipe *errorPipe = [NSPipe pipe];
+    gitTask.standardError = errorPipe;
+    
+    BOOL success = NO;
+    @try {
+        [gitTask launch];
+        [gitTask waitUntilExit];
+        
+        if (gitTask.terminationStatus == 0) {
+            success = YES;
+        } else {
+            NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
+            NSString *errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
+            NSLog(@"Failed to create repository at %@: %@", repositoryURL, errorOutput);
+            return;
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Failed to create repository at %@: %@", repositoryURL, exception.reason);
+        return;
+    }
 
     [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:repositoryURL
                                                                            display:YES
