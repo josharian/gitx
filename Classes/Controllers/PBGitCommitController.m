@@ -15,7 +15,6 @@
 #import "PBGitRepositoryWatcher.h"
 #import "PBCommitMessageView.h"
 
-// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
 // #import <ObjectiveGit/GTRepository.h>
 // #import <ObjectiveGit/GTConfiguration.h>
 
