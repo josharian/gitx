@@ -12,7 +12,6 @@
 #import "PBGitRef.h"
 #import "PBGitDefaults.h"
 
-// REPLACE WITH GIT EXEC - Minimal stub implementations for ObjectiveGit classes
 @interface GTSignature : NSObject
 @property (nonatomic, strong) NSString *name;
 @end
