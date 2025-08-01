@@ -91,7 +91,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
     NSError *error = nil;
 	NSURL *repoURL = [GitRepoFinder gitDirForURL:absoluteURL];
-    _gtRepo = [GTRepository repositoryWithURL:repoURL error:&error];
+    // REPLACE WITH GIT EXEC - Comment out GTRepository initialization
+    // _gtRepo = [GTRepository repositoryWithURL:repoURL error:&error];
+    _gtRepo = nil; // Stub for now
 	if (!_gtRepo) {
 		if (outError) {
 			NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -128,7 +130,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 - (NSString *)displayName
 {
     // Build our display name depending on the current HEAD and whether it's detached or not
-    if (self.gtRepo.isHEADDetached)
+    // REPLACE WITH GIT EXEC - Assume HEAD is not detached for now
+    if (NO) // self.gtRepo.isHEADDetached
 		return [NSString localizedStringWithFormat:@"%@ (detached HEAD)", self.projectName];
 
 	return [NSString localizedStringWithFormat:@"%@ (branch: %@)", self.projectName, [[self headRef] description]];
@@ -175,32 +178,22 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSURL *)getIndexURL
 {
-	NSError *error = nil;
-	GTIndex *index = [self.gtRepo indexWithError:&error];
-    if (index == nil) {
-        NSLog(@"getIndexURL failed with error %@", error);
-        return nil;
-    }
-	NSURL* result = index.fileURL;
-	return result;
+	// REPLACE WITH GIT EXEC - Return standard git index path
+	NSString *indexPath = [[self workingDirectory] stringByAppendingPathComponent:@".git/index"];
+	return [NSURL fileURLWithPath:indexPath];
 }
 
 - (BOOL)isBareRepository
 {
-    return self.gtRepo.isBare;
+    // REPLACE WITH GIT EXEC - Assume not bare for now
+    return NO;
 }
 
 - (BOOL)readHasSVNRemoteFromConfig
 {
-	NSError *error = nil;
-	GTConfiguration *config = [self.gtRepo configurationWithError:&error];
-	NSArray *allKeys = config.configurationKeys;
-	for (NSString *key in allKeys) {
-		if ([key hasPrefix:@"svn-remote."]) {
-			return TRUE;
-		}
-	}
-	return false;
+    // REPLACE WITH GIT EXEC - Use git config to check for SVN remote
+    // For now, return NO
+    return NO;
 }
 
 - (BOOL)hasSVNRemote
@@ -212,7 +205,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 }
 
 - (NSURL *)gitURL {
-    return self.gtRepo.gitDirectoryURL;
+    // REPLACE WITH GIT EXEC - Return standard .git directory path
+    NSString *gitPath = [[self workingDirectory] stringByAppendingPathComponent:@".git"];
+    return [NSURL fileURLWithPath:gitPath];
 }
 
 - (void)forceUpdateRevisions
@@ -240,86 +235,66 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return [[self windowControllers] objectAtIndex:0];
 }
 
-- (void)addRef:(GTReference *)gtRef
+- (void)addRef:(id)gtRef // REPLACE WITH GIT EXEC - Remove GTReference type
 {
-	GTObject *refTarget = gtRef.resolvedTarget;
-	if (![refTarget isKindOfClass:[GTObject class]]) {
-		NSLog(@"Tried to add invalid ref %@ -> %@", gtRef, refTarget);
-		return;
-	}
-
-	GTOID *sha = refTarget.OID;
-	if (!sha) {
-		NSLog(@"Couldn't determine sha for ref %@ -> %@", gtRef, refTarget);
-		return;
-	}
-
-	PBGitRef* ref = [[PBGitRef alloc] initWithString:gtRef.name];
-//	NSLog(@"addRef %@ %@ at %@", ref.type, gtRef.name, [sha string]);
-	NSMutableArray* curRefs = refs[sha];
-	if ( curRefs != nil ) {
-		if ([curRefs containsObject:ref]) {
-			NSLog(@"Duplicate ref shouldn't be added: %@", ref);
-			return;
-		}
-		[curRefs addObject:ref];
-	} else {
-		refs[sha] = [NSMutableArray arrayWithObject:ref];
-	}
+    // REPLACE WITH GIT EXEC - Comment out GTReference/GTObject handling
+    NSLog(@"addRef method disabled until replaced with git show-ref");
+    return;
 }
 
 - (void)loadSubmodules
 {
+    // REPLACE WITH GIT EXEC - Comment out GTSubmodule enumeration
     self.submodules = [NSMutableArray array];
-
-    [self.gtRepo enumerateSubmodulesRecursively:NO usingBlock:^(GTSubmodule *gtSubmodule, NSError *error, BOOL *stop) {
-		[self.submodules addObject:gtSubmodule];
-    }];
+    
+    // [self.gtRepo enumerateSubmodulesRecursively:NO usingBlock:^(GTSubmodule *gtSubmodule, NSError *error, BOOL *stop) {
+    //     [self.submodules addObject:gtSubmodule];
+    // }];
 }
 
 - (void) reloadRefs
 {
+	// REPLACE WITH GIT EXEC - Comment out GTReference enumeration
 	// clear out ref caches
 	_headRef = nil;
 	_headSha = nil;
 	self->refs = [NSMutableDictionary dictionary];
 	
-	NSError* error = nil;
-	NSArray* allRefs = [self.gtRepo referenceNamesWithError:&error];
+	// NSError* error = nil;
+	// NSArray* allRefs = [self.gtRepo referenceNamesWithError:&error];
 	
-	// load all named refs
-	NSMutableOrderedSet *oldBranches = [self.branchesSet mutableCopy];
-	for (NSString* referenceName in allRefs)
-	{
-		GTReference* gtRef =
-		[[GTReference alloc] initByLookingUpReferenceNamed:referenceName
-											  inRepository:self.gtRepo
-													 error:&error];
-		
-		if (gtRef == nil)
-		{
-			NSLog(@"Reference \"%@\" could not be found in the repository", referenceName);
-			if (error)
-			{
-				NSLog(@"Error loading reference was: %@", error);
-			}
-			continue;
-		}
-		if (gtRef.remote && gtRef.referenceType == GTReferenceTypeSymbolic) {
-			// Hide remote symbolic references like origin/HEAD
-			continue;
-		}
-		PBGitRef* gitRef = [PBGitRef refFromString:referenceName];
-		PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
-		[self addBranch:revSpec];
-		[self addRef:gtRef];
-		[oldBranches removeObject:revSpec];
-	}
-	
-	for (PBGitRevSpecifier *branch in oldBranches)
-		if ([branch isSimpleRef] && ![branch isEqual:[self headRef]])
-			[self removeBranch:branch];
-
+	// // load all named refs
+	// NSMutableOrderedSet *oldBranches = [self.branchesSet mutableCopy];
+	// for (NSString* referenceName in allRefs)
+	// {
+	// 	GTReference* gtRef =
+	// 	[[GTReference alloc] initByLookingUpReferenceNamed:referenceName
+	// 										  inRepository:self.gtRepo
+	// 												 error:&error];
+	// 	
+	// 	if (gtRef == nil)
+	// 	{
+	// 		NSLog(@"Reference \"%@\" could not be found in the repository", referenceName);
+	// 		if (error)
+	// 		{
+	// 			NSLog(@"Error loading reference was: %@", error);
+	// 		}
+	// 		continue;
+	// 	}
+	// 	if (gtRef.remote && gtRef.referenceType == GTReferenceTypeSymbolic) {
+	// 		// Hide remote symbolic references like origin/HEAD
+	// 		continue;
+	// 	}
+	// 	PBGitRef* gitRef = [PBGitRef refFromString:referenceName];
+	// 	PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
+	// 	[self addBranch:revSpec];
+	// 	[self addRef:gtRef];
+	// 	[oldBranches removeObject:revSpec];
+	// }
+	// 
+	// for (PBGitRevSpecifier *branch in oldBranches)
+	// 	if ([branch isSimpleRef] && ![branch isEqual:[self headRef]])
+	// 		[self removeBranch:branch];
 
     [self loadSubmodules];
     
@@ -385,26 +360,27 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
     }
     
 	
-	NSError* error = nil;
-	GTReference* gtRef = [GTReference referenceByLookingUpReferencedNamed:ref.ref
-															 inRepository:self.gtRepo
-																	error:&error];
-	if (error)
-	{
-		NSLog(@"Error looking up ref for %@", ref.ref);
-		return nil;
-	}
-	const git_oid* refOid = gtRef.git_oid;
-	
-	if (refOid)
-	{
-		char buffer[41];
-		buffer[40] = '\0';
-		git_oid_fmt(buffer, refOid);
-		NSString* shaForRef = [NSString stringWithUTF8String:buffer];
-		GTOID* result = [GTOID oidWithSHA: shaForRef];
-		return result;
-	}
+	// REPLACE WITH GIT EXEC - Comment out GTReference lookup
+	// NSError* error = nil;
+	// GTReference* gtRef = [GTReference referenceByLookingUpReferencedNamed:ref.ref
+	// 														 inRepository:self.gtRepo
+	// 																error:&error];
+	// if (error)
+	// {
+	// 	NSLog(@"Error looking up ref for %@", ref.ref);
+	// 	return nil;
+	// }
+	// const git_oid* refOid = gtRef.git_oid;
+	// 
+	// if (refOid)
+	// {
+	// 	char buffer[41];
+	// 	buffer[40] = '\0';
+	// 	git_oid_fmt(buffer, refOid);
+	// 	NSString* shaForRef = [NSString stringWithUTF8String:buffer];
+	// 	GTOID* result = [GTOID oidWithSHA: shaForRef];
+	// 	return result;
+	// }
 	return nil;
 }
 
@@ -483,18 +459,21 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (BOOL) checkRefFormat:(NSString *)refName
 {
-	BOOL result = [GTReference isValidReferenceName:refName];
-	return result;
+	// REPLACE WITH GIT EXEC - Comment out GTReference validation
+	// BOOL result = [GTReference isValidReferenceName:refName];
+	// return result;
+	return YES; // Stub return value
 }
 
 - (BOOL) refExists:(PBGitRef *)ref
 {
-	NSError *gtError = nil;
-	GTReference *gtRef = [GTReference referenceByLookingUpReferencedNamed:ref.ref inRepository:self.gtRepo error:&gtError];
-	if (gtRef) {
-		return YES;
-	}
-	return NO;
+	// REPLACE WITH GIT EXEC - Comment out GTReference lookup
+	// NSError *gtError = nil;
+	// GTReference *gtRef = [GTReference referenceByLookingUpReferencedNamed:ref.ref inRepository:self.gtRepo error:&gtError];
+	// if (gtRef) {
+	// 	return YES;
+	// }
+	return NO; // Stub return value
 }
 
 // useful for getting the full ref for a user entered name
@@ -568,16 +547,17 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSString *) workingDirectory
 {
-	const char* workdir = git_repository_workdir(self.gtRepo.git_repository);
-	if (workdir)
-	{
-		NSString* result = [[NSString stringWithUTF8String:workdir] stringByStandardizingPath];
-		return result;
-	}
-    else
-	{
-        return self.fileURL.path;
-	}
+	// REPLACE WITH GIT EXEC - Comment out git_repository_workdir
+	// const char* workdir = git_repository_workdir(self.gtRepo.git_repository);
+	// if (workdir)
+	// {
+	// 	NSString* result = [[NSString stringWithUTF8String:workdir] stringByStandardizingPath];
+	// 	return result;
+	// }
+	// else
+	// {
+		return self.fileURL.path;
+	// }
 }
 
 #pragma mark Remotes
@@ -603,22 +583,23 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		return [branch remoteRef];
 	}
 
-	NSString *branchRef = branch.ref;
-	if (branchRef) {
-		NSError *branchError = nil;
-		BOOL lookupSuccess = NO;
-		GTBranch *gtBranch = [self.gtRepo lookUpBranchWithName:branch.branchName type:GTBranchTypeLocal success:&lookupSuccess error:&branchError];
-		if (gtBranch && lookupSuccess) {
-			NSError *trackingError = nil;
-			BOOL trackingSuccess = NO;
-			GTBranch *trackingBranch = [gtBranch trackingBranchWithError:&trackingError success:&trackingSuccess];
-			if (trackingBranch && trackingSuccess) {
-				NSString *trackingBranchRefName = trackingBranch.reference.name;
-				PBGitRef *trackingBranchRef = [PBGitRef refFromString:trackingBranchRefName];
-				return trackingBranchRef;
-			}
-		}
-	}
+	// REPLACE WITH GIT EXEC - Comment out GTBranch lookups
+	// NSString *branchRef = branch.ref;
+	// if (branchRef) {
+	// 	NSError *branchError = nil;
+	// 	BOOL lookupSuccess = NO;
+	// 	GTBranch *gtBranch = [self.gtRepo lookUpBranchWithName:branch.branchName type:GTBranchTypeLocal success:&lookupSuccess error:&branchError];
+	// 	if (gtBranch && lookupSuccess) {
+	// 		NSError *trackingError = nil;
+	// 		BOOL trackingSuccess = NO;
+	// 		GTBranch *trackingBranch = [gtBranch trackingBranchWithError:&trackingError success:&trackingSuccess];
+	// 		if (trackingBranch && trackingSuccess) {
+	// 			NSString *trackingBranchRefName = trackingBranch.reference.name;
+	// 			PBGitRef *trackingBranchRef = [PBGitRef refFromString:trackingBranchRefName];
+	// 			return trackingBranchRef;
+	// 		}
+	// 	}
+	// }
 
 	if (error != NULL) {
 		NSString *info = [NSString stringWithFormat:@"There is no remote configured for the %@ '%@'.\n\nPlease select a branch from the popup menu, which has a corresponding remote tracking branch set up.\n\nYou can also use a contextual menu to choose a branch by right clicking on its label in the commit history list.", [branch refishType], [branch shortName]];
@@ -878,24 +859,25 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (BOOL) createTag:(NSString *)tagName message:(NSString *)message atRefish:(id <PBGitRefish>)target
 {
+	// REPLACE WITH GIT EXEC - Comment out GTObject/GTTag creation
 	if (!tagName)
 		return NO;
 
-	NSError *error = nil;
-
-	GTObject *object = [self.gtRepo lookUpObjectByRevParse:[target refishName] error:&error];
-	GTTag *newTag = nil;
-	if (object && !error) {
-		newTag = [self.gtRepo createTagNamed:tagName target:object tagger:self.gtRepo.userSignatureForNow message:message error:&error];
-	}
-
-	if (!newTag || error) {
-		[self.windowController showErrorSheet:error];
-		return NO;
-	}
+	// NSError *error = nil;
+	// 
+	// GTObject *object = [self.gtRepo lookUpObjectByRevParse:[target refishName] error:&error];
+	// GTTag *newTag = nil;
+	// if (object && !error) {
+	// 	newTag = [self.gtRepo createTagNamed:tagName target:object tagger:self.gtRepo.userSignatureForNow message:message error:&error];
+	// }
+	// 
+	// if (!newTag || error) {
+	// 	[self.windowController showErrorSheet:error];
+	// 	return NO;
+	// }
 
 	[self reloadRefs];
-	return YES;
+	return YES; // Stub return value
 }
 
 - (BOOL) deleteRemote:(PBGitRef *)ref

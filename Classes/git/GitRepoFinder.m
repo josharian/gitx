@@ -16,20 +16,36 @@
 	{
 		return nil;
 	}
-	git_repository* repo = nil;
-	git_repository_open_ext(&repo, fileURL.path.UTF8String, GIT_REPOSITORY_OPEN_CROSS_FS, NULL);
-	if (!repo)
-	{
-		return nil;
+	
+	// REPLACE WITH GIT EXEC - Use git rev-parse --show-toplevel instead of libgit2
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"rev-parse", @"--show-toplevel"];
+	task.currentDirectoryPath = fileURL.path;
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *workdir = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			workdir = [workdir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			if (workdir.length > 0) {
+				return [NSURL fileURLWithPath:workdir];
+			}
+		}
 	}
-	const char* workdir = git_repository_workdir(repo);
-	NSURL* result = nil;
-	if (workdir)
-	{
-		result = [NSURL fileURLWithPath:[NSString stringWithUTF8String:workdir]];
+	@catch (NSException *exception) {
+		// Git not found or other error
 	}
-	git_repository_free(repo); repo = nil;
-	return result;
+	
+	return nil;
 }
 
 + (NSURL *)gitDirForURL:(NSURL *)fileURL
@@ -38,30 +54,43 @@
 	{
 		return nil;
 	}
-	git_buf path_buffer = {NULL, 0, 0};
-	int gitResult = git_repository_discover(&path_buffer,
-											[fileURL.path UTF8String],
-											GIT_REPOSITORY_OPEN_CROSS_FS,
-											nil);
 	
-	NSData *repoPathBuffer = nil;
-	if (path_buffer.ptr) {
-		repoPathBuffer = [NSData dataWithBytes:path_buffer.ptr length:path_buffer.asize];
-		git_buf_free(&path_buffer);
-	}
+	// REPLACE WITH GIT EXEC - Use git rev-parse --git-dir instead of libgit2
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"rev-parse", @"--git-dir"];
+	task.currentDirectoryPath = fileURL.path;
 	
-	if (gitResult == GIT_OK && repoPathBuffer.length)
-	{
-		NSString* repoPath = [NSString stringWithUTF8String:repoPathBuffer.bytes];
-		BOOL isDirectory;
-		if ([[NSFileManager defaultManager] fileExistsAtPath:repoPath
-												 isDirectory:&isDirectory] && isDirectory)
-		{
-			NSURL* result = [NSURL fileURLWithPath:repoPath
-									   isDirectory:isDirectory];
-			return result;
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *gitDir = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			gitDir = [gitDir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			if (gitDir.length > 0) {
+				// Handle relative paths
+				if (![gitDir hasPrefix:@"/"]) {
+					gitDir = [[fileURL.path stringByAppendingPathComponent:gitDir] stringByStandardizingPath];
+				}
+				
+				BOOL isDirectory;
+				if ([[NSFileManager defaultManager] fileExistsAtPath:gitDir isDirectory:&isDirectory] && isDirectory) {
+					return [NSURL fileURLWithPath:gitDir isDirectory:YES];
+				}
+			}
 		}
 	}
+	@catch (NSException *exception) {
+		// Git not found or other error
+	}
+	
 	return nil;
 }
 

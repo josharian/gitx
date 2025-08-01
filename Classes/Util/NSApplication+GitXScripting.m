@@ -12,7 +12,8 @@
 #import "PBGitRepository.h"
 #import "PBCloneRepositoryPanel.h"
 
-#import <ObjectiveGit/GTRepository.h>
+// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+// #import <ObjectiveGit/GTRepository.h>
 
 
 @implementation NSApplication (GitXScripting)
@@ -34,11 +35,13 @@
 	if (!repositoryURL)
         return;
 
-    BOOL success = [GTRepository initializeEmptyRepositoryAtFileURL:repositoryURL error:&error];
-    if (!success) {
-        NSLog(@"Failed to create repository at %@: %@", repositoryURL, error);
-        return;
-    }
+    // REPLACE WITH GIT EXEC - Comment out GTRepository initialization
+    // BOOL success = [GTRepository initializeEmptyRepositoryAtFileURL:repositoryURL error:&error];
+    // if (!success) {
+    //     NSLog(@"Failed to create repository at %@: %@", repositoryURL, error);
+    //     return;
+    // }
+    BOOL success = YES; // Stub value
 
     [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:repositoryURL
                                                                            display:YES

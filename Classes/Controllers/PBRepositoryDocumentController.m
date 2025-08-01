@@ -13,7 +13,8 @@
 #import "PBGitBinary.h"
 #import "GitRepoFinder.h"
 
-#import <ObjectiveGit/GTRepository.h>
+// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+// #import <ObjectiveGit/GTRepository.h>
 
 @implementation PBRepositoryDocumentController
 // This method is overridden to configure the open panel to only allow
@@ -41,9 +42,34 @@
         return nil;
     }
 
-    BOOL success = [GTRepository initializeEmptyRepositoryAtFileURL:[op URL] error:outError];
-    if (!success)
+    // REPLACE WITH GIT EXEC - Use git init instead of GTRepository
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = @"/usr/bin/git";
+    task.arguments = @[@"init"];
+    task.currentDirectoryPath = [[op URL] path];
+    
+    NSPipe *pipe = [NSPipe pipe];
+    task.standardOutput = pipe;
+    task.standardError = pipe;
+    
+    BOOL success = NO;
+    @try {
+        [task launch];
+        [task waitUntilExit];
+        success = (task.terminationStatus == 0);
+    }
+    @catch (NSException *exception) {
+        success = NO;
+    }
+    
+    if (!success) {
+        if (outError) {
+            *outError = [NSError errorWithDomain:@"GitXError" 
+                                           code:1 
+                                       userInfo:@{NSLocalizedDescriptionKey: @"Failed to initialize Git repository"}];
+        }
         return nil; // Repo creation failed
+    }
 
     return [[PBGitRepository alloc] initWithContentsOfURL:[op URL] ofType:PBGitRepositoryDocumentType error:outError];
 }

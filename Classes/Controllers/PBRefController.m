@@ -247,20 +247,47 @@
 	if ([[sender refish] refishType] != kGitXTagType)
 		return;
 
-	NSError *error = nil;
+	// REPLACE WITH GIT EXEC - Use git tag -n to get tag message instead of GTObject/GTTag
 	NSString *tagName = [(PBGitRef *)[sender refish] tagName];
-	NSString *tagRef = [@"refs/tags/" stringByAppendingString:tagName];
-	GTObject *object = [historyController.repository.gtRepo lookUpObjectByRevParse:tagRef error:&error];
-	if (!object) {
-		NSLog(@"Couldn't look up ref %@:%@", tagRef, [error debugDescription]);
-		return;
-	}
 	NSString* title = [NSString stringWithFormat:@"Info for tag: %@", tagName];
 	NSString* info = @"";
-	if ([object isKindOfClass:[GTTag class]]) {
-		GTTag *tag = (GTTag*)object;
-		info = tag.message;
+	
+	// Use git tag -n to get tag annotation
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"tag", @"-n", @"--", tagName];
+	task.currentDirectoryPath = [historyController.repository workingDirectory];
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			// Parse the output - git tag -n shows "tagname    message"
+			NSArray *components = [output componentsSeparatedByString:@"\t"];
+			if (components.count > 1) {
+				info = [components objectAtIndex:1];
+			} else {
+				// Try splitting by spaces if no tab
+				NSRange spaceRange = [output rangeOfString:@" "];
+				if (spaceRange.location != NSNotFound) {
+					info = [output substringFromIndex:spaceRange.location + 1];
+				}
+			}
+		}
 	}
+	@catch (NSException *exception) {
+		NSLog(@"Couldn't look up tag %@: %@", tagName, exception.reason);
+	}
+	
 	[historyController.repository.windowController showMessageSheet:title infoText:info];
 }
 

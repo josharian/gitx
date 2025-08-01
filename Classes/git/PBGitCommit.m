@@ -11,6 +11,30 @@
 #import "PBGitTree.h"
 #import "PBGitRef.h"
 #import "PBGitDefaults.h"
+// REPLACE WITH GIT EXEC - Removed GTObjectiveGitStubs.h
+
+// REPLACE WITH GIT EXEC - Minimal stub implementations for ObjectiveGit classes
+@interface GTSignature : NSObject
+@property (nonatomic, strong) NSString *name;
+@end
+
+@interface GTCommit : NSObject  
+@property (nonatomic, strong) NSDate *commitDate;
+@property (nonatomic, strong) NSString *messageSummary;
+@property (nonatomic, strong) NSString *message;
+@property (nonatomic, strong) GTSignature *author;
+@property (nonatomic, strong) GTSignature *committer;
+@property (nonatomic, strong) NSArray *parents;
+@property (nonatomic, strong) GTOID *OID;
+@property (nonatomic, strong) NSString *SHA;
+@property (nonatomic, strong) NSString *shortSHA;
+@end
+
+@implementation GTSignature
+@end
+
+@implementation GTCommit  
+@end
 
 NSString * const kGitXCommitType = @"commit";
 
@@ -45,14 +69,15 @@ NSString * const kGitXCommitType = @"commit";
 	return self.tree.children;
 }
 
-- (id)initWithRepository:(PBGitRepository *)repo andCommit:(GTCommit *)gtCommit
+- (id)initWithRepository:(PBGitRepository *)repo andSHA:(NSString *)sha
 {
 	self = [super init];
 	if (!self) {
 		return nil;
 	}
 	self.repository = repo;
-	self.gtCommit = gtCommit;
+	// REPLACE WITH GIT EXEC - Create a stub GTCommit for now
+	self.gtCommit = [[GTCommit alloc] init];
 	
 	return self;
 }

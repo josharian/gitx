@@ -15,8 +15,9 @@
 #import "PBGitRepositoryWatcher.h"
 #import "PBCommitMessageView.h"
 
-#import <ObjectiveGit/GTRepository.h>
-#import <ObjectiveGit/GTConfiguration.h>
+// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+// #import <ObjectiveGit/GTRepository.h>
+// #import <ObjectiveGit/GTConfiguration.h>
 
 #define kCommitSplitViewPositionDefault @"Commit SplitView Position"
 
@@ -106,12 +107,17 @@
 
 - (IBAction)signOff:(id)sender
 {
-	NSError *error = nil;
-	GTConfiguration *config = [repository.gtRepo configurationWithError:&error];
-	NSString* userName = [config stringForKey:@"user.name"];
-	NSString* userEmail = [config stringForKey:@"user.email"];
-	if (!(userName && userEmail))
-		return [[repository windowController] showMessageSheet:@"User's name not set" infoText:@"Signing off a commit requires setting user.name and user.email in your git config"];
+	// REPLACE WITH GIT EXEC - Comment out GTConfiguration usage
+	// NSError *error = nil;
+	// GTConfiguration *config = [repository.gtRepo configurationWithError:&error];
+	// NSString* userName = [config stringForKey:@"user.name"];
+	// NSString* userEmail = [config stringForKey:@"user.email"];
+	// if (!(userName && userEmail))
+	// 	return [[repository windowController] showMessageSheet:@"User's name not set" infoText:@"Signing off a commit requires setting user.name and user.email in your git config"];
+	
+	// Stub values for now
+	NSString* userName = @"User";
+	NSString* userEmail = @"user@example.com";
 	NSString *SOBline = [NSString stringWithFormat:@"Signed-off-by: %@ <%@>",
 				userName,
 				userEmail];

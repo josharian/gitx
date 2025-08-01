@@ -8,9 +8,13 @@
 
 #import "PBGitSVSubmoduleItem.h"
 
+// REPLACE WITH GIT EXEC - Simple submodule data structure implementation
+@implementation PBSubmoduleInfo
+@end
+
 @implementation PBGitSVSubmoduleItem
 
-+ (id) itemWithSubmodule:(GTSubmodule*)submodule
++ (id) itemWithSubmodule:(PBSubmoduleInfo*)submodule
 {
     PBGitSVSubmoduleItem* item = [[self alloc] init];
 	item.submodule = submodule;
@@ -24,7 +28,7 @@
 
 - (NSURL *)path
 {
-	NSURL *parentURL = self.submodule.parentRepository.fileURL;
+	NSURL *parentURL = self.submodule.parentRepositoryURL;
 	NSURL *result = [parentURL URLByAppendingPathComponent:self.submodule.path];
 	return result;
 }

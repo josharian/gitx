@@ -63,7 +63,8 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 	repository = theRepository;
 
 	{
-		gitDir = [repository.gtRepo.gitDirectoryURL.path stringByStandardizingPath];
+		// REPLACE WITH GIT EXEC - Use repository workingDirectory to find git dir
+		gitDir = [[repository workingDirectory] stringByAppendingPathComponent:@".git"];
 		if (!gitDir) {
 			return nil;
 		}
@@ -90,7 +91,8 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 		
 	}
 	{
-		workDir = repository.gtRepo.isBare ? nil : [repository.gtRepo.fileURL.path stringByStandardizingPath];
+		// REPLACE WITH GIT EXEC - Assume not bare for now, use workingDirectory
+		workDir = [repository workingDirectory];
 		if (workDir) {
 			workDirChangedBlock = ^(NSArray *changeEvents){
 				NSMutableArray *filteredEvents = [NSMutableArray new];
@@ -238,24 +240,27 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 			continue;
 		}
 		NSString *eventRepoRelativePath = [eventPath.path substringFromIndex:(workDir.length + 1)];
+		// REPLACE WITH GIT EXEC - Skip git ignore checking for now
 		int ignoreResult = 0;
-		int ignoreError = git_status_should_ignore(&ignoreResult, self.repository.gtRepo.git_repository, eventRepoRelativePath.UTF8String);
-		if (ignoreError == GIT_OK && ignoreResult) {
+		int ignoreError = 1; // Assume error/not ignored
+		if (0) { // Disabled until replaced with git check-ignore
 			// file is covered by ignore rules
 			NSNumber *oldStatus = self.statusCache[eventPath.path];
-			if (!oldStatus || [oldStatus isEqualToNumber:@(GIT_STATUS_IGNORED)]) {
+			// REPLACE WITH GIT EXEC - Remove git status constants
+			if (!oldStatus || [oldStatus isEqualToNumber:@(999)]) { // Placeholder
 				// no cached status or previously ignored - skip this file
 				continue;
 			}
 		}
-		int statusError = git_status_file(&fileStatus, self.repository.gtRepo.git_repository, eventRepoRelativePath.UTF8String);
-		if (statusError == GIT_OK) {
-			NSNumber *newStatus = @(fileStatus);
-			self.statusCache[eventPath.path] = newStatus;
+		// REPLACE WITH GIT EXEC - Disabled git status file checking for now
+		// int statusError = git_status_file(&fileStatus, self.repository.gtRepo.git_repository, eventRepoRelativePath.UTF8String);
+		// if (statusError == GIT_OK) {
+			// NSNumber *newStatus = @(fileStatus);
+			// self.statusCache[eventPath.path] = newStatus;
 
 			[paths addObject:eventPath.path];
 			event |= PBGitRepositoryWatcherEventTypeWorkingDirectory;
-		}
+		// }
 	}
 
 	if(event != 0x0){

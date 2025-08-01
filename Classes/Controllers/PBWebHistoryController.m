@@ -8,7 +8,8 @@
 
 #import "PBWebHistoryController.h"
 #import "PBGitDefaults.h"
-#import <ObjectiveGit/GTConfiguration.h>
+// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+// #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
 
@@ -103,7 +104,9 @@
 
 - (void)selectCommit:(NSString *)sha
 {
-	[historyController selectCommit: [GTOID oidWithSHA: sha]];
+	// REPLACE WITH GIT EXEC - Create a GTOID from SHA string
+	GTOID *oid = [GTOID oidWithSHA:sha];
+	[historyController selectCommit: oid];
 }
 
 - (void) sendKey: (NSString*) key
@@ -139,7 +142,7 @@ contextMenuItemsForElement:(NSDictionary *)element
 			return defaultMenuItems;
 		}
 		if ([node hasAttributes] && [[node attributes] getNamedItem:@"representedFile"])
-			return [historyController menuItemsForPaths:[NSArray arrayWithObject:[[[node attributes] getNamedItem:@"representedFile"] value]]];
+			return [historyController menuItemsForPaths:[NSArray arrayWithObject:[[[node attributes] getNamedItem:@"representedFile"] nodeValue]]];
         else if ([[node class] isEqual:[DOMHTMLImageElement class]]) {
             // Copy Image is the only menu item that makes sense here since we don't need
 			// to download the image or open it in a new window (besides with the
@@ -168,9 +171,31 @@ contextMenuItemsForElement:(NSDictionary *)element
 
 - getConfig:(NSString *)key
 {
-	NSError *error = nil;
-    GTConfiguration* config = [historyController.repository.gtRepo configurationWithError:&error];
-	return [config stringForKey:key];
+	// REPLACE WITH GIT EXEC - Use git config instead of GTConfiguration
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"config", @"--get", key];
+	task.currentDirectoryPath = [historyController.repository workingDirectory];
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *value = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			return [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		}
+	}
+	@catch (NSException *exception) {
+		// Git not found or config key doesn't exist
+	}
+	
+	return nil;
 }
 
 

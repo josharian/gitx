@@ -2,7 +2,8 @@
 
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
-    #import <ObjectiveGit/ObjectiveGit.h>
+    // REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+    // #import <ObjectiveGit/ObjectiveGit.h>
 #endif
 
 #ifdef GITX_NO_DEPRECATE

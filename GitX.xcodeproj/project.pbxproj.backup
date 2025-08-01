@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C825B5718C36411980F96CE8 /* GTObjectiveGitStubs.m in Sources */ = {isa = PBXBuildFile; fileRef = 05AFC617BE28456E808005AA /* GTObjectiveGitStubs.m */; };
 		0A6858C711F7EA8A00AC2BE4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A6858C611F7EA8A00AC2BE4 /* CoreServices.framework */; };
 		2682AABB1929140E00271A4D /* GTOID+JavaScript.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2682AABA1929140E00271A4D /* GTOID+JavaScript.mm */; };
 		4A0B5BD315FE2DA600ACCB61 /* libssl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A0B5BD215FE2DA600ACCB61 /* libssl.dylib */; };
@@ -61,7 +62,8 @@
 		4A5D76F314A9A9CC00DF6C68 /* PBWebHistoryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764B14A9A9CC00DF6C68 /* PBWebHistoryController.m */; };
 		4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */; };
 		4A5D76F514A9A9CC00DF6C68 /* PBGitCommit.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765114A9A9CC00DF6C68 /* PBGitCommit.m */; };
-		4A5D76F714A9A9CC00DF6C68 /* PBGitDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.m */; };
+				064889ABA7A54AFE9349BEAD /* GTObjectiveGitStubs.m in Sources */ = {isa = PBXBuildFile; fileRef = EC97238F901C4790B0374BBE /* GTObjectiveGitStubs.m */; };		DECEC66A705A4E97BF14F56D /* GTObjectiveGitStubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTObjectiveGitStubs.h; sourceTree = "<group>"; };
+		EC97238F901C4790B0374BBE /* GTObjectiveGitStubs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTObjectiveGitStubs.m; sourceTree = "<group>"; };		4A5D76F714A9A9CC00DF6C68 /* PBGitDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.m */; };
 		4A5D76F814A9A9CC00DF6C68 /* PBGitGrapher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765714A9A9CC00DF6C68 /* PBGitGrapher.mm */; };
 		4A5D76F914A9A9CC00DF6C68 /* PBGitGraphLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765914A9A9CC00DF6C68 /* PBGitGraphLine.m */; };
 		4A5D76FA14A9A9CC00DF6C68 /* PBGitHistoryGrapher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765B14A9A9CC00DF6C68 /* PBGitHistoryGrapher.m */; };
@@ -206,12 +208,14 @@
 			dstSubfolderSpec = 10;
 			files = (
 				4A8F6B4C14A9B6C90002F4D7 /* MGScopeBar.framework in CopyFiles */,
+				C825B5718C36411980F96CE8 /* GTObjectiveGitStubs.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		05AFC617BE28456E808005AA /* GTObjectiveGitStubs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GTObjectiveGitStubs.m; path = Classes/git/GTObjectiveGitStubs.m; sourceTree = "<group>"; };
 		0A6858C611F7EA8A00AC2BE4 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		2682AAB91929140E00271A4D /* GTOID+JavaScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTOID+JavaScript.h"; sourceTree = "<group>"; };

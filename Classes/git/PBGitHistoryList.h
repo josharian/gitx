@@ -9,12 +9,13 @@
 #import <Cocoa/Cocoa.h>
 
 
+#import "GTOID+JavaScript.h" // Import GTOID definition
+
 @class PBGitRepository;
 @class PBGitRevSpecifier;
 @class PBGitRef;
 @class PBGitRevList;
 @class PBGitHistoryGrapher;
-@class GTOID;
 
 @interface PBGitHistoryList : NSObject {
 	__weak PBGitRepository *repository;

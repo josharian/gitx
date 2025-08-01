@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <MGScopeBar/MGScopeBarDelegateProtocol.h>
+#import "MGScopeBarDelegateProtocol.h"
 
 #import "PBWebController.h"
 

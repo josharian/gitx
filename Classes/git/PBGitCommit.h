@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "PBGitRefish.h" // for @protocol PBGitRefish
+#import "GTOID+JavaScript.h" // for GTOID stub
 
 @class PBGitRepository;
 @class PBGitTree;
@@ -21,6 +22,7 @@ extern NSString * const kGitXCommitType;
 
 @property (nonatomic, weak, readonly) PBGitRepository* repository;
 
+// REPLACE WITH GIT EXEC - Use GTOID stub instead of ObjectiveGit GTOID
 @property (nonatomic, strong, readonly) GTOID *sha;
 
 @property (nonatomic, strong, readonly) NSDate *date;
@@ -42,7 +44,8 @@ extern NSString * const kGitXCommitType;
 @property (readonly) NSArray* treeContents;
 
 
-- (id)initWithRepository:(PBGitRepository *)repo andCommit:(GTCommit *)gtCommit;
+// REPLACE WITH GIT EXEC - Remove GTCommit dependency
+- (id)initWithRepository:(PBGitRepository *)repo andSHA:(NSString *)sha;
 
 - (void) addRef:(PBGitRef *)ref;
 - (void) removeRef:(id)ref;

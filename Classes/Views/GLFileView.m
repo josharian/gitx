@@ -6,7 +6,7 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import <MGScopeBar/MGScopeBar.h>
+#import "MGScopeBar.h"
 
 #import "GLFileView.h"
 #import "PBGitTree.h"

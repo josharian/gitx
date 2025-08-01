@@ -16,9 +16,11 @@
 #import "PBGitGraphLine.h"
 
 #import <vector>
-#import <git2/oid.h>
+// REPLACE WITH GIT EXEC - Comment out libgit2 header
+// #import <git2/oid.h>
 #include <algorithm>
-#import <ObjectiveGit/GTOID.h>
+// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+// #import <ObjectiveGit/GTOID.h>
 
 using namespace std;
 typedef std::vector<PBGitLane *> LaneCollection;

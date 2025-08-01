@@ -290,9 +290,52 @@
 		[self addRevSpec:rev];
 	}
     
-    for (GTSubmodule *sub in repository.submodules) {
-        [submodules addChild: [PBGitSVSubmoduleItem itemWithSubmodule:sub]];
-	}
+    // REPLACE WITH GIT EXEC - Use git submodule to list submodules instead of GTSubmodule
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = @"/usr/bin/git";
+    task.arguments = @[@"submodule", @"status"];
+    task.currentDirectoryPath = [repository workingDirectory];
+    
+    NSPipe *pipe = [NSPipe pipe];
+    task.standardOutput = pipe;
+    task.standardError = [NSPipe pipe];
+    
+    @try {
+        [task launch];
+        [task waitUntilExit];
+        
+        if (task.terminationStatus == 0) {
+            NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+            NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSArray *lines = [output componentsSeparatedByString:@"\n"];
+            
+            for (NSString *line in lines) {
+                NSString *trimmedLine = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                if (trimmedLine.length > 0) {
+                    // Parse submodule status line: " <sha> <path> (<description>)"
+                    // Skip the first character (status indicator) and parse the rest
+                    NSString *statusLine = [trimmedLine substringFromIndex:1];
+                    NSArray *components = [statusLine componentsSeparatedByString:@" "];
+                    if (components.count >= 2) {
+                        NSString *path = [components objectAtIndex:1];
+                        NSString *name = [path lastPathComponent]; // Use path as name
+                        
+                        // Create a simple submodule info object
+                        PBSubmoduleInfo *subInfo = [[PBSubmoduleInfo alloc] init];
+                        subInfo.name = name;
+                        subInfo.path = path;
+                        subInfo.parentRepositoryURL = [NSURL fileURLWithPath:[repository workingDirectory]];
+                        
+                        [submodules addChild: [PBGitSVSubmoduleItem itemWithSubmodule:subInfo]];
+                    }
+                }
+            }
+        }
+    }
+    @catch (NSException *exception) {
+        // Git submodule failed or not available
+        NSLog(@"Could not list submodules: %@", exception.reason);
+    }
     
 	[items addObject:project];
 	[items addObject:branches];

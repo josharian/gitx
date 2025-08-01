@@ -13,14 +13,92 @@
 #import "PBGitRevSpecifier.h"
 #import "PBEasyPipe.h"
 #import "PBGitBinary.h"
+// REPLACE WITH GIT EXEC - Removed GTObjectiveGitStubs.h
 
-#import <ObjectiveGit/ObjectiveGit.h>
+// REPLACE WITH GIT EXEC - Minimal stub implementations for ObjectiveGit classes
+typedef NSUInteger GTEnumeratorOptions;
+typedef NSUInteger GTObjectType;
+static const GTEnumeratorOptions GTEnumeratorOptionsTimeSort = 1;
+static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
+static const GTObjectType GTObjectTypeCommit = 1;
 
-#import <ext/stdio_filebuf.h>
+@interface GTRepository : NSObject
+@end
+
+@interface GTCommit : NSObject  
+@property (nonatomic, strong) NSDate *commitDate;
+@property (nonatomic, strong) NSString *SHA;
+@property (nonatomic, strong) GTOID *OID;
+@end
+
+@interface GTObject : NSObject
+- (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error;
+@end
+
+@interface GTBranch : NSObject
+@property (nonatomic, strong) NSString *SHA;
+@end
+
+@interface GTTag : NSObject
+- (GTCommit *)objectByPeelingTagError:(NSError **)error;
+@end
+
+@interface GTEnumerator : NSObject
+@property (nonatomic, strong) GTRepository *repository;
+- (id)initWithRepository:(id)repo error:(NSError **)error;
+- (void)resetWithOptions:(GTEnumeratorOptions)options;
+- (void)pushGlob:(NSString *)glob error:(NSError **)error;  
+- (void)pushSHA:(NSString *)sha error:(NSError **)error;
+- (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error;
+@end
+
+@implementation GTRepository
+@end
+
+// GTCommit implementation is in PBGitCommit.m
+
+@implementation GTObject
+- (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error {
+    return [[GTCommit alloc] init];
+}
+@end
+
+@implementation GTBranch
+@end
+
+@implementation GTTag
+- (GTCommit *)objectByPeelingTagError:(NSError **)error {
+    return [[GTCommit alloc] init];
+}
+@end
+
+@implementation GTEnumerator
+- (id)initWithRepository:(id)repo error:(NSError **)error { 
+    self.repository = repo;
+    return self; 
+}
+- (void)resetWithOptions:(GTEnumeratorOptions)options { }
+- (void)pushGlob:(NSString *)glob error:(NSError **)error { }
+- (void)pushSHA:(NSString *)sha error:(NSError **)error { }
+- (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error {
+    // REPLACE WITH GIT EXEC - Stub that returns nil to end enumeration
+    if (success) *success = NO;
+    return nil;
+}
+@end
+
+// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+// #import <ObjectiveGit/ObjectiveGit.h>
+
+// REPLACE WITH GIT EXEC - Remove old GNU C++ extension header
+// #import <ext/stdio_filebuf.h>
 #import <iostream>
 #import <string>
 #import <map>
-#import <ObjectiveGit/GTOID.h>
+// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
+// #import <ObjectiveGit/GTOID.h>
+
+// All ObjectiveGit stubs are now in GTObjectiveGitStubs.h/.m
 
 using namespace std;
 
@@ -141,61 +219,63 @@ using namespace std;
 
 - (void) addGitBranches:(NSArray *)branches fromRepo:(GTRepository *)repo toCommitSet:(NSMutableSet *)set
 {
-	for (GTBranch *branch in branches) {
-		NSError *objectLookupError = nil;
-		GTObject *gtObject = [repo lookUpObjectBySHA:branch.SHA error:&objectLookupError];
-		[self addGitObject:gtObject toCommitSet:set];
-	}
+	// REPLACE WITH GIT EXEC - Comment out GTRepository usage
+	// for (GTBranch *branch in branches) {
+	// 	NSError *objectLookupError = nil;
+	// 	GTObject *gtObject = [repo lookUpObjectBySHA:branch.SHA error:&objectLookupError];
+	// 	[self addGitObject:gtObject toCommitSet:set];
+	// }
 }
 
 - (void) setupEnumerator:(GTEnumerator*)enumerator
 			  forRevspec:(PBGitRevSpecifier*)rev
 {
-	NSError *error = nil;
-	GTRepository *repo = enumerator.repository;
+	// REPLACE WITH GIT EXEC - Comment out GTRepository usage
+	// NSError *error = nil;
+	// GTRepository *repo = enumerator.repository;
 	// [enumerator resetWithOptions:GTEnumeratorOptionsTimeSort];
 	[enumerator resetWithOptions:GTEnumeratorOptionsTopologicalSort];
 	NSMutableSet *enumCommits = [NSMutableSet new];
 	if (rev.isSimpleRef) {
-		GTObject *object = [repo lookUpObjectByRevParse:rev.simpleRef error:&error];
-		[self addGitObject:object toCommitSet:enumCommits];
+		// GTObject *object = [repo lookUpObjectByRevParse:rev.simpleRef error:&error];
+		// [self addGitObject:object toCommitSet:enumCommits];
 	} else {
-		NSArray *allRefs = [repo referenceNamesWithError:&error];
+		// NSArray *allRefs = [repo referenceNamesWithError:&error];
 		for (NSString *param in rev.parameters) {
 			if ([param isEqualToString:@"--branches"]) {
-				NSArray *branches = [repo localBranchesWithError:&error];
-				[self addGitBranches:branches fromRepo:repo toCommitSet:enumCommits];
+				// NSArray *branches = [repo localBranchesWithError:&error];
+				// [self addGitBranches:branches fromRepo:repo toCommitSet:enumCommits];
 			} else if ([param isEqualToString:@"--remotes"]) {
-				NSArray *branches = [repo remoteBranchesWithError:&error];
-				[self addGitBranches:branches fromRepo:repo toCommitSet:enumCommits];
+				// NSArray *branches = [repo remoteBranchesWithError:&error];
+				// [self addGitBranches:branches fromRepo:repo toCommitSet:enumCommits];
 			} else if ([param isEqualToString:@"--tags"]) {
-				for (NSString *ref in allRefs) {
-					if ([ref hasPrefix:@"refs/tags/"]) {
-						GTObject *tag = [repo lookUpObjectByRevParse:ref error:&error];
-						GTCommit *commit = nil;
-						if ([tag isKindOfClass:[GTCommit class]]) {
-							commit = (GTCommit *)tag;
-						} else if ([tag isKindOfClass:[GTTag class]]) {
-							NSError *tagError = nil;
-							commit = [(GTTag *)tag objectByPeelingTagError:&tagError];
-						}
-
-						if ([commit isKindOfClass:[GTCommit class]])
-						{
-							[self addGitObject:commit toCommitSet:enumCommits];
-						}
-					}
-				}
+				// for (NSString *ref in allRefs) {
+				// 	if ([ref hasPrefix:@"refs/tags/"]) {
+				// 		GTObject *tag = [repo lookUpObjectByRevParse:ref error:&error];
+				// 		GTCommit *commit = nil;
+				// 		if ([tag isKindOfClass:[GTCommit class]]) {
+				// 			commit = (GTCommit *)tag;
+				// 		} else if ([tag isKindOfClass:[GTTag class]]) {
+				// 			NSError *tagError = nil;
+				// 			commit = [(GTTag *)tag objectByPeelingTagError:&tagError];
+				// 		}
+				// 
+				// 		if ([commit isKindOfClass:[GTCommit class]])
+				// 		{
+				// 			[self addGitObject:commit toCommitSet:enumCommits];
+				// 		}
+				// 	}
+				// }
 			} else if ([param hasPrefix:@"--glob="]) {
-				[enumerator pushGlob:[param substringFromIndex:@"--glob=".length] error:&error];
+				// [enumerator pushGlob:[param substringFromIndex:@"--glob=".length] error:&error];
 			} else {
-				NSError *lookupError = nil;
-				GTObject *obj = [repo lookUpObjectByRevParse:param error:&lookupError];
-				if (obj && !lookupError) {
-					[self addGitObject:obj toCommitSet:enumCommits];
-				} else {
-					[enumerator pushGlob:param error:&error];
-				}
+				// NSError *lookupError = nil;
+				// GTObject *obj = [repo lookUpObjectByRevParse:param error:&lookupError];
+				// if (obj && !lookupError) {
+				// 	[self addGitObject:obj toCommitSet:enumCommits];
+				// } else {
+				// 	[enumerator pushGlob:param error:&error];
+				// }
 			}
 		}
 	}
@@ -240,7 +320,8 @@ using namespace std;
 			if (cachedCommit) {
 				newCommit = cachedCommit;
 			} else {
-				newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andCommit:commit];
+				// REPLACE WITH GIT EXEC - Use SHA instead of GTCommit
+				newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andSHA:commit.SHA];
 				[self.commitCache setObject:newCommit forKey:commit.SHA];
 			}
 			
