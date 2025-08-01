@@ -43,7 +43,6 @@ extern NSString * const kGitXCommitType;
 @property (readonly) NSArray* treeContents;
 
 
-// REPLACE WITH GIT EXEC - Remove GTCommit dependency
 - (id)initWithRepository:(PBGitRepository *)repo andSHA:(NSString *)sha;
 
 - (void) addRef:(PBGitRef *)ref;
