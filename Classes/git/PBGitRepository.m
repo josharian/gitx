@@ -368,11 +368,16 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return [[self windowControllers] objectAtIndex:0];
 }
 
-- (void)addRef:(id)gtRef // REPLACE WITH GIT EXEC - Remove GTReference type
+- (void)addRef:(PBGitRef *)ref
 {
-    // REPLACE WITH GIT EXEC - Comment out GTReference/GTObject handling
-    NSLog(@"addRef method disabled until replaced with git show-ref");
-    return;
+    if (!ref || !self.refs) {
+        return;
+    }
+    
+    NSString *refName = [ref ref];
+    if (refName) {
+        [self.refs setObject:ref forKey:refName];
+    }
 }
 
 - (void)loadSubmodules
