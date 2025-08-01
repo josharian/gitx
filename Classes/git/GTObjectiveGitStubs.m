@@ -15,8 +15,18 @@
 
 @implementation GTObject
 - (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error {
-    // REPLACE WITH GIT EXEC - Return a stub GTCommit
-    return [[GTCommit alloc] init];
+    // Handle different object types for peeling
+    switch (type) {
+        case GTObjectTypeCommit:
+            return [[GTCommit alloc] init];
+        default:
+            if (error) {
+                *error = [NSError errorWithDomain:@"GTObjectError" 
+                                             code:-1 
+                                         userInfo:@{NSLocalizedDescriptionKey: @"Unsupported object type for peeling"}];
+            }
+            return nil;
+    }
 }
 @end
 
