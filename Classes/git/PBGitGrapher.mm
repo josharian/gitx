@@ -16,10 +16,8 @@
 #import "PBGitGraphLine.h"
 
 #import <vector>
-// REPLACE WITH GIT EXEC - Comment out libgit2 header
 // #import <git2/oid.h>
 #include <algorithm>
-// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
 // #import <ObjectiveGit/GTOID.h>
 
 using namespace std;
