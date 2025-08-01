@@ -290,7 +290,6 @@
 		[self addRevSpec:rev];
 	}
     
-    // REPLACE WITH GIT EXEC - Use git submodule to list submodules instead of GTSubmodule
     NSTask *task = [[NSTask alloc] init];
     task.launchPath = @"/usr/bin/git";
     task.arguments = @[@"submodule", @"status"];
