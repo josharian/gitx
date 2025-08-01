@@ -629,17 +629,35 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSString *) workingDirectory
 {
-	// REPLACE WITH GIT EXEC - Comment out git_repository_workdir
-	// const char* workdir = git_repository_workdir(self.gtRepo.git_repository);
-	// if (workdir)
-	// {
-	// 	NSString* result = [[NSString stringWithUTF8String:workdir] stringByStandardizingPath];
-	// 	return result;
-	// }
-	// else
-	// {
-		return self.fileURL.path;
-	// }
+	NSTask *task = [[NSTask alloc] init];
+	task.launchPath = @"/usr/bin/git";
+	task.arguments = @[@"rev-parse", @"--show-toplevel"];
+	task.currentDirectoryPath = self.fileURL.path;
+	
+	NSPipe *pipe = [NSPipe pipe];
+	task.standardOutput = pipe;
+	task.standardError = [NSPipe pipe];
+	
+	@try {
+		[task launch];
+		[task waitUntilExit];
+		
+		if (task.terminationStatus == 0) {
+			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+			NSString *workdir = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			workdir = [workdir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			
+			if (workdir.length > 0) {
+				return [workdir stringByStandardizingPath];
+			}
+		}
+	}
+	@catch (NSException *exception) {
+		// Git not available or other error, fall back
+	}
+	
+	// Fallback to original logic
+	return self.fileURL.path;
 }
 
 #pragma mark Remotes
