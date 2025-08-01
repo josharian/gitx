@@ -297,7 +297,31 @@ using namespace std;
 					}
 				}
 			} else if ([param hasPrefix:@"--glob="]) {
-				// [enumerator pushGlob:[param substringFromIndex:@"--glob=".length] error:&error];
+				NSString *globPattern = [param substringFromIndex:@"--glob=".length];
+				NSTask *gitTask = [[NSTask alloc] init];
+				gitTask.launchPath = @"/usr/bin/git";
+				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", globPattern];
+				gitTask.currentDirectoryPath = [rev.workingDirectory path];
+				
+				NSPipe *outputPipe = [NSPipe pipe];
+				gitTask.standardOutput = outputPipe;
+				gitTask.standardError = [NSPipe pipe];
+				
+				[gitTask launch];
+				[gitTask waitUntilExit];
+				
+				if (gitTask.terminationStatus == 0) {
+					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+					NSArray *shas = [output componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+					
+					for (NSString *sha in shas) {
+						NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if ([trimmedSHA length] >= 40) {
+							[enumerator pushSHA:trimmedSHA error:nil];
+						}
+					}
+				}
 			} else {
 				// NSError *lookupError = nil;
 				// GTObject *obj = [repo lookUpObjectByRevParse:param error:&lookupError];
