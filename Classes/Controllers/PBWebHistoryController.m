@@ -8,7 +8,6 @@
 
 #import "PBWebHistoryController.h"
 #import "PBGitDefaults.h"
-// REPLACE WITH GIT EXEC - Removed ObjectiveGit dependency
 // #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
