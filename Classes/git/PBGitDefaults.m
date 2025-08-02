@@ -62,6 +62,8 @@
                       forKey:kOpenPreviousDocumentsOnLaunch];
 	[defaultValues setObject:[NSNumber numberWithInteger:kGitXBasicSeachMode]
                       forKey:kHistorySearchMode];
+	[defaultValues setObject:[NSNumber numberWithInteger:0]
+                      forKey:kBranchFilterState];
 	[defaultValues setObject:[NSNumber numberWithBool:YES]
                       forKey:kUseRepositoryWatcher];
 	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultValues];

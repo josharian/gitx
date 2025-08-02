@@ -42,10 +42,6 @@
 	IBOutlet NSButton *cherryPickButton;
 	IBOutlet NSButton *rebaseButton;
 
-	IBOutlet PBGitGradientBarView *scopeBarView;
-	IBOutlet NSButton *allBranchesFilterItem;
-	IBOutlet NSButton *localRemoteBranchesFilterItem;
-	IBOutlet NSButton *selectedBranchFilterItem;
 
 	IBOutlet id webView;
 	int selectedCommitDetailsIndex;
@@ -67,7 +63,6 @@
 
 - (IBAction) setDetailedView:(id)sender;
 - (IBAction) setTreeView:(id)sender;
-- (IBAction) setBranchFilter:(id)sender;
 
 - (void)selectCommit:(GTOID *)commit;
 - (IBAction) refresh:(id)sender;

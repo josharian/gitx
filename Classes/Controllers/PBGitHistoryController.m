@@ -40,7 +40,6 @@
 
 @interface PBGitHistoryController ()
 
-- (void) updateBranchFilterMatrix;
 - (void) restoreFileBrowserSelection;
 - (void) saveFileBrowserSelection;
 - (void)saveSplitViewPosition;
@@ -65,7 +64,6 @@
 	[repository.revisionList addObserver:self forKeyPath:@"isUpdating" options:0 context:@"revisionListUpdating"];
 	[repository addObserver:self forKeyPath:@"currentBranch" options:0 context:@"branchChange"];
 	[repository addObserver:self forKeyPath:@"refs" options:0 context:@"updateRefs"];
-	[repository addObserver:self forKeyPath:@"currentBranchFilter" options:0 context:@"branchFilterChange"];
 
 	forceSelectionUpdate = YES;
 	NSSize cellSpacing = [commitList intercellSpacing];
@@ -93,9 +91,9 @@
 	[self performSelector:@selector(restoreSplitViewPositiion) withObject:nil afterDelay:0];
 
 	[upperToolbarView setTopShade:237/255.0 bottomShade:216/255.0];
-	[scopeBarView setTopColor:[NSColor colorWithCalibratedHue:0.579 saturation:0.068 brightness:0.898 alpha:1.000] 
-				  bottomColor:[NSColor colorWithCalibratedHue:0.579 saturation:0.119 brightness:0.765 alpha:1.000]];
-	[self updateBranchFilterMatrix];
+	
+	// Always use All branches filter
+	repository.currentBranchFilter = kGitXAllBranchesFilter;
 
 	// listen for updates
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_repositoryUpdatedNotification:) name:PBGitRepositoryEventNotification object:repository];
@@ -146,32 +144,6 @@
 	}
 }
 
-- (void) updateBranchFilterMatrix
-{
-	if ([repository.currentBranch isSimpleRef]) {
-		[allBranchesFilterItem setEnabled:YES];
-		[localRemoteBranchesFilterItem setEnabled:YES];
-
-		NSInteger filter = repository.currentBranchFilter;
-		[allBranchesFilterItem setState:(filter == kGitXAllBranchesFilter)];
-		[localRemoteBranchesFilterItem setState:(filter == kGitXLocalRemoteBranchesFilter)];
-		[selectedBranchFilterItem setState:(filter == kGitXSelectedBranchFilter)];
-	}
-	else {
-		[allBranchesFilterItem setState:NO];
-		[localRemoteBranchesFilterItem setState:NO];
-
-		[allBranchesFilterItem setEnabled:NO];
-		[localRemoteBranchesFilterItem setEnabled:NO];
-
-		[selectedBranchFilterItem setState:YES];
-	}
-
-	[selectedBranchFilterItem setTitle:[repository.currentBranch title]];
-	[selectedBranchFilterItem sizeToFit];
-
-	[localRemoteBranchesFilterItem setTitle:[[repository.currentBranch ref] isRemote] ? @"Remote" : @"Local"];
-}
 
 - (PBGitCommit *) firstCommit
 {
@@ -271,18 +243,11 @@
 		// Reset the sorting
 		if ([[commitController sortDescriptors] count])
 			[commitController setSortDescriptors:[NSArray array]];
-		[self updateBranchFilterMatrix];
 		return;
 	}
 
 	if([strContext isEqualToString:@"updateRefs"]) {
 		[commitController rearrangeObjects];
-		return;
-	}
-
-	if ([strContext isEqualToString:@"branchFilterChange"]) {
-		[PBGitDefaults setBranchFilter:repository.currentBranchFilter];
-		[self updateBranchFilterMatrix];
 		return;
 	}
 
@@ -331,13 +296,6 @@
 	forceSelectionUpdate = YES;
 }
 
-- (IBAction) setBranchFilter:(id)sender
-{
-	repository.currentBranchFilter = [(NSView*)sender tag];
-	[PBGitDefaults setBranchFilter:repository.currentBranchFilter];
-	[self updateBranchFilterMatrix];
-	forceSelectionUpdate = YES;
-}
 
 - (void)keyDown:(NSEvent*)event
 {
@@ -525,7 +483,6 @@
 		[repository.revisionList removeObserver:self forKeyPath:@"isUpdating"];
 		[repository removeObserver:self forKeyPath:@"currentBranch"];
 		[repository removeObserver:self forKeyPath:@"refs"];
-		[repository removeObserver:self forKeyPath:@"currentBranchFilter"];
 	}
 
 	[webHistoryController closeView];
