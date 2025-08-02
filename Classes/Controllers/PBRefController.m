@@ -283,7 +283,7 @@
 	if ([[[historyController.repository headRef] ref] isEqualToRef:ref])
 		return NO;
 	
-	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[NSArray arrayWithObjects:[NSNumber numberWithInt:row], [NSNumber numberWithInt:index], NULL]];
+	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[NSArray arrayWithObjects:[NSNumber numberWithInteger:row], [NSNumber numberWithInt:index], NULL]];
 	[pboard declareTypes:[NSArray arrayWithObject:@"PBGitRef"] owner:self];
 	[pboard setData:data forType:@"PBGitRef"];
 	
