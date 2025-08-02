@@ -180,7 +180,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			addedParent = YES;
 			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
 			currentLanes->push_back(newLane);
-			add_line(lines, &currentLine, 0, currentLanes->size(), newPos, newLane->index());
+			add_line(lines, &currentLine, 0, (int)currentLanes->size(), newPos, newLane->index());
 		} @catch (NSException *exception) {
 		}
 	}
@@ -201,9 +201,9 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	// If a parent was added, we have room to not indent.
 	if (addedParent)
-		self.previous.numColumns = currentLanes->size() - 1;
+		self.previous.numColumns = (int)currentLanes->size() - 1;
 	else
-		self.previous.numColumns = currentLanes->size();
+		self.previous.numColumns = (int)currentLanes->size();
 
 	// Update the current lane to point to the new parent
 	if (currentLane) {
