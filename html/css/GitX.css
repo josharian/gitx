@@ -6,7 +6,12 @@ body {
 	margin-top: 5px;
 	width: 100%;
 	font-family: 'Lucida Grande', Arial;
-	font-size: 12px;
+	font-size: 12px !important;
+}
+
+/* Force consistent font sizes */
+* {
+	font-size: inherit !important;
 }
 
 .expanded:before {
