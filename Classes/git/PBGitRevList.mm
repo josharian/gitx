@@ -179,13 +179,12 @@
         }
         
         
-        // Find the first newline - the SHA is on the first line, then NUL-separated data follows
+        // Find the first newline - skip the commit SHA line, get the NUL-separated data
         NSRange firstNewline = [block rangeOfString:@"\n"];
         if (firstNewline.location == NSNotFound) {
             continue;
         }
         
-        NSString *firstLine = [block substringToIndex:firstNewline.location];
         NSString *dataSection = [block substringFromIndex:firstNewline.location + 1];
         
         
@@ -196,8 +195,7 @@
             processedCount++;
             
             // Parse according to git format: %H%x00%s%x00%B%x00%an%x00%cn%x00%ct%x00%P%x00
-            NSString *shaString = [firstLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            NSString *shaString2 = fields[0]; // Duplicate SHA from format
+            NSString *shaString = fields[0]; // SHA from format string
             NSString *messageSummary = fields[1];
             NSString *message = fields[2];
             NSString *authorName = fields[3];
