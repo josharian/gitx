@@ -297,8 +297,8 @@
         CGFloat rowHeight = [commitList rowHeight];
 		NSInteger visibleRows = (NSInteger)roundf((float)(sviewHeight / rowHeight));
 		newIndex += (visibleRows - 1);
-		if (newIndex >= [[commitController content] count])
-			newIndex = [[commitController content] count] - 1;
+		if (newIndex >= (NSInteger)[[commitController content] count])
+			newIndex = (NSInteger)[[commitController content] count] - 1;
 	}
 
     if (newIndex != oldIndex) {
@@ -325,7 +325,7 @@
 	if (!forceSelectionUpdate && [[[[commitController selectedObjects] lastObject] sha] isEqual:commitSHA])
 		return;
 
-	NSInteger oldIndex = [[commitController selectionIndexes] firstIndex];
+	NSInteger oldIndex = (NSInteger)[[commitController selectionIndexes] firstIndex];
 
 	NSArray *selectedCommits = [self selectedObjectsForSHA:commitSHA];
 	[commitController setSelectedObjects:selectedCommits];

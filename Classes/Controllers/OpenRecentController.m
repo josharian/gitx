@@ -105,7 +105,7 @@
 			NSUInteger index = (foundIndex == NSNotFound || foundIndex == 0) ? 0 : foundIndex - 1;
 			selectedResult = [currentResults objectAtIndex:index];
 			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:FALSE];
-			[resultViewer scrollRowToVisible:index];
+			[resultViewer scrollRowToVisible:(NSInteger)index];
 		}
 		result = YES;
 	}
@@ -117,7 +117,7 @@
 			if(index >= count && count > 0) index = count - 1;
 			selectedResult = [currentResults objectAtIndex:index];
 			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:FALSE];
-			[resultViewer scrollRowToVisible:index];
+			[resultViewer scrollRowToVisible:(NSInteger)index];
 		}
 		result = YES;
 	}
