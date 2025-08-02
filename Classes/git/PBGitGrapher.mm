@@ -93,7 +93,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 					didFirst = YES;
 					currentLanes->push_back(*it);
 					currentLane = currentLanes->back();
-					newPos = currentLanes->size();
+					newPos = (int)currentLanes->size();
 					add_line(lines, &currentLine, 1, i, newPos,(*it)->index());
 					if (nParents)
 						add_line(lines, &currentLine, 0, newPos, newPos,(*it)->index());
