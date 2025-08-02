@@ -132,7 +132,7 @@
 										<object class="NSColor" key="NSBackgroundColor">
 											<int key="NSColorSpace">6</int>
 											<string key="NSCatalogName">System</string>
-											<string key="NSColorName">_sourceListBackgroundColor</string>
+											<string key="NSColorName">textBackgroundColor</string>
 											<object class="NSColor" key="NSColor">
 												<int key="NSColorSpace">6</int>
 												<string key="NSCatalogName">System</string>
