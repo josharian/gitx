@@ -528,7 +528,7 @@
 						  [NSNumber numberWithFloat:0.1f],
 						  [NSNumber numberWithFloat:0.3f],
 						  [NSNumber numberWithFloat:0.7f],
-						  [NSNumber numberWithFloat:animation.duration], nil];
+						  [NSNumber numberWithFloat:(float)animation.duration], nil];
 
 	return animation;
 }

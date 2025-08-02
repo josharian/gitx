@@ -392,7 +392,7 @@ const BOOL SHUFFLE_COLORS = NO;
 	if (!contextMenuDelegate)
 		return [self menu];
 
-	int i = [self indexAtX:[view convertPoint:[event locationInWindow] fromView:nil].x - rect.origin.x];
+	int i = [self indexAtX:(float)([view convertPoint:[event locationInWindow] fromView:nil].x - rect.origin.x)];
 
 	id ref = nil;
 	if (i >= 0)
