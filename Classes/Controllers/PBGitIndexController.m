@@ -307,7 +307,7 @@
 - (void)tableView:(NSTableView*)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)rowIndex
 {
 	id controller = [tableView tag] == 0 ? unstagedFilesController : stagedFilesController;
-	[[tableColumn dataCell] setImage:[[[controller arrangedObjects] objectAtIndex:rowIndex] icon]];
+	[[tableColumn dataCell] setImage:[[[controller arrangedObjects] objectAtIndex:(NSUInteger)rowIndex] icon]];
 }
 
 - (void) tableClicked:(NSTableView *) tableView

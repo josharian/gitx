@@ -288,7 +288,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	int loopFrom = 0;
 	NSUInteger loopTo = 1000;
 	if (loopTo > filesCount)
-		loopTo = (int)filesCount;
+		loopTo = filesCount;
 	int loopCount = 0;
 	int i = 0;
 	
