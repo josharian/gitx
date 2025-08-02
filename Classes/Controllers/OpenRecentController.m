@@ -129,7 +129,7 @@
     id theValue = nil;
     NSParameterAssert(rowIndex >= 0 && rowIndex < [currentResults count]);
 	
-    NSURL* row = [currentResults objectAtIndex:rowIndex];
+    NSURL* row = [currentResults objectAtIndex:(NSUInteger)rowIndex];
 	if( [[aTableColumn identifier] isEqualToString: @"icon"] ) {
 		id icon;
 		NSError* error;
@@ -144,14 +144,14 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-    return [currentResults count];
+    return (NSInteger)[currentResults count];
 }
 
 - (IBAction)changeSelection:(id) sender {
 	NSInteger selectedRowInteger = [resultViewer selectedRow];
 	int i = (int)selectedRowInteger;
 	if(i >= 0 && i < [currentResults count])
-		selectedResult = [currentResults objectAtIndex: i];
+		selectedResult = [currentResults objectAtIndex:(NSUInteger)i];
 	else 
 		selectedResult = nil;
 }
