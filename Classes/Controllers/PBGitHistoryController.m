@@ -76,7 +76,7 @@
 	[historySplitView setHidden:YES];
 	[self performSelector:@selector(restoreSplitViewPositiion) withObject:nil afterDelay:0];
 
-	[upperToolbarView setTopShade:237/255.0 bottomShade:216/255.0];
+	[upperToolbarView setTopShade:237.0f/255.0f bottomShade:216.0f/255.0f];
 	
 	// Always use All branches filter
 	repository.currentBranchFilter = kGitXAllBranchesFilter;
@@ -290,12 +290,12 @@
 	if (oldIndex == NSNotFound)
 		oldIndex = 0;
 
-	NSInteger newIndex = [[commitController selectionIndexes] firstIndex];
+	NSInteger newIndex = (NSInteger)[[commitController selectionIndexes] firstIndex];
 
 	if (newIndex > oldIndex) {
         CGFloat sviewHeight = [[commitList superview] bounds].size.height;
         CGFloat rowHeight = [commitList rowHeight];
-		NSInteger visibleRows = roundf(sviewHeight / rowHeight );
+		NSInteger visibleRows = (NSInteger)roundf((float)(sviewHeight / rowHeight));
 		newIndex += (visibleRows - 1);
 		if (newIndex >= [[commitController content] count])
 			newIndex = [[commitController content] count] - 1;
