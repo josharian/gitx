@@ -74,7 +74,8 @@
 
 	[historySplitView setTopMin:58.0 andBottomMin:100.0];
 	[historySplitView setHidden:YES];
-	[self performSelector:@selector(restoreSplitViewPositiion) withObject:nil afterDelay:0];
+	// Restore split view position synchronously after view is properly set up
+	[self restoreSplitViewPosition];
 
 	[upperToolbarView setTopShade:237.0f/255.0f bottomShade:216.0f/255.0f];
 	
@@ -441,13 +442,25 @@
 }
 
 // make sure this happens after awakeFromNib
-- (void)restoreSplitViewPositiion
+- (void)restoreSplitViewPosition
 {
 	float position = [[NSUserDefaults standardUserDefaults] floatForKey:kHistorySplitViewPositionDefault];
-	if (position < 1.0)
-		position = 175;
+	if (position < 1.0) {
+		// Default to 40% of the split view height for the top (history) view
+		float splitViewHeight = [historySplitView frame].size.height;
+		position = splitViewHeight * 0.4f;
+		// Ensure position respects minimum constraints
+		if (position < historySplitView.topViewMin)
+			position = historySplitView.topViewMin;
+		else if (position > (splitViewHeight - historySplitView.bottomViewMin - [historySplitView dividerThickness]))
+			position = splitViewHeight - historySplitView.bottomViewMin - [historySplitView dividerThickness];
+	}
 
 	[historySplitView setPosition:position ofDividerAtIndex:0];
+	
+	// Force the split view to recalculate and adjust subview layouts
+	[historySplitView adjustSubviews];
+	
 	[historySplitView setHidden:NO];
 }
 
