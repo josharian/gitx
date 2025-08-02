@@ -891,15 +891,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return nil;
 }
 
-- (NSString *) infoForRemote:(NSString *)remoteName
-{
-	int retValue = 1;
-	NSString *output = [self outputInWorkdirForArguments:[NSArray arrayWithObjects:@"remote", @"show", remoteName, nil] retValue:&retValue];
-	if (retValue)
-		return nil;
-
-	return output;
-}
 
 #pragma mark Repository commands
 
@@ -927,29 +918,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return YES;
 }
 
-- (BOOL) checkoutFiles:(NSArray *)files fromRefish:(id <PBGitRefish>)ref
-{
-	if (!files || ([files count] == 0))
-		return NO;
-
-	NSString *refName = nil;
-	if ([ref refishType] == kGitXBranchType)
-		refName = [ref shortName];
-	else
-		refName = [ref refishName];
-
-	int retValue = 1;
-	NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"checkout", refName, @"--", nil];
-	[arguments addObjectsFromArray:files];
-	NSString *output = [self outputInWorkdirForArguments:arguments retValue:&retValue];
-	if (retValue) {
-		NSString *message = [NSString stringWithFormat:@"There was an error checking out the file(s) from the %@ '%@'.\n\nPerhaps your working directory is not clean?", [ref refishType], [ref shortName]];
-		[self.windowController showErrorSheetTitle:@"Checkout failed!" message:message arguments:arguments output:output];
-		return NO;
-	}
-
-	return YES;
-}
 
 
 - (BOOL) mergeWithRefish:(id <PBGitRefish>)ref

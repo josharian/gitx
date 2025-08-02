@@ -70,7 +70,6 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 @property (nonatomic, strong) NSMutableArray* submodules;
 
 - (BOOL) checkoutRefish:(id <PBGitRefish>)ref;
-- (BOOL) checkoutFiles:(NSArray *)files fromRefish:(id <PBGitRefish>)ref;
 - (BOOL) mergeWithRefish:(id <PBGitRefish>)ref;
 - (BOOL) cherryPickRefish:(id <PBGitRefish>)ref;
 - (BOOL) rebaseBranch:(id <PBGitRefish>)branch onRefish:(id <PBGitRefish>)upstream;
@@ -120,7 +119,6 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 - (NSArray *) remotes;
 - (BOOL) hasRemotes;
 - (PBGitRef *) remoteRefForBranch:(PBGitRef *)branch error:(NSError **)error;
-- (NSString *) infoForRemote:(NSString *)remoteName;
 
 - (void) readCurrentBranch;
 - (PBGitRevSpecifier*) addBranch: (PBGitRevSpecifier*) rev;
