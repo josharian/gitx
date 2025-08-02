@@ -70,7 +70,7 @@
 
 - (void)selectSearchMode:(id)sender
 {
-	self.searchMode = [(NSView*)sender tag];
+	self.searchMode = (PBHistorySearchMode)[(NSView*)sender tag];
 	[self updateSearch:self];
 }
 
@@ -115,7 +115,7 @@
 - (void)setHistorySearch:(NSString *)searchString mode:(NSInteger)mode
 {
 	if (searchString && ![searchString isEqualToString:@""]) {
-		self.searchMode = mode;
+		self.searchMode = (PBHistorySearchMode)mode;
 		[searchField setStringValue:searchString];
 		// use performClick: so that the search field will save it as a recent search
 		[searchField performClick:self];
@@ -125,7 +125,7 @@
 - (void)awakeFromNib
 {
 	[self setupSearchMenuTemplate];
-	self.searchMode = [PBGitDefaults historySearchMode];
+	self.searchMode = (PBHistorySearchMode)[PBGitDefaults historySearchMode];
 
 	[self updateUI];
 
