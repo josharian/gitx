@@ -13,7 +13,6 @@
 #import "RoundedRectangle.h"
 #import "GitXTextFieldCell.h"
 
-#import "NSColor+RGB.h"
 
 const int COLUMN_WIDTH = 10;
 const BOOL ENABLE_SHADOW = YES;
@@ -59,7 +58,7 @@ const BOOL SHUFFLE_COLORS = NO;
 	static NSColor *shadowColor = nil;
 	if (!shadowColor) {
 		uint8_t l = 64;
-		shadowColor = [NSColor colorWithR:l G:l B:l];
+		shadowColor = [NSColor colorWithCalibratedWhite:l/255.0 alpha:1.0];
 	}
 	return shadowColor;
 }
@@ -68,7 +67,7 @@ const BOOL SHUFFLE_COLORS = NO;
 	static NSColor *shadowColor = nil;
 	if (!shadowColor) {
 		uint8_t l = 200;
-		shadowColor = [NSColor colorWithR:l G:l B:l];
+		shadowColor = [NSColor colorWithCalibratedWhite:l/255.0 alpha:1.0];
 	}
 	return shadowColor;
 }
