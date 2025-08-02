@@ -152,13 +152,13 @@
         
         [gitTask waitUntilExit];
         
-        NSString *errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
-        
         if (gitTask.terminationStatus == 0) {
             NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
             [self parseRevListOutput:output];
             
         } else {
+            NSString *errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
+            NSLog(@"Git rev-list command failed with error: %@", errorOutput);
         }
     } @catch (NSException *exception) {
     }
@@ -346,7 +346,6 @@ using namespace std;
 - (void) beginWalkWithSpecifier:(PBGitRevSpecifier*)rev
 {
 	PBGitRepository *pbRepo = self.repository;
-	GTRepository *repo = pbRepo.gtRepo;
 	
 	NSError *error = nil;
 	GTEnumerator *enu = [[GTEnumerator alloc] initWithRepository:pbRepo error:&error];
