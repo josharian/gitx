@@ -6,7 +6,7 @@
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
-#import "MGScopeBar.h"
+// MGScopeBar removed
 
 #import "GLFileView.h"
 #import "PBGitTree.h"
@@ -16,7 +16,7 @@
 
 #define GROUP_LABEL				@"Label"			// string
 #define GROUP_SEPARATOR			@"HasSeparator"		// BOOL as NSNumber
-#define GROUP_SELECTION_MODE	@"SelectionMode"	// MGScopeBarGroupSelectionMode (int) as NSNumber
+#define GROUP_SELECTION_MODE	@"SelectionMode"	// Selection mode as int
 #define GROUP_ITEMS				@"Items"			// array of dictionaries, each containing the following keys:
 #define ITEM_IDENTIFIER			@"Identifier"		// string
 #define ITEM_NAME				@"Name"				// string
@@ -64,10 +64,10 @@
 					  nil];
 	[self.groups addObject:[NSDictionary dictionaryWithObjectsAndKeys:
 							[NSNumber numberWithBool:NO], GROUP_SEPARATOR, 
-							[NSNumber numberWithInt:MGScopeBarGroupSelectionModeRadio], GROUP_SELECTION_MODE, // single selection group.
+							[NSNumber numberWithInt:0], GROUP_SELECTION_MODE, // single selection group.
 							items, GROUP_ITEMS, 
 							nil]];
-	[typeBar reloadData];
+	// typeBar removed
 
 	[fileListSplitView setHidden:YES];
 	[self performSelector:@selector(restoreSplitViewPositiion) withObject:nil afterDelay:0];
@@ -112,59 +112,7 @@
 	[historyController selectCommit: [GTOID oidWithSHA: c]];
 }
 
-#pragma mark MGScopeBarDelegate methods
-
-- (NSInteger)numberOfGroupsInScopeBar:(MGScopeBar *)theScopeBar
-{
-	return [self.groups count];
-}
-
-
-- (NSArray *)scopeBar:(MGScopeBar *)theScopeBar itemIdentifiersForGroup:(NSInteger)groupNumber
-{
-	return [[self.groups objectAtIndex:groupNumber] valueForKeyPath:[NSString stringWithFormat:@"%@.%@", GROUP_ITEMS, ITEM_IDENTIFIER]];
-}
-
-
-- (NSString *)scopeBar:(MGScopeBar *)theScopeBar labelForGroup:(NSInteger)groupNumber
-{
-	return [[self.groups objectAtIndex:groupNumber] objectForKey:GROUP_LABEL]; // might be nil, which is fine (nil means no label).
-}
-
-
-- (NSString *)scopeBar:(MGScopeBar *)theScopeBar titleOfItem:(NSString *)identifier inGroup:(NSInteger)groupNumber
-{
-	NSArray *items = [[self.groups objectAtIndex:groupNumber] objectForKey:GROUP_ITEMS];
-	if (items) {
-		for (NSDictionary *item in items) {
-			if ([[item objectForKey:ITEM_IDENTIFIER] isEqualToString:identifier]) {
-				return [item objectForKey:ITEM_NAME];
-				break;
-			}
-		}
-	}
-	return nil;
-}
-
-
-- (MGScopeBarGroupSelectionMode)scopeBar:(MGScopeBar *)theScopeBar selectionModeForGroup:(NSInteger)groupNumber
-{
-	return [[[self.groups objectAtIndex:groupNumber] objectForKey:GROUP_SELECTION_MODE] intValue];
-}
-
-- (void)scopeBar:(MGScopeBar *)theScopeBar selectedStateChanged:(BOOL)selected forItem:(NSString *)identifier inGroup:(NSInteger)groupNumber
-{
-	startFile=identifier;
-	NSString *path = [NSString stringWithFormat:@"html/views/%@", identifier];
-	NSString *html = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:path];
-	NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:html]];
-	[[view mainFrame] loadRequest:request];
-}
-
-- (NSView *)accessoryViewForScopeBar:(MGScopeBar *)scopeBar
-{
-	return accessoryView;
-}
+// MGScopeBar delegate methods removed
 
 - (void) didLoad
 {

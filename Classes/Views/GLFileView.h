@@ -7,15 +7,12 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "MGScopeBarDelegateProtocol.h"
-
 #import "PBWebController.h"
 
 @class PBGitHistoryController;
 
-@interface GLFileView : PBWebController <MGScopeBarDelegate> {
+@interface GLFileView : PBWebController {
 	IBOutlet PBGitHistoryController* historyController;
-	IBOutlet MGScopeBar *typeBar;
 	NSMutableArray *groups;
 	NSString *logFormat;
 	IBOutlet NSView *accessoryView;
