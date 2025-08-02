@@ -127,6 +127,20 @@ NSString * const kGitXCommitType = @"commit";
 	return self;
 }
 
+- (id)initWithRepository:(PBGitRepository *)repo andGTCommit:(GTCommit *)gtCommit
+{
+	self = [super init];
+	if (!self) {
+		return nil;
+	}
+	self.repository = repo;
+	self.gtCommit = gtCommit;
+	
+	NSLog(@"🔍 GITX_DIRECT: Created PBGitCommit directly from GTCommit %@, date: %@, parents: %lu", [gtCommit.SHA substringToIndex:7], gtCommit.commitDate, (unsigned long)[gtCommit.parents count]);
+	
+	return self;
+}
+
 
 - (NSArray *)parents
 {

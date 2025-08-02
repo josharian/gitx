@@ -14,6 +14,7 @@
 @class PBGitTree;
 @class PBGitRef;
 @class PBGraphCellInfo;
+@class GTCommit;
 
 extern NSString * const kGitXCommitType;
 
@@ -44,6 +45,7 @@ extern NSString * const kGitXCommitType;
 
 
 - (id)initWithRepository:(PBGitRepository *)repo andSHA:(NSString *)sha;
+- (id)initWithRepository:(PBGitRepository *)repo andGTCommit:(GTCommit *)gtCommit;
 
 - (void) addRef:(PBGitRef *)ref;
 - (void) removeRef:(id)ref;
