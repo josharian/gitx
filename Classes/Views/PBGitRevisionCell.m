@@ -261,7 +261,7 @@ const BOOL SHUFFLE_COLORS = NO;
 - (void) drawLabelAtIndex:(int)index inRect:(NSRect)rect
 {
 	NSArray *refs = self.objectValue.refs;
-	PBGitRef *ref = [refs objectAtIndex:index];
+	PBGitRef *ref = [refs objectAtIndex:(NSUInteger)index];
 	
 	NSMutableDictionary* attributes = [self attributesForRefLabelSelected:[self isHighlighted]];
 	NSBezierPath *border = [NSBezierPath bezierPathWithRoundedRect:rect cornerRadius: 3.0];
@@ -382,7 +382,7 @@ const BOOL SHUFFLE_COLORS = NO;
 		pathWidth = 10 + 10 * cellInfo.numColumns;
 	NSRect refRect = NSMakeRect(pathWidth, 0, 1000, 10000);
 
-	return [[[self rectsForRefsinRect:refRect] objectAtIndex:index] rectValue];
+	return [[[self rectsForRefsinRect:refRect] objectAtIndex:(NSUInteger)index] rectValue];
 }
 
 # pragma mark context menu delegate methods
@@ -396,7 +396,7 @@ const BOOL SHUFFLE_COLORS = NO;
 
 	id ref = nil;
 	if (i >= 0)
-		ref = [[[self objectValue] refs] objectAtIndex:i];
+		ref = [[[self objectValue] refs] objectAtIndex:(NSUInteger)i];
 
 	NSArray *items = nil;
 	if (ref)
