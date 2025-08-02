@@ -303,7 +303,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		for (i = loopFrom; i < loopTo; i++) {
 			loopCount++;
 			
-			PBChangedFile *file = [stageFiles objectAtIndex:i];
+			PBChangedFile *file = [stageFiles objectAtIndex:(NSUInteger)i];
 			
 			[input appendFormat:@"%@\0", file.path];
 		}
@@ -320,7 +320,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		}
 
 		for (i = loopFrom; i < loopTo; i++) {
-			PBChangedFile *file = [stageFiles objectAtIndex:i];
+			PBChangedFile *file = [stageFiles objectAtIndex:(NSUInteger)i];
 			
 			file.hasUnstagedChanges = NO;
 			file.hasStagedChanges = YES;
@@ -359,7 +359,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		for (i = loopFrom; i < loopTo; i++) {
 			loopCount++;
 			
-			PBChangedFile *file = [unstageFiles objectAtIndex:i];
+			PBChangedFile *file = [unstageFiles objectAtIndex:(NSUInteger)i];
 			
 			[input appendString:[file indexInfo]];
 		}
@@ -376,7 +376,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		}
 		
 		for (i = loopFrom; i < loopTo; i++) {
-			PBChangedFile *file = [unstageFiles objectAtIndex:i];
+			PBChangedFile *file = [unstageFiles objectAtIndex:(NSUInteger)i];
 			
 			file.hasUnstagedChanges = YES;
 			file.hasStagedChanges = NO;
