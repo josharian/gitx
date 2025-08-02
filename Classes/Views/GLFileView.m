@@ -44,7 +44,7 @@
 	startFile = GROUP_ID_FILEVIEW;
 	//repository = historyController.repository;
 	[super awakeFromNib];
-	[historyController.treeController addObserver:self forKeyPath:@"selection" options:0 context:@"treeController"];
+	// File browser removed - no tree controller
 	
 	self.groups = [NSMutableArray arrayWithCapacity:0];
 	
@@ -81,7 +81,7 @@
 
 - (void) showFile
 {
-	NSArray *files=[historyController.treeController selectedObjects];
+	NSArray *files = @[]; // File browser removed
 	if ([files count] > 0) {
 		PBGitTree *file = [files objectAtIndex:0];
 
@@ -173,7 +173,7 @@
 
 - (void)closeView
 {
-	[historyController.treeController removeObserver:self forKeyPath:@"selection"];
+	// File browser removed - no tree controller
 	[self saveSplitViewPosition];
 
 	[super closeView];

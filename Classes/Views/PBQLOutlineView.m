@@ -76,7 +76,7 @@
 		}
 	}
 
-	return [controller contextMenuForTreeView];
+	return nil;
 }
 
 /* Implemented to satisfy datasourcee protocol */

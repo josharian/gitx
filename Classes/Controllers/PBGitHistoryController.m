@@ -31,35 +31,24 @@
 #import "PBQLTextView.h"
 #import "GLFileView.h"
 
-
-#define kHistorySelectedDetailIndexKey @"PBHistorySelectedDetailIndex"
-#define kHistoryDetailViewIndex 0
-#define kHistoryTreeViewIndex 1
-
 #define kHistorySplitViewPositionDefault @"History SplitView Position"
 
 @interface PBGitHistoryController ()
 
-- (void) restoreFileBrowserSelection;
-- (void) saveFileBrowserSelection;
 - (void)saveSplitViewPosition;
 
 @end
 
 
 @implementation PBGitHistoryController
-@synthesize webCommit, gitTree, commitController, refController;
+@synthesize webCommit, commitController, refController;
 @synthesize searchController;
 @synthesize commitList;
-@synthesize treeController;
 
 - (void)awakeFromNib
 {
-	self.selectedCommitDetailsIndex = [[NSUserDefaults standardUserDefaults] integerForKey:kHistorySelectedDetailIndexKey];
-
 	[commitController addObserver:self forKeyPath:@"selection" options:0 context:@"commitChange"];
 	[commitController addObserver:self forKeyPath:@"arrangedObjects.@count" options:NSKeyValueObservingOptionInitial context:@"updateCommitCount"];
-	[treeController addObserver:self forKeyPath:@"selection" options:0 context:@"treeChange"];
 
 	[repository.revisionList addObserver:self forKeyPath:@"isUpdating" options:0 context:@"revisionListUpdating"];
 	[repository addObserver:self forKeyPath:@"currentBranch" options:0 context:@"branchChange"];
@@ -69,8 +58,6 @@
 	NSSize cellSpacing = [commitList intercellSpacing];
 	cellSpacing.height = 0;
 	[commitList setIntercellSpacing:cellSpacing];
-	[fileBrowser setTarget:self];
-	[fileBrowser setDoubleAction:@selector(openSelectedFile:)];
 
 	if (!repository.currentBranch) {
 		[repository reloadRefs];
@@ -133,15 +120,8 @@
 		[rebaseButton setEnabled:NO];
 	}
 
-	if (self.selectedCommitDetailsIndex == kHistoryTreeViewIndex) {
-		self.gitTree = selectedCommit.tree;
-		[self restoreFileBrowserSelection];
-	}
-	else {
-		// kHistoryDetailViewIndex
-		if (![self.webCommit isEqual:selectedCommit])
+	if (![self.webCommit isEqual:selectedCommit])
 		self.webCommit = selectedCommit;
-	}
 }
 
 
@@ -159,21 +139,6 @@
 	return [selectedCommit isEqual:[[commitController selectedObjects] lastObject]];
 }
 
-- (void) setSelectedCommitDetailsIndex:(int)detailsIndex
-{
-	if (selectedCommitDetailsIndex == detailsIndex)
-		return;
-
-	selectedCommitDetailsIndex = detailsIndex;
-	[[NSUserDefaults standardUserDefaults] setInteger:selectedCommitDetailsIndex forKey:kHistorySelectedDetailIndexKey];
-	forceSelectionUpdate = YES;
-	[self updateKeys];
-}
-
-- (int) selectedCommitDetailsIndex
-{
-	return selectedCommitDetailsIndex;
-}
 
 - (void) updateStatus
 {
@@ -181,61 +146,12 @@
 	self.status = [NSString stringWithFormat:@"%lu commits loaded", [[commitController arrangedObjects] count]];
 }
 
-- (void) restoreFileBrowserSelection
-{
-	if (self.selectedCommitDetailsIndex != kHistoryTreeViewIndex)
-		return;
-
-	NSArray *children = [treeController content];
-	if ([children count] == 0)
-		return;
-
-	NSIndexPath *path = [[NSIndexPath alloc] init];
-	if ([currentFileBrowserSelectionPath count] == 0)
-		path = [path indexPathByAddingIndex:0];
-	else {
-		for (NSString *pathComponent in currentFileBrowserSelectionPath) {
-			PBGitTree *child = nil;
-			NSUInteger childIndex = 0;
-			for (child in children) {
-				if ([child.path isEqualToString:pathComponent]) {
-					path = [path indexPathByAddingIndex:childIndex];
-					children = child.children;
-					break;
-				}
-				childIndex++;
-			}
-			if (!child)
-				return;
-		}
-	}
-
-	[treeController setSelectionIndexPath:path];
-}
-
-- (void) saveFileBrowserSelection
-{
-	NSArray *objects = [treeController selectedObjects];
-	NSArray *content = [treeController content];
-
-	if ([objects count] && [content count]) {
-		PBGitTree *treeItem = [objects objectAtIndex:0];
-		currentFileBrowserSelectionPath = [treeItem.fullPath componentsSeparatedByString:@"/"];
-	}
-}
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
 	NSString* strContext = (__bridge NSString*)context;
     if ([strContext isEqualToString: @"commitChange"]) {
 		[self updateKeys];
-		[self restoreFileBrowserSelection];
-		return;
-	}
-
-	if ([strContext isEqualToString: @"treeChange"]) {
-		[self updateQuicklookForce: NO];
-		[self saveFileBrowserSelection];
 		return;
 	}
 
@@ -264,37 +180,6 @@
 	[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 }
 
-- (IBAction) openSelectedFile:(id)sender
-{
-	NSArray* selectedFiles = [treeController selectedObjects];
-	if ([selectedFiles count] == 0)
-		return;
-	PBGitTree* tree = [selectedFiles objectAtIndex:0];
-	NSString* name = [tree tmpFileNameForContents];
-	[[NSWorkspace sharedWorkspace] openFile:name];
-}
-
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
-{
-    if ([menuItem action] == @selector(setDetailedView:)) {
-		[menuItem setState:(self.selectedCommitDetailsIndex == kHistoryDetailViewIndex) ? NSOnState : NSOffState];
-    } else if ([menuItem action] == @selector(setTreeView:)) {
-		[menuItem setState:(self.selectedCommitDetailsIndex == kHistoryTreeViewIndex) ? NSOnState : NSOffState];
-    }
-    return YES;
-}
-
-- (IBAction) setDetailedView:(id)sender
-{
-	self.selectedCommitDetailsIndex = kHistoryDetailViewIndex;
-	forceSelectionUpdate = YES;
-}
-
-- (IBAction) setTreeView:(id)sender
-{
-	self.selectedCommitDetailsIndex = kHistoryTreeViewIndex;
-	forceSelectionUpdate = YES;
-}
 
 
 - (void)keyDown:(NSEvent*)event
@@ -384,20 +269,6 @@
 		// Public QL API
 		[previewPanel reloadData];
 	}
-	else {
-		// Private QL API (10.5 only)
-		NSArray *selectedFiles = [treeController selectedObjects];
-
-		NSMutableArray *fileNames = [NSMutableArray array];
-		for (PBGitTree *tree in selectedFiles) {
-			NSString *filePath = [tree tmpFileNameForContents];
-			if (filePath)
-				[fileNames addObject:[NSURL fileURLWithPath:filePath]];
-		}
-
-		if ([fileNames count])
-			[[QLPreviewPanel sharedPreviewPanel] setURLs:fileNames currentIndex:0 preservingDisplayState:YES];
-	}
 }
 
 - (IBAction) refresh:(id)sender
@@ -478,7 +349,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 		[commitController removeObserver:self forKeyPath:@"selection"];
 		[commitController removeObserver:self forKeyPath:@"arrangedObjects.@count"];
-		[treeController removeObserver:self forKeyPath:@"selection"];
 
 		[repository.revisionList removeObserver:self forKeyPath:@"isUpdating"];
 		[repository removeObserver:self forKeyPath:@"currentBranch"];
@@ -507,100 +377,7 @@
 	return menu;
 }
 
-#pragma mark Tree Context Menu Methods
 
-- (void)showCommitsFromTree:(id)sender
-{
-	NSString *searchString = [(NSArray *)[sender representedObject] componentsJoinedByString:@" "];
-	[searchController setHistorySearch:searchString mode:kGitXPathSearchMode];
-}
-
-- (void)showInFinderAction:(id)sender
-{
-	NSString *workingDirectory = [[repository workingDirectory] stringByAppendingString:@"/"];
-	NSString *path;
-	NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-
-	for (NSString *filePath in [sender representedObject]) {
-		path = [workingDirectory stringByAppendingPathComponent:filePath];
-		[ws selectFile: path inFileViewerRootedAtPath:path];
-	}
-
-}
-
-- (void)openFilesAction:(id)sender
-{
-	NSString *workingDirectory = [[repository workingDirectory] stringByAppendingString:@"/"];
-	NSString *path;
-	NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-
-	for (NSString *filePath in [sender representedObject]) {
-		path = [workingDirectory stringByAppendingPathComponent:filePath];
-		[ws openFile:path];
-	}
-}
-
-- (void) checkoutFiles:(id)sender
-{
-	NSMutableArray *files = [NSMutableArray array];
-	for (NSString *filePath in [sender representedObject])
-		[files addObject:[filePath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
-
-	[repository checkoutFiles:files fromRefish:selectedCommit];
-}
-
-- (void) diffFilesAction:(id)sender
-{
-	[PBDiffWindowController showDiffWindowWithFiles:[sender representedObject] fromCommit:selectedCommit diffCommit:nil];
-}
-
-- (NSMenu *)contextMenuForTreeView
-{
-	NSArray *filePaths = [[treeController selectedObjects] valueForKey:@"fullPath"];
-
-	NSMenu *menu = [[NSMenu alloc] init];
-	for (NSMenuItem *item in [self menuItemsForPaths:filePaths])
-		[menu addItem:item];
-	return menu;
-}
-
-- (NSArray *)menuItemsForPaths:(NSArray *)paths
-{
-	NSMutableArray *filePaths = [NSMutableArray array];
-	for (NSString *filePath in paths)
-		[filePaths addObject:[filePath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
-
-	BOOL multiple = [filePaths count] != 1;
-	NSMenuItem *historyItem = [[NSMenuItem alloc] initWithTitle:multiple? @"Show history of files" : @"Show history of file"
-														 action:@selector(showCommitsFromTree:)
-												  keyEquivalent:@""];
-
-	PBGitRef *headRef = [[repository headRef] ref];
-	NSString *headRefName = [headRef shortName];
-	NSString *diffTitle = [NSString stringWithFormat:@"Diff %@ with %@", multiple ? @"files" : @"file", headRefName];
-	BOOL isHead = [[selectedCommit sha] isEqual:[repository headSHA]];
-	NSMenuItem *diffItem = [[NSMenuItem alloc] initWithTitle:diffTitle
-													  action:isHead ? nil : @selector(diffFilesAction:)
-											   keyEquivalent:@""];
-
-	NSMenuItem *checkoutItem = [[NSMenuItem alloc] initWithTitle:multiple ? @"Checkout files" : @"Checkout file"
-														  action:@selector(checkoutFiles:)
-												   keyEquivalent:@""];
-	NSMenuItem *finderItem = [[NSMenuItem alloc] initWithTitle:@"Show in Finder"
-														action:@selector(showInFinderAction:)
-												 keyEquivalent:@""];
-	NSMenuItem *openFilesItem = [[NSMenuItem alloc] initWithTitle:multiple? @"Open Files" : @"Open File"
-														   action:@selector(openFilesAction:)
-													keyEquivalent:@""];
-
-	NSArray *menuItems = [NSArray arrayWithObjects:historyItem, diffItem, checkoutItem, finderItem, openFilesItem, nil];
-	for (NSMenuItem *item in menuItems) {
-		[item setTarget:self];
-		[item setRepresentedObject:filePaths];
-	}
-
-	return menuItems;
-}
 
 
 #pragma mark NSSplitView delegate methods
@@ -745,55 +522,6 @@
     previewPanel = nil;
 }
 
-#pragma mark <QLPreviewPanelDataSource>
 
-- (NSInteger)numberOfPreviewItemsInPreviewPanel:(id)panel
-{
-    return [[fileBrowser selectedRowIndexes] count];
-}
-
-- (id <QLPreviewItem>)previewPanel:(id)panel previewItemAtIndex:(NSInteger)index
-{
-	PBGitTree *treeItem = (PBGitTree *)[[treeController selectedObjects] objectAtIndex:index];
-	NSURL *previewURL = [NSURL fileURLWithPath:[treeItem tmpFileNameForContents]];
-
-    return (id <QLPreviewItem>)previewURL;
-}
-
-#pragma mark <QLPreviewPanelDelegate>
-
-- (BOOL)previewPanel:(id)panel handleEvent:(NSEvent *)event
-{
-    // redirect all key down events to the table view
-    if ([event type] == NSKeyDown) {
-        [fileBrowser keyDown:event];
-        return YES;
-    }
-    return NO;
-}
-
-// This delegate method provides the rect on screen from which the panel will zoom.
-- (NSRect)previewPanel:(id)panel sourceFrameOnScreenForPreviewItem:(id <QLPreviewItem>)item
-{
-    NSInteger index = [fileBrowser rowForItem:[[treeController selectedNodes] objectAtIndex:0]];
-    if (index == NSNotFound) {
-        return NSZeroRect;
-    }
-
-    NSRect iconRect = [fileBrowser frameOfCellAtColumn:0 row:index];
-
-    // check that the icon rect is visible on screen
-    NSRect visibleRect = [fileBrowser visibleRect];
-
-    if (!NSIntersectsRect(visibleRect, iconRect)) {
-        return NSZeroRect;
-    }
-
-    // convert icon rect to screen coordinates
-    iconRect = [fileBrowser convertRectToBase:iconRect];
-    iconRect.origin = [[fileBrowser window] convertBaseToScreen:iconRect.origin];
-
-    return iconRect;
-}
 
 @end

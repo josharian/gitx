@@ -27,9 +27,6 @@
 	IBOutlet PBRefController *refController;
 	IBOutlet NSSearchField *searchField;
 	IBOutlet NSArrayController* commitController;
-	IBOutlet NSTreeController* treeController;
-	IBOutlet NSOutlineView* fileBrowser;
-	NSArray *currentFileBrowserSelectionPath;
 	IBOutlet PBCommitList* commitList;
 	IBOutlet PBCollapsibleSplitView *historySplitView;
 	IBOutlet PBWebHistoryController *webHistoryController;
@@ -44,38 +41,22 @@
 
 
 	IBOutlet id webView;
-	int selectedCommitDetailsIndex;
 	BOOL forceSelectionUpdate;
 	
-	PBGitTree *gitTree;
 	PBGitCommit *webCommit;
 	PBGitCommit *selectedCommit;
 }
 
-@property (readonly) NSTreeController* treeController;
-@property (assign) int selectedCommitDetailsIndex;
 @property  PBGitCommit *webCommit;
-@property  PBGitTree* gitTree;
 @property (readonly) NSArrayController *commitController;
 @property (readonly) PBRefController *refController;
 @property (readonly) PBHistorySearchController *searchController;
 @property (readonly) PBCommitList *commitList;
 
-- (IBAction) setDetailedView:(id)sender;
-- (IBAction) setTreeView:(id)sender;
-
 - (void)selectCommit:(GTOID *)commit;
 - (IBAction) refresh:(id)sender;
 - (IBAction) toggleQLPreviewPanel:(id)sender;
-- (IBAction) openSelectedFile:(id)sender;
 - (void) updateQuicklookForce: (BOOL) force;
-
-// Context menu methods
-- (NSMenu *)contextMenuForTreeView;
-- (NSArray *)menuItemsForPaths:(NSArray *)paths;
-- (void)showCommitsFromTree:(id)sender;
-- (void)showInFinderAction:(id)sender;
-- (void)openFilesAction:(id)sender;
 
 // Repository Methods
 - (IBAction) createBranch:(id)sender;

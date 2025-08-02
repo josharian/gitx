@@ -20,7 +20,6 @@
                 <outlet property="refController" destination="231" id="329"/>
                 <outlet property="searchController" destination="423" id="446"/>
                 <outlet property="searchField" destination="297" id="315"/>
-                <outlet property="treeController" destination="38" id="41"/>
                 <outlet property="upperToolbarView" destination="316" id="326"/>
                 <outlet property="view" destination="46" id="53"/>
                 <outlet property="webHistoryController" destination="40" id="402"/>
@@ -29,17 +28,6 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application"/>
-        <treeController objectClassName="PBGitTree" editable="NO" childrenKeyPath="children" leafKeyPath="leaf" avoidsEmptySelection="NO" selectsInsertedObjects="NO" id="38">
-            <declaredKeys>
-                <string>path</string>
-                <string>contents</string>
-                <string>selectedCommitDetailsIndex</string>
-                <string>textContents</string>
-            </declaredKeys>
-            <connections>
-                <binding destination="-2" name="contentArray" keyPath="gitTree.children" id="90"/>
-            </connections>
-        </treeController>
         <arrayController objectClassName="PBGitCommit" editable="NO" selectsInsertedObjects="NO" avoidsEmptySelection="NO" id="39" userLabel="CommitsController">
             <declaredKeys>
                 <string>self</string>
@@ -259,145 +247,16 @@
                             <rect key="frame" x="0.0" y="172" width="955" height="233"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tabView fixedFrame="YES" type="noTabsNoBorder" translatesAutoresizingMaskIntoConstraints="NO" id="4" userLabel="Detail / Tree Tab View">
+                                <webView focusRingType="none" translatesAutoresizingMaskIntoConstraints="NO" id="21">
                                     <rect key="frame" x="0.0" y="0.0" width="955" height="233"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                    <tabViewItems>
-                                        <tabViewItem label="Details" identifier="1" id="6" userLabel="Details Tab">
-                                            <view key="view" focusRingType="none" id="20">
-                                                <rect key="frame" x="0.0" y="0.0" width="955" height="233"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <webView focusRingType="none" translatesAutoresizingMaskIntoConstraints="NO" id="21">
-                                                        <rect key="frame" x="1" y="0.0" width="954" height="234"/>
-                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO"/>
-                                                        <connections>
-                                                            <outlet property="UIDelegate" destination="40" id="85"/>
-                                                            <outlet property="frameLoadDelegate" destination="40" id="84"/>
-                                                            <outlet property="policyDelegate" destination="40" id="109"/>
-                                                        </connections>
-                                                    </webView>
-                                                </subviews>
-                                            </view>
-                                        </tabViewItem>
-                                        <tabViewItem label="Tree" identifier="Item 2" id="7" userLabel="Tree Tab">
-                                            <view key="view" focusRingType="none" id="8">
-                                                <rect key="frame" x="0.0" y="0.0" width="955" height="233"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                <subviews>
-                                                    <splitView focusRingType="none" fixedFrame="YES" dividerStyle="thin" vertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9">
-                                                        <rect key="frame" x="-1" y="-1" width="957" height="235"/>
-                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <subviews>
-                                                            <scrollView focusRingType="none" fixedFrame="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" id="10" userLabel="File List Scroll View">
-                                                                <rect key="frame" x="0.0" y="0.0" width="233" height="235"/>
-                                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES"/>
-                                                                <clipView key="contentView" id="kxO-Bz-jx7">
-                                                                    <rect key="frame" x="1" y="1" width="216" height="233"/>
-                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                    <subviews>
-                                                                        <outlineView focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" autosaveColumns="NO" indentationPerLevel="13" autoresizesOutlineColumn="YES" outlineTableColumn="18" id="15" customClass="PBQLOutlineView">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="216" height="233"/>
-                                                                            <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
-                                                                            <size key="intercellSpacing" width="3" height="2"/>
-                                                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
-                                                                            <tableColumns>
-                                                                                <tableColumn editable="NO" width="204" minWidth="16" maxWidth="1000" id="18">
-                                                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
-                                                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                                                        <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
-                                                                                    </tableHeaderCell>
-                                                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="19">
-                                                                                        <font key="font" metaFont="system"/>
-                                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                                                    </textFieldCell>
-                                                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                                                    <connections>
-                                                                                        <binding destination="38" name="value" keyPath="arrangedObjects.path" id="92">
-                                                                                            <dictionary key="options">
-                                                                                                <integer key="NSConditionallySetsEditable" value="1"/>
-                                                                                            </dictionary>
-                                                                                        </binding>
-                                                                                    </connections>
-                                                                                </tableColumn>
-                                                                            </tableColumns>
-                                                                            <connections>
-                                                                                <outlet property="controller" destination="-2" id="86"/>
-                                                                            </connections>
-                                                                        </outlineView>
-                                                                    </subviews>
-                                                                </clipView>
-                                                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.0045045050792396069" horizontal="YES" id="16">
-                                                                    <rect key="frame" x="-100" y="-100" width="502" height="15"/>
-                                                                    <autoresizingMask key="autoresizingMask"/>
-                                                                </scroller>
-                                                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="17">
-                                                                    <rect key="frame" x="217" y="1" width="15" height="233"/>
-                                                                    <autoresizingMask key="autoresizingMask"/>
-                                                                </scroller>
-                                                            </scrollView>
-                                                            <customView fixedFrame="YES" id="449" userLabel="Viewer">
-                                                                <rect key="frame" x="234" y="0.0" width="723" height="235"/>
-                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                <subviews>
-                                                                    <webView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="450" userLabel="FileViewer">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="723" height="210"/>
-                                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO"/>
-                                                                    </webView>
-                                                                    <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="475" userLabel="TypeBar" customClass="MGScopeBar">
-                                                                        <rect key="frame" x="0.0" y="211" width="723" height="24"/>
-                                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                                                        <subviews>
-                                                                            <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="486">
-                                                                                <rect key="frame" x="639" y="0.0" width="84" height="24"/>
-                                                                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                                                                <subviews>
-                                                                                    <button toolTip="Quick Look" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="49">
-                                                                                        <rect key="frame" x="41" y="2" width="29" height="19"/>
-                                                                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                                                                        <buttonCell key="cell" type="recessed" title="QuickLook" bezelStyle="recessed" image="NSQuickLookTemplate" catalog="system" imagePosition="only" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="50">
-                                                                                            <behavior key="behavior" lightByContents="YES"/>
-                                                                                            <font key="font" metaFont="systemBold" size="12"/>
-                                                                                            <string key="keyEquivalent" base64-UTF8="YES">
-IA
-</string>
-                                                                                        </buttonCell>
-                                                                                        <connections>
-                                                                                            <action selector="toggleQLPreviewPanel:" target="-2" id="395"/>
-                                                                                            <binding destination="-2" name="enabled" keyPath="selectedCommitDetailsIndex" id="398"/>
-                                                                                        </connections>
-                                                                                    </button>
-                                                                                </subviews>
-                                                                            </customView>
-                                                                        </subviews>
-                                                                        <connections>
-                                                                            <outlet property="delegate" destination="452" id="485"/>
-                                                                        </connections>
-                                                                    </customView>
-                                                                </subviews>
-                                                            </customView>
-                                                        </subviews>
-                                                        <holdingPriorities>
-                                                            <real value="250"/>
-                                                            <real value="250"/>
-                                                        </holdingPriorities>
-                                                        <connections>
-                                                            <outlet property="delegate" destination="452" id="490"/>
-                                                        </connections>
-                                                    </splitView>
-                                                </subviews>
-                                            </view>
-                                        </tabViewItem>
-                                    </tabViewItems>
+                                    <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO"/>
                                     <connections>
-                                        <binding destination="-2" name="selectedIndex" keyPath="selectedCommitDetailsIndex" id="80"/>
+                                        <outlet property="UIDelegate" destination="40" id="85"/>
+                                        <outlet property="frameLoadDelegate" destination="40" id="84"/>
+                                        <outlet property="policyDelegate" destination="40" id="109"/>
                                     </connections>
-                                </tabView>
+                                </webView>
                             </subviews>
                         </customView>
                     </subviews>
@@ -472,20 +331,6 @@ IA
                                 <action selector="rebase:" target="-2" id="351"/>
                             </connections>
                         </button>
-                        <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="48">
-                            <rect key="frame" x="266" y="3" width="71" height="25"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <segmentedCell key="cell" state="on" borderStyle="border" alignment="left" segmentDistribution="fill" style="texturedRounded" trackingMode="selectOne" id="51">
-                                <font key="font" metaFont="system"/>
-                                <segments>
-                                    <segment toolTip="Detailed View" image="DetailViewTemplate" imageScaling="none" width="32" selected="YES"/>
-                                    <segment toolTip="Tree View" image="TreeViewTemplate" imageScaling="none" width="32" tag="9"/>
-                                </segments>
-                            </segmentedCell>
-                            <connections>
-                                <binding destination="-2" name="selectedIndex" keyPath="selectedCommitDetailsIndex" id="83"/>
-                            </connections>
-                        </segmentedControl>
                         <searchField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="297">
                             <rect key="frame" x="750" y="5" width="180" height="19"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
@@ -555,10 +400,8 @@ IA
         <image name="AddBranchTemplate" width="25" height="18"/>
         <image name="AddLabelTemplate" width="25" height="18"/>
         <image name="CherryPickTemplate" width="25" height="18"/>
-        <image name="DetailViewTemplate" width="25" height="18"/>
         <image name="MergeTemplate" width="25" height="18"/>
         <image name="NSQuickLookTemplate" catalog="system" width="26" height="17"/>
         <image name="RebaseTemplate" width="25" height="18"/>
-        <image name="TreeViewTemplate" width="25" height="18"/>
     </resources>
 </document>
