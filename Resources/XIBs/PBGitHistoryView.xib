@@ -67,7 +67,6 @@
                 <string>dateString</string>
                 <string>arran</string>
                 <string>realSha</string>
-                <string>relativeDateString</string>
                 <string>shortName</string>
             </declaredKeys>
             <connections>
@@ -282,30 +281,6 @@
                                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                         <connections>
                                                             <binding destination="39" name="value" keyPath="arrangedObjects.date" id="404">
-                                                                <dictionary key="options">
-                                                                    <integer key="NSConditionallySetsEditable" value="1"/>
-                                                                </dictionary>
-                                                            </binding>
-                                                        </connections>
-                                                    </tableColumn>
-                                                    <tableColumn identifier="RelativeDateColumn" editable="NO" width="30" minWidth="10" maxWidth="1000" hidden="YES" id="409">
-                                                        <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Relative Date">
-                                                            <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
-                                                        </tableHeaderCell>
-                                                        <textFieldCell key="dataCell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" alignment="left" id="410" customClass="GitXTextFieldCell">
-                                                            <font key="font" metaFont="cellTitle"/>
-                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                            <connections>
-                                                                <outlet property="contextMenuDelegate" destination="231" id="440"/>
-                                                                <outlet property="formatter" destination="407" id="416"/>
-                                                            </connections>
-                                                        </textFieldCell>
-                                                        <sortDescriptor key="sortDescriptorPrototype" selector="compare:" sortKey="date"/>
-                                                        <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                        <connections>
-                                                            <binding destination="39" name="value" keyPath="arrangedObjects.date" id="417">
                                                                 <dictionary key="options">
                                                                     <integer key="NSConditionallySetsEditable" value="1"/>
                                                                 </dictionary>
@@ -626,7 +601,6 @@ IA
                 <outlet property="historyController" destination="-2" id="234"/>
             </connections>
         </customObject>
-        <customObject id="407" customClass="GitXRelativeDateFormatter"/>
         <customObject id="423" customClass="PBHistorySearchController">
             <connections>
                 <outlet property="commitController" destination="39" id="424"/>
