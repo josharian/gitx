@@ -61,6 +61,15 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	LaneCollection *previousLanes = self.pl;
 	NSArray *parents = [commit parents];
 	int nParents = [parents count];
+	
+	// Debug: check what's actually in the parents array
+	for (int idx = 0; idx < nParents; idx++) {
+		id parentObj = [parents objectAtIndex:idx];
+		NSLog(@"MISSING.decorateCommit: parent %d is class %@", idx, [parentObj class]);
+		if (![parentObj isKindOfClass:[GTCommit class]]) {
+			NSLog(@"MISSING.decorateCommit: ERROR - parent %d is not a GTCommit, it's a %@", idx, [parentObj class]);
+		}
+	}
 
 	int maxLines = (previousLanes->size() + nParents + 2) * 2;
 	struct PBGitGraphLine *lines = (struct PBGitGraphLine *)malloc(sizeof(struct PBGitGraphLine) * maxLines);
@@ -111,12 +120,29 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	// If we already did the first parent, don't do so again
 	if (!didFirst && nParents) {
-		GTCommit *parentCommit = [parents objectAtIndex:0];
-		const git_oid *parentOID = [parentCommit.OID git_oid];
-		PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
-		currentLanes->push_back(newLane);
-		newPos = currentLanes->size();
-		add_line(lines, &currentLine, 0, newPos, newPos, newLane->index());
+		@try {
+			id parentObj = [parents objectAtIndex:0];
+			const git_oid *parentOID = NULL;
+			
+			if ([parentObj isKindOfClass:[GTCommit class]]) {
+				GTCommit *parentCommit = (GTCommit *)parentObj;
+				parentOID = [parentCommit.OID git_oid];
+			} else if ([parentObj isKindOfClass:[GTOID class]]) {
+				NSLog(@"MISSING.decorateCommit: WARNING - parent 0 is GTOID, not GTCommit");
+				GTOID *oid = (GTOID *)parentObj;
+				parentOID = [oid git_oid];
+			} else {
+				NSLog(@"MISSING.decorateCommit: ERROR - parent 0 is unknown class %@", [parentObj class]);
+				return; // Can't proceed without valid parent
+			}
+			
+			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
+			currentLanes->push_back(newLane);
+			newPos = currentLanes->size();
+			add_line(lines, &currentLine, 0, newPos, newPos, newLane->index());
+		} @catch (NSException *exception) {
+			NSLog(@"MISSING.decorateCommit: CRASH in first parent handling: %@", exception);
+		}
 	}
 
 	// Add all other parents
@@ -127,27 +153,44 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	int parentIndex = 0;
 	for (parentIndex = 1; parentIndex < nParents; ++parentIndex) {
-		GTCommit *parentCommit = [parents objectAtIndex:parentIndex];
-		const git_oid *parentOID = [parentCommit.OID git_oid];
-		int i = 0;
-		BOOL was_displayed = NO;
-		LaneCollection::iterator it = currentLanes->begin();
-		for (; it != currentLanes->end(); ++it) {
-			i++;
-			if ((*it)->isCommit(parentOID)) {
-				add_line(lines, &currentLine, 0, i, newPos,(*it)->index());
-				was_displayed = YES;
-				break;
+		@try {
+			id parentObj = [parents objectAtIndex:parentIndex];
+			const git_oid *parentOID = NULL;
+			
+			if ([parentObj isKindOfClass:[GTCommit class]]) {
+				GTCommit *parentCommit = (GTCommit *)parentObj;
+				parentOID = [parentCommit.OID git_oid];
+			} else if ([parentObj isKindOfClass:[GTOID class]]) {
+				NSLog(@"MISSING.decorateCommit: WARNING - parent %d is GTOID, not GTCommit", parentIndex);
+				GTOID *oid = (GTOID *)parentObj;
+				parentOID = [oid git_oid];
+			} else {
+				NSLog(@"MISSING.decorateCommit: ERROR - parent %d is unknown class %@", parentIndex, [parentObj class]);
+				continue; // Skip this parent
 			}
+			
+			int i = 0;
+			BOOL was_displayed = NO;
+			LaneCollection::iterator it = currentLanes->begin();
+			for (; it != currentLanes->end(); ++it) {
+				i++;
+				if ((*it)->isCommit(parentOID)) {
+					add_line(lines, &currentLine, 0, i, newPos,(*it)->index());
+					was_displayed = YES;
+					break;
+				}
+			}
+			if (was_displayed)
+				continue;
+			
+			// Really add this parent
+			addedParent = YES;
+			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
+			currentLanes->push_back(newLane);
+			add_line(lines, &currentLine, 0, currentLanes->size(), newPos, newLane->index());
+		} @catch (NSException *exception) {
+			NSLog(@"MISSING.decorateCommit: CRASH in parent loop at index %d: %@", parentIndex, exception);
 		}
-		if (was_displayed)
-			continue;
-		
-		// Really add this parent
-		addedParent = YES;
-		PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
-		currentLanes->push_back(newLane);
-		add_line(lines, &currentLine, 0, currentLanes->size(), newPos, newLane->index());
 	}
 
 	if (commit.lineInfo) {
@@ -173,8 +216,28 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	// Update the current lane to point to the new parent
 	if (currentLane) {
 		if (nParents > 0) {
-			GTCommit *parentCommit = [parents objectAtIndex:0];
-			currentLane->setSha([parentCommit.OID git_oid]);
+			@try {
+				id parentObj = [parents objectAtIndex:0];
+				const git_oid *parentOID = NULL;
+				
+				if ([parentObj isKindOfClass:[GTCommit class]]) {
+					GTCommit *parentCommit = (GTCommit *)parentObj;
+					parentOID = [parentCommit.OID git_oid];
+				} else if ([parentObj isKindOfClass:[GTOID class]]) {
+					NSLog(@"MISSING.decorateCommit: WARNING - setSha parent is GTOID, not GTCommit");
+					GTOID *oid = (GTOID *)parentObj;
+					parentOID = [oid git_oid];
+				} else {
+					NSLog(@"MISSING.decorateCommit: ERROR - setSha parent is unknown class %@", [parentObj class]);
+					parentOID = NULL;
+				}
+				
+				if (parentOID) {
+					currentLane->setSha(parentOID);
+				}
+			} @catch (NSException *exception) {
+				NSLog(@"MISSING.decorateCommit: CRASH in setSha: %@", exception);
+			}
 		} else {
 			// The current lane's commit does not have any parents
 			// AKA, this is a first commit

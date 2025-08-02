@@ -77,13 +77,20 @@
 - (void) updateHistory
 {
 	PBGitRevSpecifier *rev = repository.currentBranch;
-	if (!rev)
+	NSLog(@"MISSING.updateHistory: currentBranch = %@", rev);
+	if (!rev) {
+		NSLog(@"MISSING.updateHistory: no currentBranch, returning");
 		return;
+	}
 
-	if ([rev isSimpleRef])
+	NSLog(@"MISSING.updateHistory: isSimpleRef = %d", [rev isSimpleRef]);
+	if ([rev isSimpleRef]) {
+		NSLog(@"MISSING.updateHistory: calling updateProjectHistoryForRev");
 		[self updateProjectHistoryForRev:rev];
-	else
+	} else {
+		NSLog(@"MISSING.updateHistory: calling updateHistoryForRev");
 		[self updateHistoryForRev:rev];
+	}
 }
 
 
@@ -113,29 +120,41 @@
 
 - (void) addCommitsFromArray:(NSArray *)array
 {
-	if (!array || [array count] == 0)
+	NSLog(@"MISSING.addCommitsFromArray: called with %lu commits", (unsigned long)[array count]);
+	if (!array || [array count] == 0) {
+		NSLog(@"MISSING.addCommitsFromArray: array is nil or empty, returning");
 		return;
+	}
 
 	if (resetCommits) {
+		NSLog(@"MISSING.addCommitsFromArray: resetting commits array");
 		self.commits = [NSMutableArray array];
 		resetCommits = NO;
 	}
 
+	NSLog(@"MISSING.addCommitsFromArray: current commits count: %lu, adding %lu", (unsigned long)[commits count], (unsigned long)[array count]);
 	NSRange range = NSMakeRange([commits count], [array count]);
 	NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:range];
 
+	NSLog(@"MISSING.addCommitsFromArray: about to trigger KVO changes");
 	[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"commits"];
 	[commits addObjectsFromArray:array];
 	[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"commits"];
+	NSLog(@"MISSING.addCommitsFromArray: finished, total commits now: %lu", (unsigned long)[commits count]);
 }
 
 
 - (void) updateCommitsFromGrapher:(NSDictionary *)commitData
 {
-	if ([commitData objectForKey:kCurrentQueueKey] != graphQueue)
+	NSLog(@"MISSING.updateCommitsFromGrapher: called with commitData");
+	if ([commitData objectForKey:kCurrentQueueKey] != graphQueue) {
+		NSLog(@"MISSING.updateCommitsFromGrapher: queue mismatch, returning");
 		return;
+	}
 
-	[self addCommitsFromArray:[commitData objectForKey:kNewCommitsKey]];
+	NSArray *newCommits = [commitData objectForKey:kNewCommitsKey];
+	NSLog(@"MISSING.updateCommitsFromGrapher: got %lu commits from grapher", (unsigned long)[newCommits count]);
+	[self addCommitsFromArray:newCommits];
 }
 
 - (void) finishedGraphing
@@ -353,23 +372,32 @@
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
 	if ([@"currentBranch" isEqualToString:(__bridge NSString*)context]) {
+		NSLog(@"MISSING.observeValueForKeyPath: currentBranch changed, updating history");
 		[self updateHistory];
 		return;
 	}
 
 	if ([@"repositoryHasChanged" isEqualToString:(__bridge NSString*)context]) {
+		NSLog(@"MISSING.observeValueForKeyPath: repositoryHasChanged, forcing update");
 		[self forceUpdate];
 		return;
 	}
 
 	if ([@"commitsUpdated" isEqualToString:(__bridge NSString*)context]) {
+		NSLog(@"MISSING.observeValueForKeyPath: commitsUpdated event received");
 		NSInteger changeKind = [(NSNumber *)[change objectForKey:NSKeyValueChangeKindKey] intValue];
+		NSLog(@"MISSING.observeValueForKeyPath: changeKind = %ld", (long)changeKind);
 		if (changeKind == NSKeyValueChangeInsertion) {
 			NSArray *newCommits = [change objectForKey:NSKeyValueChangeNewKey];
-			if ([repository.currentBranch isSimpleRef])
+			NSLog(@"MISSING.observeValueForKeyPath: insertion event with %lu new commits", (unsigned long)[newCommits count]);
+			NSLog(@"MISSING.observeValueForKeyPath: currentBranch isSimpleRef = %d", [repository.currentBranch isSimpleRef]);
+			if ([repository.currentBranch isSimpleRef]) {
+				NSLog(@"MISSING.observeValueForKeyPath: adding operation to graphQueue");
 				[graphQueue addOperation:[self operationForCommits:newCommits]];
-			else
+			} else {
+				NSLog(@"MISSING.observeValueForKeyPath: directly adding commits to array");
 				[self addCommitsFromArray:newCommits];
+			}
 		}
 		return;
 	}
