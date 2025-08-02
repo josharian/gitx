@@ -106,8 +106,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			else {
 				// We are not this commit.
 				currentLanes->push_back(*it);
-				add_line(lines, &currentLine, 1, i, currentLanes->size(),(*it)->index());
-				add_line(lines, &currentLine, 0, currentLanes->size(), currentLanes->size(), (*it)->index());
+				add_line(lines, &currentLine, 1, i, (int)currentLanes->size(),(*it)->index());
+				add_line(lines, &currentLine, 0, (int)currentLanes->size(), (int)currentLanes->size(), (*it)->index());
 			}
 			// For existing columns, we always just continue straight down
 			// ^^ I don't know what that means anymore :(
@@ -134,7 +134,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			
 			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
 			currentLanes->push_back(newLane);
-			newPos = currentLanes->size();
+			newPos = (int)currentLanes->size();
 			add_line(lines, &currentLine, 0, newPos, newPos, newLane->index());
 		} @catch (NSException *exception) {
 		}
