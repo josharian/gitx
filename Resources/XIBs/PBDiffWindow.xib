@@ -32,7 +32,7 @@
                     <webView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO"/>
+                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="11" plugInsEnabled="NO" javaEnabled="NO"/>
                         <connections>
                             <outlet property="UIDelegate" destination="8" id="11"/>
                             <outlet property="frameLoadDelegate" destination="8" id="10"/>

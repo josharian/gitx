@@ -6,6 +6,7 @@ body {
 	margin-top: 5px;
 	width: 100%;
 	font-family: 'Lucida Grande', Arial;
+	font-size: 12px;
 }
 
 .expanded:before {
@@ -18,5 +19,6 @@ body {
 
 .SHA {
 	font-family: 'Monaco', monospace;
+	font-size: 11px;
 	text-decoration: none;
 }
