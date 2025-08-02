@@ -362,9 +362,9 @@
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
 	if (!item)
-		return [items objectAtIndex:index];
+		return [items objectAtIndex:(NSUInteger)index];
 
-	return [[(PBSourceViewItem *)item sortedChildren] objectAtIndex:index];
+	return [[(PBSourceViewItem *)item sortedChildren] objectAtIndex:(NSUInteger)index];
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item

@@ -89,7 +89,7 @@ const BOOL SHUFFLE_COLORS = NO;
 		[shadow set];
 	}
 	NSArray* colors = [PBGitRevisionCell laneColors];
-	[(NSColor*)[colors objectAtIndex: (c % [colors count])] set];
+	[(NSColor*)[colors objectAtIndex: ((NSUInteger)c % [colors count])] set];
 	
 	NSBezierPath * path = [NSBezierPath bezierPath];
 	[path setLineWidth:2];
