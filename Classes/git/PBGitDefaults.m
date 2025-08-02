@@ -14,10 +14,7 @@
 #define kDefaultVerticalBodyLineLength 72
 #define kCommitMessageViewVerticalBodyLineLength @"PBCommitMessageViewVerticalBodyLineLength"
 #define kCommitMessageViewHasVerticalLine @"PBCommitMessageViewHasVerticalLine"
-#define kEnableGist @"PBEnableGist"
 #define kEnableGravatar @"PBEnableGravatar"
-#define kConfirmPublicGists @"PBConfirmPublicGists"
-#define kPublicGist @"PBGistPublic"
 #define kShowWhitespaceDifferences @"PBShowWhitespaceDifferences"
 #define kOpenCurDirOnLaunch @"PBOpenCurDirOnLaunch"
 #define kShowOpenPanelOnLaunch @"PBShowOpenPanelOnLaunch"
@@ -42,13 +39,7 @@
     [defaultValues setObject:[NSNumber numberWithBool:YES]
                       forKey:kCommitMessageViewHasVerticalLine];
 	[defaultValues setObject:[NSNumber numberWithBool:YES]
-			  forKey:kEnableGist];
-	[defaultValues setObject:[NSNumber numberWithBool:YES]
 			  forKey:kEnableGravatar];
-	[defaultValues setObject:[NSNumber numberWithBool:YES]
-			  forKey:kConfirmPublicGists];
-	[defaultValues setObject:[NSNumber numberWithBool:NO]
-			  forKey:kPublicGist];
 	[defaultValues setObject:[NSNumber numberWithBool:YES]
 			  forKey:kShowWhitespaceDifferences];
 	[defaultValues setObject:[NSNumber numberWithBool:YES]
@@ -83,24 +74,9 @@
 	return (int)[[NSUserDefaults standardUserDefaults] integerForKey:kCommitMessageViewVerticalBodyLineLength];
 }
 
-+ (BOOL) isGistEnabled
-{
-	return [[NSUserDefaults standardUserDefaults] boolForKey:kEnableGist];
-}
-
 + (BOOL) isGravatarEnabled
 {
 	return [[NSUserDefaults standardUserDefaults] boolForKey:kEnableGravatar];
-}
-
-+ (BOOL) confirmPublicGists
-{
-	return [[NSUserDefaults standardUserDefaults] boolForKey:kConfirmPublicGists];
-}
-
-+ (BOOL) isGistPublic
-{
-	return [[NSUserDefaults standardUserDefaults] boolForKey:kPublicGist];
 }
 
 + (BOOL)showWhitespaceDifferences

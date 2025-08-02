@@ -25,8 +25,6 @@
 
 	PBViewController* viewController;
 
-	IBOutlet NSToolbarItem *terminalItem;
-	IBOutlet NSToolbarItem *finderItem;
 }
 
 @property (nonatomic, weak)  PBGitRepository *repository;
@@ -45,8 +43,6 @@
 
 - (IBAction) showCommitView:(id)sender;
 - (IBAction) showHistoryView:(id)sender;
-- (IBAction) revealInFinder:(id)sender;
-- (IBAction) openInTerminal:(id)sender;
 - (IBAction) refresh:(id)sender;
 
 - (void)setHistorySearch:(NSString *)searchString mode:(NSInteger)mode;

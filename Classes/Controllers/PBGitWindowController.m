@@ -86,11 +86,6 @@
 	[[statusField cell] setBackgroundStyle:NSBackgroundStyleRaised];
 	[progressIndicator setUsesThreadedAnimation:YES];
 
-	NSImage *finderImage = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeForHFSTypeCode(kFinderIcon)];
-	[finderItem setImage:finderImage];
-
-	NSImage *terminalImage = [[NSWorkspace sharedWorkspace] iconForFile:@"/Applications/Utilities/Terminal.app/"];
-	[terminalItem setImage:terminalImage];
 
 	[self showWindow:nil];
 }
@@ -174,20 +169,6 @@
 	[self showErrorSheet:error];
 }
 
-- (IBAction) revealInFinder:(id)sender
-{
-	[[NSWorkspace sharedWorkspace] openFile:[repository workingDirectory]];
-}
-
-- (IBAction) openInTerminal:(id)sender
-{
-	TerminalApplication *term = [SBApplication applicationWithBundleIdentifier: @"com.apple.Terminal"];
-	NSString *workingDirectory = [[repository workingDirectory] stringByAppendingString:@"/"];
-	NSString *cmd = [NSString stringWithFormat: @"cd \"%@\"; clear; echo '# Opened by GitX:'; git status", workingDirectory];
-	[term doScript: cmd in: nil];
-	[NSThread sleepForTimeInterval: 0.1];
-	[term activate];
-}
 
 - (IBAction) refresh:(id)sender
 {

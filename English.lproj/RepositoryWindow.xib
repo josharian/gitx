@@ -157,72 +157,22 @@
 							<reference key="NSNextResponder" ref="751230759"/>
 							<int key="NSvFlags">289</int>
 							<array class="NSMutableArray" key="NSSubviews">
-								<object class="NSButton" id="928885003">
-									<reference key="NSNextResponder" ref="595346420"/>
-									<int key="NSvFlags">268</int>
-									<string key="NSFrame">{{221, 3}, {25, 25}}</string>
-									<reference key="NSSuperview" ref="595346420"/>
-									<reference key="NSWindow"/>
-									<bool key="NSEnabled">YES</bool>
-									<object class="NSButtonCell" key="NSCell" id="13545808">
-										<int key="NSCellFlags">-2080374784</int>
-										<int key="NSCellFlags2">134217728</int>
-										<string key="NSContents"/>
-										<object class="NSFont" key="NSSupport" id="243049204">
-											<string key="NSName">LucidaGrande</string>
-											<double key="NSSize">13</double>
-											<int key="NSfFlags">1044</int>
-										</object>
-										<reference key="NSControlView" ref="928885003"/>
-										<int key="NSButtonFlags">-2033958912</int>
-										<int key="NSButtonFlags2">163</int>
-										<object class="NSCustomResource" key="NSNormalImage">
-											<string key="NSClassName">NSImage</string>
-											<string key="NSResourceName">NSRevealFreestandingTemplate</string>
-										</object>
-										<string key="NSAlternateContents">Reveal</string>
-										<string key="NSKeyEquivalent"/>
-										<int key="NSPeriodicDelay">400</int>
-										<int key="NSPeriodicInterval">75</int>
-									</object>
-									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
-								</object>
-								<object class="NSButton" id="1013117443">
-									<reference key="NSNextResponder" ref="595346420"/>
-									<int key="NSvFlags">268</int>
-									<string key="NSFrame">{{143, 3}, {70, 25}}</string>
-									<reference key="NSSuperview" ref="595346420"/>
-									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView" ref="928885003"/>
-									<bool key="NSEnabled">YES</bool>
-									<object class="NSButtonCell" key="NSCell" id="1072322736">
-										<int key="NSCellFlags">-2080374784</int>
-										<int key="NSCellFlags2">134217728</int>
-										<string key="NSContents">Console</string>
-										<reference key="NSSupport" ref="243049204"/>
-										<reference key="NSControlView" ref="1013117443"/>
-										<int key="NSButtonFlags">-2035007488</int>
-										<int key="NSButtonFlags2">163</int>
-										<string key="NSAlternateContents">Terminal</string>
-										<string key="NSKeyEquivalent"/>
-										<int key="NSPeriodicDelay">400</int>
-										<int key="NSPeriodicInterval">75</int>
-									</object>
-									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
-								</object>
 								<object class="NSButton" id="740979162">
 									<reference key="NSNextResponder" ref="595346420"/>
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{110, 3}, {25, 25}}</string>
 									<reference key="NSSuperview" ref="595346420"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView" ref="1013117443"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="350298421">
 										<int key="NSCellFlags">-2080374784</int>
 										<int key="NSCellFlags2">134217728</int>
 										<string key="NSContents"/>
-										<reference key="NSSupport" ref="243049204"/>
+										<object class="NSFont" key="NSSupport">
+											<string key="NSName">LucidaGrande</string>
+											<double key="NSSize">13</double>
+											<int key="NSfFlags">1044</int>
+										</object>
 										<reference key="NSControlView" ref="740979162"/>
 										<int key="NSButtonFlags">-2030813184</int>
 										<int key="NSButtonFlags2">163</int>
@@ -324,22 +274,6 @@
 						<reference key="destination" ref="740979162"/>
 					</object>
 					<int key="connectionID">432</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">openInTerminal:</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="1013117443"/>
-					</object>
-					<int key="connectionID">438</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">revealInFinder:</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="13545808"/>
-					</object>
-					<int key="connectionID">442</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -457,38 +391,10 @@
 						<int key="objectID">443</int>
 						<reference key="object" ref="595346420"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="928885003"/>
-							<reference ref="1013117443"/>
 							<reference ref="740979162"/>
 						</array>
 						<reference key="parent" ref="751230759"/>
 						<string key="objectName">RefreshTermFind View</string>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">435</int>
-						<reference key="object" ref="1013117443"/>
-						<array class="NSMutableArray" key="children">
-							<reference ref="1072322736"/>
-						</array>
-						<reference key="parent" ref="595346420"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">436</int>
-						<reference key="object" ref="1072322736"/>
-						<reference key="parent" ref="1013117443"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">439</int>
-						<reference key="object" ref="928885003"/>
-						<array class="NSMutableArray" key="children">
-							<reference ref="13545808"/>
-						</array>
-						<reference key="parent" ref="595346420"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">440</int>
-						<reference key="object" ref="13545808"/>
-						<reference key="parent" ref="928885003"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">430</int>

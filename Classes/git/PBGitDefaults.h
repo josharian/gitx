@@ -14,10 +14,7 @@
 + (int) commitMessageViewVerticalLineLength;
 + (int) commitMessageViewVerticalBodyLineLength;
 + (BOOL) commitMessageViewHasVerticalLine;
-+ (BOOL) isGistEnabled;
 + (BOOL) isGravatarEnabled;
-+ (BOOL) confirmPublicGists;
-+ (BOOL) isGistPublic;
 + (BOOL)showWhitespaceDifferences;
 + (BOOL) shouldCheckoutBranch;
 + (void) setShouldCheckoutBranch:(BOOL)shouldCheckout;
