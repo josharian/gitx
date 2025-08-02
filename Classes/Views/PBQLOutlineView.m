@@ -70,8 +70,8 @@
 		NSInteger row = [self rowAtPoint:mousePoint];
 
 		// figure out if the row that was just clicked on is currently selected
-		if ([selectedRowIndexes containsIndex:row] == NO) {
-			NSIndexSet *index = [NSIndexSet indexSetWithIndex:row];
+		if ([selectedRowIndexes containsIndex:(NSUInteger)row] == NO) {
+			NSIndexSet *index = [NSIndexSet indexSetWithIndex:(NSUInteger)row];
 			[self selectRowIndexes:index byExtendingSelection:NO];
 		}
 	}

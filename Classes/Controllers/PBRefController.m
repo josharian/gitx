@@ -252,7 +252,7 @@
 	if ([commits count] <= rowIndex)
 		return nil;
 
-	return [self menuItemsForCommit:[commits objectAtIndex:rowIndex]];
+	return [self menuItemsForCommit:[commits objectAtIndex:(NSUInteger)rowIndex]];
 }
 
 
@@ -271,12 +271,12 @@
 	PBGitRevisionCell *cell = (PBGitRevisionCell *)[tv preparedCellAtColumn:column row:row];
 	NSRect cellFrame = [tv frameOfCellAtColumn:column row:row];
 	
-	int index = [cell indexAtX:(location.x - cellFrame.origin.x)];
+	int index = [cell indexAtX:(float)(location.x - cellFrame.origin.x)];
 	
 	if (index == -1)
 		return NO;
 
-	PBGitRef *ref = [[[cell objectValue] refs] objectAtIndex:index];
+	PBGitRef *ref = [[[cell objectValue] refs] objectAtIndex:(NSUInteger)index];
 	if ([ref isTag] || [ref isRemoteBranch])
 		return NO;
 
@@ -342,10 +342,10 @@
 		return NO;
 
 	int oldRefIndex = [[numbers objectAtIndex:1] intValue];
-	PBGitCommit *oldCommit = [[commitController arrangedObjects] objectAtIndex:oldRow];
-	PBGitRef *ref = [[oldCommit refs] objectAtIndex:oldRefIndex];
+	PBGitCommit *oldCommit = [[commitController arrangedObjects] objectAtIndex:(NSUInteger)oldRow];
+	PBGitRef *ref = [[oldCommit refs] objectAtIndex:(NSUInteger)oldRefIndex];
 
-	PBGitCommit *dropCommit = [[commitController arrangedObjects] objectAtIndex:row];
+	PBGitCommit *dropCommit = [[commitController arrangedObjects] objectAtIndex:(NSUInteger)row];
 
 	NSDictionary *dropInfo = [NSDictionary dictionaryWithObjectsAndKeys:
 							  ref, @"dragRef",
