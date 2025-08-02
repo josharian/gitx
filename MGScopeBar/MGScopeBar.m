@@ -431,8 +431,6 @@
 	}
 	
 	if (proceed) {
-		// Disable screen updates.
-		NSDisableScreenUpdates();
 		
 		// See how many further groups we can expand or contract.
 		float theoreticalOccupiedWidth = currentOccupiedWidth;
@@ -653,9 +651,6 @@
 				}
 			}
 		}
-		
-		// Re-enable screen updates.
-		NSEnableScreenUpdates();
 	}
 	
 	// Take note of our width for comparison next time.
@@ -933,7 +928,6 @@
 		
 		if (group) {
 			[group retain];
-			NSDisableScreenUpdates();
 			
 			// We found the group which this item belongs to. Obtain selection-mode and identifiers.
 			MGScopeBarGroupSelectionMode selMode = [[group objectForKey:GROUP_SELECTION_MODE] intValue];
@@ -968,7 +962,6 @@
 			}
 			
 			[group release];
-			NSEnableScreenUpdates();
 		}
 	}
 }
