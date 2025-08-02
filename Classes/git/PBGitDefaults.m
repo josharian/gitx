@@ -70,7 +70,7 @@
 
 + (int) commitMessageViewVerticalLineLength
 {
-	return [[NSUserDefaults standardUserDefaults] integerForKey:kCommitMessageViewVerticalLineLength];
+	return (int)[[NSUserDefaults standardUserDefaults] integerForKey:kCommitMessageViewVerticalLineLength];
 }
 
 + (BOOL) commitMessageViewHasVerticalLine
@@ -80,7 +80,7 @@
 
 + (int) commitMessageViewVerticalBodyLineLength
 {
-	return [[NSUserDefaults standardUserDefaults] integerForKey:kCommitMessageViewVerticalBodyLineLength];
+	return (int)[[NSUserDefaults standardUserDefaults] integerForKey:kCommitMessageViewVerticalBodyLineLength];
 }
 
 + (BOOL) isGistEnabled
