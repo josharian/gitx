@@ -101,7 +101,7 @@
 	}
 	else if(commandSelector == @selector(moveUp:)) {
 		if(selectedResult != nil) {
-			int index = [currentResults indexOfObject: selectedResult]-1;
+			int index = (int)[currentResults indexOfObject: selectedResult]-1;
 			if(index < 0) index = 0;
 			selectedResult = [currentResults objectAtIndex:index];
 			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:FALSE];

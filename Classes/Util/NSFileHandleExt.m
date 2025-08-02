@@ -32,7 +32,7 @@
 	int bytesReceived = 0, n = 0;
 	
 	while (1) {
-		n = read(fd, buffer + bytesReceived, 1);
+		n = (int)read(fd, buffer + bytesReceived, 1);
 		
 		if (n == 0)
 			break;

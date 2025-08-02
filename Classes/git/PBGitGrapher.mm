@@ -69,7 +69,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 		}
 	}
 
-	int maxLines = (previousLanes->size() + nParents + 2) * 2;
+	int maxLines = ((int)previousLanes->size() + nParents + 2) * 2;
 	struct PBGitGraphLine *lines = (struct PBGitGraphLine *)malloc(sizeof(struct PBGitGraphLine) * maxLines);
 	int currentLine = 0;
 
