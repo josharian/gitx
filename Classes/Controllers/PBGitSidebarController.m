@@ -123,7 +123,7 @@
 
 - (void) selectStage
 {
-	NSIndexSet *index = [NSIndexSet indexSetWithIndex:[sourceView rowForItem:stage]];
+	NSIndexSet *index = [NSIndexSet indexSetWithIndex:(NSUInteger)[sourceView rowForItem:stage]];
 	[sourceView selectRowIndexes:index byExtendingSelection:NO];
 }
 

@@ -60,7 +60,7 @@
 
 - (BOOL)isRowInSearchResults:(NSInteger)rowIndex
 {
-	return [results containsIndex:rowIndex];
+	return [results containsIndex:(NSUInteger)rowIndex];
 }
 
 - (BOOL)hasSearchResults
@@ -161,7 +161,7 @@
 	if (![results count])
 		return;
 
-	NSUInteger selectedRow = [historyController.commitList selectedRow];
+	NSInteger selectedRow = [historyController.commitList selectedRow];
 	if (selectedRow == NSNotFound) {
 		[self selectIndex:[results firstIndex]];
 		return;
