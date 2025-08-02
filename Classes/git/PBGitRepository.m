@@ -903,17 +903,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 #pragma mark Repository commands
 
-- (void) cloneRepositoryToPath:(NSString *)path bare:(BOOL)isBare
-{
-	if (!path || [path isEqualToString:@""])
-		return;
-
-	NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"clone", @"--no-hardlinks", @"--", @".", path, nil];
-	if (isBare)
-		[arguments insertObject:@"--bare" atIndex:1];
-
-	// Cloning has been disabled in this version
-}
 
 
 - (BOOL) checkoutRefish:(id <PBGitRefish>)ref

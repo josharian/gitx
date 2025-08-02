@@ -69,7 +69,6 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 
 @property (nonatomic, strong) NSMutableArray* submodules;
 
-- (void) cloneRepositoryToPath:(NSString *)path bare:(BOOL)isBare;
 - (BOOL) checkoutRefish:(id <PBGitRefish>)ref;
 - (BOOL) checkoutFiles:(NSArray *)files fromRefish:(id <PBGitRefish>)ref;
 - (BOOL) mergeWithRefish:(id <PBGitRefish>)ref;

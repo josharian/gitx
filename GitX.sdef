@@ -161,16 +161,7 @@
 			<direct-parameter type="text" description="The textual output from a diff tool."/>
 		</command>
 		<command name="init repository" code="GitXInit" description="Create a git repository at the given filesystem URL.">
-			<direct-parameter type="file" description="The URL of the repository to clone."/>
-		</command>
-		<command name="clone repository" code="GitXClon" description="Clone a repository.">
-			<direct-parameter type="text" description="The URL of the repository to clone."/>
-			<parameter name="to" code="URL " type="file" description="The location for the new repository.">
-				<cocoa key="destinationURL"/>
-			</parameter>
-			<parameter name="is bare" code="Bare" type="boolean" optional="yes" description="Indicates whether the created repository should be a bare repository.">
-				<cocoa key="isBare"/>
-			</parameter>
+			<direct-parameter type="file" description="The filesystem location where the repository should be created."/>
 		</command>
 
 		<command name="search" code="GitXSrch" description="Highlight commits that match the given search string.">
@@ -189,9 +180,6 @@
 			</responds-to>
 			<responds-to name="init repository">
 				<cocoa method="initRepositoryScriptCommand:"/>
-			</responds-to>
-			<responds-to name="clone repository">
-				<cocoa method="cloneRepositoryScriptCommand:"/>
 			</responds-to>
 		</class-extension>
 

@@ -22,7 +22,6 @@
 #define kOpenCurDirOnLaunch @"PBOpenCurDirOnLaunch"
 #define kShowOpenPanelOnLaunch @"PBShowOpenPanelOnLaunch"
 #define kShouldCheckoutBranch @"PBShouldCheckoutBranch"
-#define kRecentCloneDestination @"PBRecentCloneDestination"
 #define kShowStageView @"PBShowStageView"
 #define kOpenPreviousDocumentsOnLaunch @"PBOpenPreviousDocumentsOnLaunch"
 #define kPreviousDocumentPaths @"PBPreviousDocumentPaths"
@@ -129,15 +128,6 @@
 	[[NSUserDefaults standardUserDefaults] setBool:shouldCheckout forKey:kShouldCheckoutBranch];
 }
 
-+ (NSString *) recentCloneDestination
-{
-	return [[NSUserDefaults standardUserDefaults] stringForKey:kRecentCloneDestination];
-}
-
-+ (void) setRecentCloneDestination:(NSString *)path
-{
-	[[NSUserDefaults standardUserDefaults] setObject:path forKey:kRecentCloneDestination];
-}
 
 + (BOOL) showStageView
 {

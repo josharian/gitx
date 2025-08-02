@@ -39,7 +39,6 @@
 - (BOOL) exists:(id)x;  // Verify that an object exists.
 - (void) showDiff:(NSString *)x;  // Show the supplied diff output in a GitX window.
 - (void) initRepository:(NSURL *)x NS_RETURNS_NOT_RETAINED;  // Create a git repository at the given filesystem URL.
-- (void) cloneRepository:(NSString *)x to:(NSURL *)to isBare:(BOOL)isBare;  // Clone a repository.
 
 @end
 
