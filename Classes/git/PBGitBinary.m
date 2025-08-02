@@ -111,6 +111,7 @@ static NSMutableArray *locations = nil;
 					 @"/opt/git/bin/git",
 					 @"/usr/local/bin/git",
 					 @"/usr/local/git/bin/git",
+					 @"/opt/homebrew/bin/git",
 					 nil];
 		
 		[locations addObject:[@"~/bin/git" stringByExpandingTildeInPath]];
