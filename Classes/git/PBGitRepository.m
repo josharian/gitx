@@ -29,7 +29,9 @@
 NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 @interface PBGitRepository ()
-
+{
+	NSMutableDictionary *refToSHAMapping; // Maps ref strings to GTOID objects
+}
 
 @end
 
@@ -402,6 +404,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	_headRef = nil;
 	_headSha = nil;
 	self->refs = [NSMutableDictionary dictionary];
+	refToSHAMapping = [NSMutableDictionary dictionary];
 	
 	// Use git for-each-ref to enumerate all references with their commit SHAs
 	NSTask *task = [[NSTask alloc] init];
@@ -451,6 +454,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 										self->refs[sha] = refsForCommit;
 									}
 									[refsForCommit addObject:gitRef];
+									
+									// Also store ref->SHA mapping for efficient lookup
+									refToSHAMapping[referenceName] = sha;
 								}
 							}
 						}
@@ -519,20 +525,26 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if (!ref)
 		return nil;
 	
-	for (GTOID *sha in refs)
+	// First try the efficient mapping from reloadRefs
+	GTOID *sha = refToSHAMapping[ref.ref];
+	if (sha) {
+		return sha;
+	}
+	
+	// Fallback: search through the refs dictionary (less efficient but handles edge cases)
+	for (GTOID *existingSha in refs)
 	{
-		NSMutableSet *refsForSha = [refs objectForKey:sha];
+		NSMutableArray *refsForSha = [refs objectForKey:existingSha];
 		for (PBGitRef *existingRef in refsForSha)
 		{
 			if ([existingRef isEqualToRef:ref])
 			{
-				return sha;
+				return existingSha;
 			}
 		}
     }
     
-	
-	// Use git rev-parse to resolve the ref to a SHA
+	// Last resort: use git rev-parse (should rarely be needed now)
 	NSTask *task = [[NSTask alloc] init];
 	task.launchPath = @"/usr/bin/git";
 	task.arguments = @[@"rev-parse", ref.ref];
@@ -552,7 +564,12 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 			shaString = [shaString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 			
 			if (shaString.length > 0) {
-				return [GTOID oidWithSHA:shaString];
+				GTOID *fallbackSha = [GTOID oidWithSHA:shaString];
+				// Cache it for future lookups
+				if (fallbackSha) {
+					refToSHAMapping[ref.ref] = fallbackSha;
+				}
+				return fallbackSha;
 			}
 		}
 	}
