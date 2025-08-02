@@ -32,8 +32,8 @@ static NSImage *grip;
 	gripRect.size.width = 8;
 	
 	[self lockFocus];
-	[bar drawInRect:aRect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
-	[grip drawInRect:gripRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	[bar drawInRect:aRect fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
+	[grip drawInRect:gripRect fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:1.0];
 	[self unlockFocus];
 }
 

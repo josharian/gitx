@@ -156,7 +156,7 @@
 	[discardForceItem setTarget:self];
 	[discardForceItem setAlternate:YES];
 	[discardForceItem setRepresentedObject:selectedFiles];
-	[discardForceItem setKeyEquivalentModifierMask:NSAlternateKeyMask];
+	[discardForceItem setKeyEquivalentModifierMask:NSEventModifierFlagOption];
 	[menu addItem:discardForceItem];
 	
 	BOOL trashInsteadOfDiscard = floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_7;

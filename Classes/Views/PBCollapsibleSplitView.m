@@ -43,7 +43,7 @@
 }
 
 - (void)keyDown:(NSEvent *)event {
-	if (!([event modifierFlags] & NSShiftKeyMask && [event modifierFlags] & NSCommandKeyMask))
+	if (!([event modifierFlags] & NSEventModifierFlagShift && [event modifierFlags] & NSEventModifierFlagCommand))
 		return [super keyDown:event];
 
 	if ([event keyCode] == 0x07E) {		// Up-Key

@@ -37,7 +37,7 @@
     bool isUnstagedView = [self tag] == 0;
     bool isStagedView = !isUnstagedView;
     
-    bool commandDown = theEvent.modifierFlags & NSCommandKeyMask;
+    bool commandDown = theEvent.modifierFlags & NSEventModifierFlagCommand;
     
     if([theEvent.characters isEqualTo:@"s"] && commandDown && isUnstagedView) {
         int oldSelectedRowIndex = self.selectedRow;

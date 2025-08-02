@@ -46,7 +46,7 @@
 
 		[checkedOutImage drawInRect:imageFrame
 						   fromRect:NSZeroRect
-						  operation:NSCompositeSourceOver
+						  operation:NSCompositingOperationSourceOver
 						   fraction:1.0f
 					 respectFlipped:YES
 							  hints:nil];

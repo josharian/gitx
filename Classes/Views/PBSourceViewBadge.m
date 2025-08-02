@@ -62,7 +62,7 @@
 	NSMutableDictionary *badgeTextAttributes = nil;
 	if (!badgeTextAttributes) {
 		NSMutableParagraphStyle *centerStyle = [[NSMutableParagraphStyle alloc] init];
-		[centerStyle setAlignment:NSCenterTextAlignment];
+		[centerStyle setAlignment:NSTextAlignmentCenter];
 
 		badgeTextAttributes =  [NSMutableDictionary dictionary];
 		[badgeTextAttributes setObject:[NSFont fontWithName:@"Helvetica-Bold" size:[NSFont systemFontSize] - 2] forKey:NSFontAttributeName];

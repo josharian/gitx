@@ -103,7 +103,7 @@ static const CGFloat kIconPadding = 3;
 
 	NSRect textFrame, imageFrame;
 	NSDivideRect (cellFrame, &imageFrame, &textFrame, kIconSpacing + [imageCell.image size].width, NSMinXEdge);
-	while ([theEvent type] != NSLeftMouseUp) {
+	while ([theEvent type] != NSEventTypeLeftMouseUp) {
 		// This is VERY simple event tracking. We simply check to see if the mouse is in the "i" button or not and dispatch entered/exited mouse events
 		NSPoint point = [controlView convertPoint:[theEvent locationInWindow] fromView:nil];
 		BOOL mouseInButton = NSMouseInRect(point, imageFrame, [controlView isFlipped]);
@@ -111,10 +111,10 @@ static const CGFloat kIconPadding = 3;
 			mouseDownInButton = mouseInButton;
 			[controlView setNeedsDisplayInRect:cellFrame];
 		}
-		if ([theEvent type] == NSMouseEntered || [theEvent type] == NSMouseExited)
+		if ([theEvent type] == NSEventTypeMouseEntered || [theEvent type] == NSEventTypeMouseExited)
 			[NSApp sendEvent:theEvent];
 		// Note that we process mouse entered and exited events and dispatch them to properly handle updates
-		theEvent = [[controlView window] nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSMouseEnteredMask | NSMouseExitedMask)];
+		theEvent = [[controlView window] nextEventMatchingMask:(NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskMouseEntered | NSEventMaskMouseExited)];
 	}
 
 	// Another way of implementing the above code would be to keep an NSButtonCell as an ivar, and simply call trackMouse:inRect:ofView:untilMouseUp: on it, if the tracking area was inside of it.

@@ -186,7 +186,7 @@ const BOOL SHUFFLE_COLORS = NO;
 	NSMutableDictionary *attributes = [[NSMutableDictionary alloc] initWithCapacity:2];
 	NSMutableParagraphStyle* style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
 	
-	[style setAlignment:NSCenterTextAlignment];
+	[style setAlignment:NSTextAlignmentCenter];
 	[attributes setObject:style forKey:NSParagraphStyleAttributeName];
 	[attributes setObject:[NSFont fontWithName:@"LucidaGrande" size:10] forKey:NSFontAttributeName];
 

@@ -485,7 +485,7 @@
 	panelRect.origin.y = windowFrame.origin.y + historyFrame.origin.y + ((historyFrame.size.height - kRewindPanelSize) / 2.0f);
 
 	NSPanel *panel = [[NSPanel alloc] initWithContentRect:panelRect
-												styleMask:NSBorderlessWindowMask
+												styleMask:NSWindowStyleMaskBorderless
 												  backing:NSBackingStoreBuffered 
 													defer:YES];
 	[panel setIgnoresMouseEvents:YES];
