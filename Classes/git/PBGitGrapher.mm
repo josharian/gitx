@@ -14,6 +14,7 @@
 #import "PBGitCommit.h"
 #import "PBGitLane.h"
 #import "PBGitGraphLine.h"
+#import "GTObjectiveGitStubs.h"
 
 #import <vector>
 // #import <git2/oid.h>
@@ -110,7 +111,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	// If we already did the first parent, don't do so again
 	if (!didFirst && nParents) {
-		const git_oid *parentOID = [(GTOID*)[parents objectAtIndex:0] git_oid];
+		GTCommit *parentCommit = [parents objectAtIndex:0];
+		const git_oid *parentOID = [parentCommit.OID git_oid];
 		PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
 		currentLanes->push_back(newLane);
 		newPos = currentLanes->size();
@@ -125,7 +127,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	int parentIndex = 0;
 	for (parentIndex = 1; parentIndex < nParents; ++parentIndex) {
-		const git_oid *parentOID = [(GTOID*)[parents objectAtIndex:parentIndex] git_oid];
+		GTCommit *parentCommit = [parents objectAtIndex:parentIndex];
+		const git_oid *parentOID = [parentCommit.OID git_oid];
 		int i = 0;
 		BOOL was_displayed = NO;
 		LaneCollection::iterator it = currentLanes->begin();
@@ -169,9 +172,10 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	// Update the current lane to point to the new parent
 	if (currentLane) {
-		if (nParents > 0)
-			currentLane->setSha( [(GTOID*)[parents objectAtIndex:0] git_oid]);
-		else {
+		if (nParents > 0) {
+			GTCommit *parentCommit = [parents objectAtIndex:0];
+			currentLane->setSha([parentCommit.OID git_oid]);
+		} else {
 			// The current lane's commit does not have any parents
 			// AKA, this is a first commit
 			// Empty the entry and free the lane.

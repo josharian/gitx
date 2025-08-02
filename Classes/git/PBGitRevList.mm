@@ -125,8 +125,8 @@
     
     NSMutableArray *args = [[NSMutableArray alloc] initWithObjects:@"rev-list", nil];
     
-    // Add format to get commit data including parents in one call
-    [args addObject:@"--pretty=format:%H%n%s%n%B%n%an%n%cn%n%ct%n%P"];
+    // Add format to get commit data including parents in one call - use NUL separators to handle newlines in commit messages
+    [args addObject:@"--pretty=format:%H%x00%s%x00%B%x00%an%x00%cn%x00%ct%x00%P%x00"];
     
     // Add sorting options based on GTEnumeratorOptions
     if (self.options & GTEnumeratorOptionsTopologicalSort) {
@@ -187,25 +187,36 @@
     for (NSString *commitBlock in commits) {
         if ([commitBlock length] == 0) continue;
         
-        // Skip the "commit " prefix if it exists
+        // Handle the first commit which might not have the \ncommit prefix
         NSString *block = commitBlock;
         if ([block hasPrefix:@"commit "]) {
             block = [block substringFromIndex:7];
         }
         
-        NSArray *lines = [block componentsSeparatedByString:@"\n"];
-        if ([lines count] >= 7) {
+        // Find the first newline - the SHA is on the first line, then NUL-separated data follows
+        NSRange firstNewline = [block rangeOfString:@"\n"];
+        if (firstNewline.location == NSNotFound) continue;
+        
+        NSString *firstLine = [block substringToIndex:firstNewline.location];
+        NSString *dataSection = [block substringFromIndex:firstNewline.location + 1];
+        
+        // Split the data section by NUL characters
+        NSArray *fields = [dataSection componentsSeparatedByString:@"\0"];
+        if ([fields count] >= 7) {  // We need: SHA, subject, body, author, committer, timestamp, parents
             processedCount++;
             if (processedCount % 100 == 0) {
                 NSLog(@"GITX_DEBUG: Processed %d commits so far", processedCount);
             }
-            NSString *shaString = lines[0];
-            NSString *messageSummary = lines[1];
-            NSString *message = lines[2];
-            NSString *authorName = lines[3];
-            NSString *committerName = lines[4];
-            NSString *timestampString = lines[5];
-            NSString *parentSHAsString = lines[6];
+            
+            // Parse according to git format: %H%x00%s%x00%B%x00%an%x00%cn%x00%ct%x00%P%x00
+            NSString *shaString = [firstLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            NSString *shaString2 = fields[0]; // Duplicate SHA from format
+            NSString *messageSummary = fields[1];
+            NSString *message = fields[2];
+            NSString *authorName = fields[3];
+            NSString *committerName = fields[4];
+            NSString *timestampString = fields[5];
+            NSString *parentSHAsString = fields[6];
             
             if ([shaString length] >= 40) {
                 GTCommit *commit = [[GTCommit alloc] init];
