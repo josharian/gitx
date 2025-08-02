@@ -60,16 +60,16 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	LaneCollection *currentLanes = new LaneCollection;
 	LaneCollection *previousLanes = self.pl;
 	NSArray *parents = [commit parents];
-	int nParents = (int)[parents count];
+	NSUInteger nParents = [parents count];
 	
 	// Debug: check what's actually in the parents array
-	for (int idx = 0; idx < nParents; idx++) {
+	for (NSUInteger idx = 0; idx < nParents; idx++) {
 		id parentObj = [parents objectAtIndex:idx];
 		if (![parentObj isKindOfClass:[GTCommit class]]) {
 		}
 	}
 
-	int maxLines = ((int)previousLanes->size() + nParents + 2) * 2;
+	int maxLines = ((int)previousLanes->size() + (int)nParents + 2) * 2;
 	struct PBGitGraphLine *lines = (struct PBGitGraphLine *)malloc(sizeof(struct PBGitGraphLine) * maxLines);
 	int currentLine = 0;
 
@@ -146,7 +146,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	// This boolean will tell us if that happened
 	BOOL addedParent = NO;
 
-	int parentIndex = 0;
+	NSUInteger parentIndex = 0;
 	for (parentIndex = 1; parentIndex < nParents; ++parentIndex) {
 		@try {
 			id parentObj = [parents objectAtIndex:parentIndex];

@@ -101,19 +101,20 @@
 	}
 	else if(commandSelector == @selector(moveUp:)) {
 		if(selectedResult != nil) {
-			int index = (int)[currentResults indexOfObject: selectedResult]-1;
-			if(index < 0) index = 0;
-			selectedResult = [currentResults objectAtIndex:(NSUInteger)index];
-			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] byExtendingSelection:FALSE];
+			NSUInteger foundIndex = [currentResults indexOfObject: selectedResult];
+			NSUInteger index = (foundIndex == NSNotFound || foundIndex == 0) ? 0 : foundIndex - 1;
+			selectedResult = [currentResults objectAtIndex:index];
+			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:FALSE];
 			[resultViewer scrollRowToVisible:index];
 		}
 		result = YES;
 	}
 	else if(commandSelector == @selector(moveDown:)) {
 		if(selectedResult != nil) {
-			NSUInteger indexUnsigned = [currentResults indexOfObject: selectedResult]+1;
-			int index = (int)indexUnsigned;
-			if(index >= (int)[currentResults count]) index = (int)[currentResults count] - 1;
+			NSUInteger foundIndex = [currentResults indexOfObject: selectedResult];
+			NSUInteger index = foundIndex + 1;
+			NSUInteger count = [currentResults count];
+			if(index >= count && count > 0) index = count - 1;
 			selectedResult = [currentResults objectAtIndex:index];
 			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:FALSE];
 			[resultViewer scrollRowToVisible:index];
