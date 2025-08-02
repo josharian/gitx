@@ -6,3 +6,6 @@ This is a project to resuscitate GitX.
 * [ ] incrementally migrate to Swift
 
 The last commit before starting surgery has the git tag 'before-revival'.
+
+When a set of fixes is ready, please launch the app for testing.
+
