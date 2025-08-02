@@ -436,10 +436,10 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	_headSha = nil;
 	self->refs = [NSMutableDictionary dictionary];
 	
-	// Use git for-each-ref to enumerate all references
+	// Use git for-each-ref to enumerate all references with their commit SHAs
 	NSTask *task = [[NSTask alloc] init];
 	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"for-each-ref", @"--format=%(refname)%09%(objecttype)"];
+	task.arguments = @[@"for-each-ref", @"--format=%(refname)%09%(objecttype)%09%(objectname)"];
 	task.currentDirectoryPath = [self workingDirectory];
 	
 	NSPipe *pipe = [NSPipe pipe];
@@ -460,11 +460,12 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 			if ([output length] > 0) {
 				NSArray *lines = [output componentsSeparatedByString:@"\n"];
 				for (NSString *line in lines) {
-					// Format: refname<tab>objecttype
+					// Format: refname<tab>objecttype<tab>objectname
 					NSArray *components = [line componentsSeparatedByString:@"\t"];
-					if ([components count] >= 2) {
+					if ([components count] >= 3) {
 						NSString *referenceName = [components objectAtIndex:0];
 						NSString *objectType = [components objectAtIndex:1];
+						NSString *commitSHA = [components objectAtIndex:2];
 						
 						// Skip symbolic references like origin/HEAD that point to other refs
 						if ([objectType isEqualToString:@"commit"] || [objectType isEqualToString:@"tag"]) {
@@ -472,6 +473,19 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 							PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
 							[self addBranch:revSpec];
 							[oldBranches removeObject:revSpec];
+							
+							// Add ref to commit SHA mapping for branch tags
+							if (commitSHA && [commitSHA length] >= 40) { // Ensure valid SHA
+								GTOID *sha = [GTOID oidWithSHA:commitSHA];
+								if (sha) {
+									NSMutableArray *refsForCommit = self->refs[sha];
+									if (!refsForCommit) {
+										refsForCommit = [NSMutableArray array];
+										self->refs[sha] = refsForCommit;
+									}
+									[refsForCommit addObject:gitRef];
+								}
+							}
 						}
 					}
 				}

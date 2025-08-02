@@ -18,7 +18,7 @@ typedef struct {
 } git_oid;
 #endif
 
-@interface GTOID : NSObject {
+@interface GTOID : NSObject <NSCopying> {
 	NSString *_sha;
 	git_oid *_git_oid;
 }

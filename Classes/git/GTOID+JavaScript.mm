@@ -60,6 +60,10 @@
 	return [self.sha hash];
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+	return [GTOID oidWithSHA:self.sha];
+}
+
 @end
 
 @implementation GTOID (JavaScript)
