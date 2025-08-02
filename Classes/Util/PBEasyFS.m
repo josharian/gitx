@@ -15,7 +15,7 @@
 {
 	NSString* newName = [NSString stringWithFormat: @"%@/XXXXXX%@", NSTemporaryDirectory(), path];
 	char *template = (char*) [newName fileSystemRepresentation];
-	int fd = mkstemps(template, (int)[path length]);
+	int fd = mkstemps(template, (int)([path length] & INT_MAX));
 	close(fd);
 	return [NSString stringWithUTF8String:template];
 }
