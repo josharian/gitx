@@ -14,7 +14,6 @@
 #import "PBPrefsWindowController.h"
 #import "PBNSURLPathUserDefaultsTransfomer.h"
 #import "PBGitDefaults.h"
-#import "PBCloneRepositoryPanel.h"
 #import "OpenRecentController.h"
 #import "PBGitBinary.h"
 
@@ -90,9 +89,6 @@ static OpenRecentController* recentsDialog = nil;
 - (void)applicationDidFinishLaunching:(NSNotification*)notification
 {
 
-	// Make sure Git's SSH password requests get forwarded to our little UI tool:
-	setenv( "SSH_ASKPASS", [[[NSBundle mainBundle] pathForResource: @"gitx_askpasswd" ofType: @""] UTF8String], 1 );
-	setenv( "DISPLAY", "localhost:0", 1 );
 
 	[self registerServices];
 	started = YES;
@@ -124,55 +120,7 @@ static OpenRecentController* recentsDialog = nil;
 	[NSApp orderFrontStandardAboutPanelWithOptions:dict];
 }
 
-- (IBAction) showCloneRepository:(id)sender
-{
-	if (!cloneRepositoryPanel)
-		cloneRepositoryPanel = [PBCloneRepositoryPanel panel];
 
-	[cloneRepositoryPanel showWindow:self];
-}
-
-- (IBAction)installCliTool:(id)sender;
-{
-	BOOL success               = NO;
-	NSString* installationPath = @"/usr/local/bin/";
-	NSString* installationName = @"gitx";
-	NSString* toolPath         = [[NSBundle mainBundle] pathForResource:@"gitx" ofType:@""];
-	if (toolPath) {
-		AuthorizationRef auth;
-		if (AuthorizationCreate(NULL, kAuthorizationEmptyEnvironment, kAuthorizationFlagDefaults, &auth) == errAuthorizationSuccess) {
-			char const* mkdir_arg[] = { "-p", [installationPath UTF8String], NULL};
-			char const* mkdir	= "/bin/mkdir";
-			AuthorizationExecuteWithPrivileges(auth, mkdir, kAuthorizationFlagDefaults, (char**)mkdir_arg, NULL);
-			char const* arguments[] = { "-f", "-s", [toolPath UTF8String], [[installationPath stringByAppendingString: installationName] UTF8String],  NULL };
-			char const* helperTool  = "/bin/ln";
-			if (AuthorizationExecuteWithPrivileges(auth, helperTool, kAuthorizationFlagDefaults, (char**)arguments, NULL) == errAuthorizationSuccess) {
-				int status;
-				int pid = wait(&status);
-				if (pid != -1 && WIFEXITED(status) && WEXITSTATUS(status) == 0)
-					success = true;
-				else
-					errno = WEXITSTATUS(status);
-			}
-
-			AuthorizationFree(auth, kAuthorizationFlagDefaults);
-		}
-	}
-
-	if (success) {
-		[[NSAlert alertWithMessageText:@"Installation Complete"
-	                    defaultButton:nil
-	                  alternateButton:nil
-	                      otherButton:nil
-	        informativeTextWithFormat:@"The gitx tool has been installed to %@", installationPath] runModal];
-	} else {
-		[[NSAlert alertWithMessageText:@"Installation Failed"
-	                    defaultButton:nil
-	                  alternateButton:nil
-	                      otherButton:nil
-	        informativeTextWithFormat:@"Installation to %@ failed", installationPath] runModal];
-	}
-}
 
 
 #pragma mark Help menu

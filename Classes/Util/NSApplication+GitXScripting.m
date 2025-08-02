@@ -10,7 +10,6 @@
 #import "GitXScriptingConstants.h"
 #import "PBDiffWindowController.h"
 #import "PBGitRepository.h"
-#import "PBCloneRepositoryPanel.h"
 
 // #import <ObjectiveGit/GTRepository.h>
 
@@ -42,13 +41,12 @@
     NSPipe *errorPipe = [NSPipe pipe];
     gitTask.standardError = errorPipe;
     
-    BOOL success = NO;
     @try {
         [gitTask launch];
         [gitTask waitUntilExit];
         
         if (gitTask.terminationStatus == 0) {
-            success = YES;
+            // Success
         } else {
             NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
             NSString *errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
@@ -70,18 +68,5 @@
                                                                  }];
 }
 
-- (void)cloneRepositoryScriptCommand:(NSScriptCommand *)command
-{
-	NSString *repository = [command directParameter];
-	if (repository) {
-		NSDictionary *arguments = [command arguments];
-		NSURL *destinationURL = [arguments objectForKey:kGitXCloneDestinationURLKey];
-		if (destinationURL) {
-			BOOL isBare = [[arguments objectForKey:kGitXCloneIsBareKey] boolValue];
-
-			[PBCloneRepositoryPanel beginCloneRepository:repository toURL:destinationURL isBare:isBare];
-		}
-	}
-}
 
 @end

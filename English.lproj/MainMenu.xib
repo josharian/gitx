@@ -75,15 +75,6 @@
 									<reference key="NSOnImage" ref="889736156"/>
 									<reference key="NSMixedImage" ref="37108609"/>
 								</object>
-								<object class="NSMenuItem" id="332179816">
-									<reference key="NSMenu" ref="492995933"/>
-									<string key="NSTitle">Enable Terminal Usage…</string>
-									<string key="NSKeyEquiv"/>
-									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="889736156"/>
-									<reference key="NSMixedImage" ref="37108609"/>
-								</object>
 								<object class="NSMenuItem" id="704355783">
 									<reference key="NSMenu" ref="492995933"/>
 									<string key="NSTitle">Preferences…</string>
@@ -223,14 +214,6 @@
 									<reference key="NSOnImage" ref="889736156"/>
 									<reference key="NSMixedImage" ref="37108609"/>
 								</object>
-								<object class="NSMenuItem" id="936887448">
-									<reference key="NSMenu" ref="310195297"/>
-									<string key="NSTitle">Clone…</string>
-									<string key="NSKeyEquiv"/>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="889736156"/>
-									<reference key="NSMixedImage" ref="37108609"/>
-								</object>
 								<object class="NSMenuItem" id="255451250">
 									<reference key="NSMenu" ref="310195297"/>
 									<string key="NSTitle">Open Recent</string>
@@ -274,14 +257,6 @@
 									<string key="NSTitle">Close</string>
 									<string key="NSKeyEquiv">w</string>
 									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="889736156"/>
-									<reference key="NSMixedImage" ref="37108609"/>
-								</object>
-								<object class="NSMenuItem" id="231313974">
-									<reference key="NSMenu" ref="310195297"/>
-									<string key="NSTitle">Clone To…</string>
-									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="889736156"/>
 									<reference key="NSMixedImage" ref="37108609"/>
@@ -1266,22 +1241,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">cloneTo:</string>
-						<reference key="source" ref="954860085"/>
-						<reference key="destination" ref="231313974"/>
-					</object>
-					<int key="connectionID">955</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">showCloneRepository:</string>
-						<reference key="source" ref="954860085"/>
-						<reference key="destination" ref="936887448"/>
-					</object>
-					<int key="connectionID">958</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">setDetailedView:</string>
 						<reference key="source" ref="954860085"/>
 						<reference key="destination" ref="1062123434"/>
@@ -1335,14 +1294,6 @@
 						<reference key="destination" ref="519751875"/>
 					</object>
 					<int key="connectionID">868</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">installCliTool:</string>
-						<reference key="source" ref="859235683"/>
-						<reference key="destination" ref="332179816"/>
-					</object>
-					<int key="connectionID">910</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -1449,7 +1400,6 @@
 							<reference ref="550312819"/>
 							<reference ref="950810233"/>
 							<reference ref="105066652"/>
-							<reference ref="332179816"/>
 							<reference ref="679871620"/>
 						</array>
 						<reference key="parent" ref="859553509"/>
@@ -1540,8 +1490,6 @@
 							<reference ref="968526216"/>
 							<reference ref="656100832"/>
 							<reference ref="255451250"/>
-							<reference ref="231313974"/>
-							<reference ref="936887448"/>
 						</array>
 						<reference key="parent" ref="19371157"/>
 					</object>
@@ -1959,11 +1907,6 @@
 						<reference key="parent" ref="0"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">909</int>
-						<reference key="object" ref="332179816"/>
-						<reference key="parent" ref="492995933"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">912</int>
 						<reference key="object" ref="391227374"/>
 						<reference key="parent" ref="0"/>
@@ -2053,16 +1996,6 @@
 						<int key="objectID">951</int>
 						<reference key="object" ref="173376826"/>
 						<reference key="parent" ref="944982980"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">954</int>
-						<reference key="object" ref="231313974"/>
-						<reference key="parent" ref="310195297"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">956</int>
-						<reference key="object" ref="936887448"/>
-						<reference key="parent" ref="310195297"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">964</int>
