@@ -169,9 +169,9 @@
 
 	NSUInteger currentResult = NSNotFound;
 	if (direction == kGitXSearchDirectionNext)
-		currentResult = [results indexGreaterThanIndex:selectedRow];
+		currentResult = [results indexGreaterThanIndex:(NSUInteger)selectedRow];
 	else
-		currentResult = [results indexLessThanIndex:selectedRow];
+		currentResult = [results indexLessThanIndex:(NSUInteger)selectedRow];
 
 	if (currentResult == NSNotFound) {
 		if (direction == kGitXSearchDirectionNext)

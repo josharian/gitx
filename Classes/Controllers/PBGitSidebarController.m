@@ -375,9 +375,9 @@
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
 	if (!item)
-		return [items count];
+		return (NSInteger)[items count];
 
-	return [[(PBSourceViewItem *)item sortedChildren] count];
+	return (NSInteger)[[(PBSourceViewItem *)item sortedChildren] count];
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
