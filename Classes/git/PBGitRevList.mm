@@ -82,14 +82,17 @@
     self.hasPopulated = NO;
 }
 
-- (void)pushGlob:(NSString *)glob error:(NSError **)error { 
+- (BOOL)pushGlob:(NSString *)glob error:(NSError **)error { 
     [self.revListArgs addObject:[@"--glob=" stringByAppendingString:glob]];
+    return YES;
 }
 
-- (void)pushSHA:(NSString *)sha error:(NSError **)error { 
+- (BOOL)pushSHA:(NSString *)sha error:(NSError **)error { 
     if (sha && [sha length] > 0) {
         [self.revListArgs addObject:sha];
+        return YES;
     }
+    return NO;
 }
 
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error {

@@ -52,10 +52,10 @@
 - (void)resetWithOptions:(GTEnumeratorOptions)options { 
     [self.shaQueue removeAllObjects];
 }
-- (void)pushGlob:(NSString *)glob error:(NSError **)error { 
+- (BOOL)pushGlob:(NSString *)glob error:(NSError **)error { 
     // Cast repository to access workingDirectory method
     PBGitRepository *pbRepo = (PBGitRepository *)self.repository;
-    if (!pbRepo) return;
+    if (!pbRepo) return NO;
     
     // Use git for-each-ref to resolve glob pattern to commit SHAs
     NSTask *gitTask = [[NSTask alloc] init];
@@ -82,15 +82,19 @@
                     [self.shaQueue addObject:sha];
                 }
             }
+            return YES;
         }
     } @catch (NSException *exception) {
         // Git command failed, silently continue
     }
+    return NO;
 }
-- (void)pushSHA:(NSString *)sha error:(NSError **)error { 
+- (BOOL)pushSHA:(NSString *)sha error:(NSError **)error { 
     if (sha && [sha length] > 0) {
         [self.shaQueue addObject:sha];
+        return YES;
     }
+    return NO;
 }
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error {
     if (self.shaQueue.count > 0) {
