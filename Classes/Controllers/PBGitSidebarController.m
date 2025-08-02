@@ -141,7 +141,7 @@
         [sourceView reloadData];
 	
         [sourceView PBExpandItem:item expandParents:YES];
-        NSIndexSet *index = [NSIndexSet indexSetWithIndex:[sourceView rowForItem:item]];
+        NSIndexSet *index = [NSIndexSet indexSetWithIndex:(NSUInteger)[sourceView rowForItem:item]];
 	
         [sourceView selectRowIndexes:index byExtendingSelection:NO];
     }

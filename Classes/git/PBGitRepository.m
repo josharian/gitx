@@ -738,7 +738,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
         return branch;
     }
 
-	NSIndexSet *newIndex = [NSIndexSet indexSetWithIndex:[self.branches count]];
+	NSIndexSet *newIndex = [NSIndexSet indexSetWithIndex:(NSUInteger)[self.branches count]];
 	[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:newIndex forKey:@"branches"];
 
     [self.branchesSet addObject:branch];
@@ -750,7 +750,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 - (BOOL) removeBranch:(PBGitRevSpecifier *)branch
 {
     if ([self.branchesSet containsObject:branch]) {
-        NSIndexSet *oldIndex = [NSIndexSet indexSetWithIndex:[self.branches indexOfObject:branch]];
+        NSIndexSet *oldIndex = [NSIndexSet indexSetWithIndex:(NSUInteger)[self.branches indexOfObject:branch]];
         [self willChange:NSKeyValueChangeRemoval valuesAtIndexes:oldIndex forKey:@"branches"];
 
         [self.branchesSet removeObject:branch];
