@@ -102,7 +102,6 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 - (NSString *)gitIgnoreFilename;
 - (BOOL)isBareRepository;
 
-- (BOOL)hasSVNRemote;
 
 - (void) reloadRefs;
 - (void) lazyReload;

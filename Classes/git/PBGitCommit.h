@@ -32,7 +32,6 @@ extern NSString * const kGitXCommitType;
 @property (nonatomic, strong, readonly) NSString *details;
 @property (nonatomic, strong, readonly) NSString *patch;
 @property (nonatomic, strong, readonly) NSString *realSHA;
-@property (nonatomic, strong, readonly) NSString *SVNRevision;
 
 @property (nonatomic, strong, readonly) NSArray *parents;
 @property  NSMutableArray* refs;

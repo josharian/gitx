@@ -30,7 +30,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 @interface PBGitRepository ()
 
-@property (nonatomic, strong) NSNumber *hasSVNRepoConfig;
 
 @end
 
@@ -275,38 +274,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
     return NO;
 }
 
-- (BOOL)readHasSVNRemoteFromConfig
-{
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/git";
-    task.arguments = @[@"config", @"--get-regexp", @"^svn-remote\\."];
-    task.currentDirectoryPath = [self workingDirectory];
-    
-    NSPipe *pipe = [NSPipe pipe];
-    task.standardOutput = pipe;
-    task.standardError = [NSPipe pipe];
-    
-    @try {
-        [task launch];
-        [task waitUntilExit];
-        
-        // If we find any svn-remote config, return YES
-        return task.terminationStatus == 0;
-    }
-    @catch (NSException *exception) {
-        // Git not available or other error
-    }
-    
-    return NO;
-}
-
-- (BOOL)hasSVNRemote
-{
-	if (!self.hasSVNRepoConfig) {
-		self.hasSVNRepoConfig = @([self readHasSVNRemoteFromConfig]);
-	}
-	return [self.hasSVNRepoConfig boolValue];
-}
 
 - (NSURL *)gitURL {
 	NSTask *task = [[NSTask alloc] init];

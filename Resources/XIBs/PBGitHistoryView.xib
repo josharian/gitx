@@ -305,24 +305,6 @@
                                                             <binding destination="39" name="value" keyPath="arrangedObjects.realSha" id="290"/>
                                                         </connections>
                                                     </tableColumn>
-                                                    <tableColumn identifier="GitSVNRevision" width="96" minWidth="10" maxWidth="3.4028234663852886e+38" id="491">
-                                                        <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Git SVN Revision">
-                                                            <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
-                                                        </tableHeaderCell>
-                                                        <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="493" customClass="GitXTextFieldCell">
-                                                            <font key="font" metaFont="cellTitle"/>
-                                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                            <connections>
-                                                                <outlet property="contextMenuDelegate" destination="231" id="495"/>
-                                                            </connections>
-                                                        </textFieldCell>
-                                                        <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                        <connections>
-                                                            <binding destination="39" name="value" keyPath="arrangedObjects.SVNRevision" id="498"/>
-                                                        </connections>
-                                                    </tableColumn>
                                                 </tableColumns>
                                                 <connections>
                                                     <outlet property="controller" destination="-2" id="111"/>

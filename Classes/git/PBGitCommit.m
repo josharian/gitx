@@ -170,30 +170,6 @@ NSString * const kGitXCommitType = @"commit";
 	return sig.name;
 }
 
-- (NSString *)SVNRevision
-{
-	NSString *result = nil;
-	if ([self.repository hasSVNRemote])
-	{
-		// get the git-svn-id from the message
-		NSArray *matches = nil;
-		NSString *string = self.gtCommit.message;
-		NSError *error = nil;
-		// Regular expression for pulling out the SVN revision from the git log
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^git-svn-id: .*@(\\d+) .*$" options:NSRegularExpressionAnchorsMatchLines error:&error];
-		
-		if (string) {
-			matches = [regex matchesInString:string options:0 range:NSMakeRange(0, [string length])];
-			for (NSTextCheckingResult *match in matches)
-			{
-				NSRange matchRange = [match rangeAtIndex:1];
-				NSString *matchString = [string substringWithRange:matchRange];
-				result = matchString;
-			}
-		}
-	}
-	return result;
-}
 
 - (GTOID *)sha
 {
