@@ -104,7 +104,7 @@
 			int index = (int)[currentResults indexOfObject: selectedResult]-1;
 			if(index < 0) index = 0;
 			selectedResult = [currentResults objectAtIndex:(NSUInteger)index];
-			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:FALSE];
+			[resultViewer selectRowIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] byExtendingSelection:FALSE];
 			[resultViewer scrollRowToVisible:index];
 		}
 		result = YES;

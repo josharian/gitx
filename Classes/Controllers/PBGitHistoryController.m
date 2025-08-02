@@ -412,7 +412,7 @@
 {
 	NSRect newFrame = [splitView frame];
 
-	float dividerThickness = [splitView dividerThickness];
+	float dividerThickness = (float)[splitView dividerThickness];
 
 	NSView *upperView = [[splitView subviews] objectAtIndex:0];
 	NSRect upperFrame = [upperView frame];
@@ -435,7 +435,7 @@
 // NSSplitView does not save and restore the position of the SplitView correctly so do it manually
 - (void)saveSplitViewPosition
 {
-	float position = [[[historySplitView subviews] objectAtIndex:0] frame].size.height;
+	float position = (float)[[[historySplitView subviews] objectAtIndex:0] frame].size.height;
 	[[NSUserDefaults standardUserDefaults] setFloat:position forKey:kHistorySplitViewPositionDefault];
 	[[NSUserDefaults standardUserDefaults] synchronize];
 }
