@@ -1104,6 +1104,7 @@
 			);
 			name = "Copy HTML files";
 			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/html",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1330,6 +1331,7 @@
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
 				INSTALL_PATH = /Applications;
+				PRODUCT_BUNDLE_IDENTIFIER = net.phere.GitX;
 				PRODUCT_NAME = GitX;
 				VERSIONING_SYSTEM = "apple-generic";
 				WRAPPER_EXTENSION = app;
@@ -1347,6 +1349,7 @@
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
 				INSTALL_PATH = /Applications;
+				PRODUCT_BUNDLE_IDENTIFIER = net.phere.GitX;
 				PRODUCT_NAME = GitX;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";

@@ -39,7 +39,7 @@
 	<key>CFBundleIconFile</key>
 	<string>gitx.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>net.phere.GitX</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
