@@ -23,7 +23,6 @@
 - (PBSourceViewItem *)itemForRev:(PBGitRevSpecifier *)rev;
 - (void) removeRevSpec:(PBGitRevSpecifier *)rev;
 - (void) updateActionMenu;
-- (void) updateRemoteControls;
 @end
 
 @implementation PBGitSidebarController
@@ -218,7 +217,6 @@
 	}
 
 	[self updateActionMenu];
-	[self updateRemoteControls];
 }
 
 - (void)doubleClicked:(id)object {

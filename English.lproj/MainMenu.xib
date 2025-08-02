@@ -656,15 +656,6 @@
 									<reference key="NSOnImage" ref="889736156"/>
 									<reference key="NSMixedImage" ref="37108609"/>
 								</object>
-								<object class="NSMenuItem" id="173376826">
-									<reference key="NSMenu" ref="944982980"/>
-									<string key="NSTitle">Add Remote</string>
-									<string key="NSKeyEquiv">r</string>
-									<int key="NSKeyEquivModMask">1572864</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="889736156"/>
-									<reference key="NSMixedImage" ref="37108609"/>
-								</object>
 								<object class="NSMenuItem" id="255856917">
 									<reference key="NSMenu" ref="944982980"/>
 									<bool key="NSIsDisabled">YES</bool>
@@ -1230,14 +1221,6 @@
 						<reference key="destination" ref="416044880"/>
 					</object>
 					<int key="connectionID">950</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">showAddRemoteSheet:</string>
-						<reference key="source" ref="954860085"/>
-						<reference key="destination" ref="173376826"/>
-					</object>
-					<int key="connectionID">953</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
@@ -1963,7 +1946,6 @@
 							<reference ref="255856917"/>
 							<reference ref="950917510"/>
 							<reference ref="416044880"/>
-							<reference ref="173376826"/>
 						</array>
 						<reference key="parent" ref="571164270"/>
 					</object>
@@ -1990,11 +1972,6 @@
 					<object class="IBObjectRecord">
 						<int key="objectID">949</int>
 						<reference key="object" ref="416044880"/>
-						<reference key="parent" ref="944982980"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">951</int>
-						<reference key="object" ref="173376826"/>
 						<reference key="parent" ref="944982980"/>
 					</object>
 					<object class="IBObjectRecord">
