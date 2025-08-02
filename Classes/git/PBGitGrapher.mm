@@ -65,9 +65,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	// Debug: check what's actually in the parents array
 	for (int idx = 0; idx < nParents; idx++) {
 		id parentObj = [parents objectAtIndex:idx];
-		NSLog(@"MISSING.decorateCommit: parent %d is class %@", idx, [parentObj class]);
 		if (![parentObj isKindOfClass:[GTCommit class]]) {
-			NSLog(@"MISSING.decorateCommit: ERROR - parent %d is not a GTCommit, it's a %@", idx, [parentObj class]);
 		}
 	}
 
@@ -128,11 +126,9 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 				GTCommit *parentCommit = (GTCommit *)parentObj;
 				parentOID = [parentCommit.OID git_oid];
 			} else if ([parentObj isKindOfClass:[GTOID class]]) {
-				NSLog(@"MISSING.decorateCommit: WARNING - parent 0 is GTOID, not GTCommit");
 				GTOID *oid = (GTOID *)parentObj;
 				parentOID = [oid git_oid];
 			} else {
-				NSLog(@"MISSING.decorateCommit: ERROR - parent 0 is unknown class %@", [parentObj class]);
 				return; // Can't proceed without valid parent
 			}
 			
@@ -141,7 +137,6 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			newPos = currentLanes->size();
 			add_line(lines, &currentLine, 0, newPos, newPos, newLane->index());
 		} @catch (NSException *exception) {
-			NSLog(@"MISSING.decorateCommit: CRASH in first parent handling: %@", exception);
 		}
 	}
 
@@ -161,11 +156,9 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 				GTCommit *parentCommit = (GTCommit *)parentObj;
 				parentOID = [parentCommit.OID git_oid];
 			} else if ([parentObj isKindOfClass:[GTOID class]]) {
-				NSLog(@"MISSING.decorateCommit: WARNING - parent %d is GTOID, not GTCommit", parentIndex);
 				GTOID *oid = (GTOID *)parentObj;
 				parentOID = [oid git_oid];
 			} else {
-				NSLog(@"MISSING.decorateCommit: ERROR - parent %d is unknown class %@", parentIndex, [parentObj class]);
 				continue; // Skip this parent
 			}
 			
@@ -189,7 +182,6 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			currentLanes->push_back(newLane);
 			add_line(lines, &currentLine, 0, currentLanes->size(), newPos, newLane->index());
 		} @catch (NSException *exception) {
-			NSLog(@"MISSING.decorateCommit: CRASH in parent loop at index %d: %@", parentIndex, exception);
 		}
 	}
 
@@ -224,11 +216,9 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 					GTCommit *parentCommit = (GTCommit *)parentObj;
 					parentOID = [parentCommit.OID git_oid];
 				} else if ([parentObj isKindOfClass:[GTOID class]]) {
-					NSLog(@"MISSING.decorateCommit: WARNING - setSha parent is GTOID, not GTCommit");
 					GTOID *oid = (GTOID *)parentObj;
 					parentOID = [oid git_oid];
 				} else {
-					NSLog(@"MISSING.decorateCommit: ERROR - setSha parent is unknown class %@", [parentObj class]);
 					parentOID = NULL;
 				}
 				
@@ -236,7 +226,6 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 					currentLane->setSha(parentOID);
 				}
 			} @catch (NSException *exception) {
-				NSLog(@"MISSING.decorateCommit: CRASH in setSha: %@", exception);
 			}
 		} else {
 			// The current lane's commit does not have any parents
