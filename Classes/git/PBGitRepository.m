@@ -92,7 +92,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	}
 
     NSError *error = nil;
-	NSURL *repoURL = [GitRepoFinder gitDirForURL:absoluteURL];
     
     // Use git rev-parse to validate this is a git repository
     NSTask *validateTask = [[NSTask alloc] init];
