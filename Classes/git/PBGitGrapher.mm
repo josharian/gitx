@@ -60,7 +60,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	LaneCollection *currentLanes = new LaneCollection;
 	LaneCollection *previousLanes = self.pl;
 	NSArray *parents = [commit parents];
-	NSUInteger nParents = [parents count];
+	int nParents = (int)[parents count];
 	
 	// Debug: check what's actually in the parents array
 	for (NSUInteger idx = 0; idx < nParents; idx++) {
