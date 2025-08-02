@@ -9,3 +9,9 @@ The last commit before starting surgery has the git tag 'before-revival'.
 
 When a set of fixes is ready, please launch the app for testing.
 
+If you need to instrument the app:
+
+- use a distinctive substring (the app logs a lot)
+- run `log stream` in the background with a long timeout with appropriate filters, e.g. 'process == "GitX" AND eventMessage CONTAINS "DISTINCTIVE_SUBSTRING"'
+- launch the app
+- if necessary to reproduce, ask me to take appropriate reproduction steps
