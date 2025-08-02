@@ -288,7 +288,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	int loopFrom = 0;
 	NSUInteger loopTo = 1000;
 	if (loopTo > filesCount)
-		loopTo = filesCount;
+		loopTo = (int)filesCount;
 	int loopCount = 0;
 	int i = 0;
 	
@@ -330,7 +330,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		loopFrom = loopCount;
 		loopTo = loopFrom + 1000;
 		if (loopTo > filesCount)
-			loopTo = filesCount;
+			loopTo = (int)filesCount;
 	}
 
 	[self postIndexChange];
@@ -342,13 +342,13 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 {
 	// Do unstaging files by chunks of 1000 files each, to prevent program freeze (because NSPipe has limited capacity)
 	
-	int filesCount = [unstageFiles count];
+	NSUInteger filesCount = [unstageFiles count];
 	
 	// Prepare first iteration
 	int loopFrom = 0;
 	int loopTo = 1000;
 	if (loopTo > filesCount)
-		loopTo = filesCount;
+		loopTo = (int)filesCount;
 	int loopCount = 0;
 	int i = 0;
 	
@@ -386,7 +386,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		loopFrom = loopCount;
 		loopTo = loopFrom + 1000;
 		if (loopTo > filesCount)
-			loopTo = filesCount;
+			loopTo = (int)filesCount;
 	}
 
 	[self postIndexChange];
