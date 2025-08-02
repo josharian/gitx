@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
 
-@interface PBWebController : NSObject {
+@interface PBWebController : NSObject <WebUIDelegate, WebFrameLoadDelegate, WebResourceLoadDelegate> {
 	IBOutlet WebView* view;
 	NSString *startFile;
 	BOOL finishedLoading;
