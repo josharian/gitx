@@ -18,6 +18,7 @@ typedef enum {
 
 // GTEnumeratorOptions constants
 typedef NSUInteger GTEnumeratorOptions;
+static const GTEnumeratorOptions GTEnumeratorOptionsNone = 0;
 static const GTEnumeratorOptions GTEnumeratorOptionsTimeSort = 1;
 static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
 
@@ -53,15 +54,17 @@ static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
 @end
 
 @interface GTEnumerator : NSObject
-@property (nonatomic, strong) GTRepository *repository;
-@property (nonatomic, strong) NSMutableArray *shaQueue;
+@property (nonatomic, strong) id repository;
+@property (nonatomic, strong) NSMutableArray *commitQueue;
+@property (nonatomic, strong) NSMutableArray *revListArgs;
+@property (nonatomic, assign) GTEnumeratorOptions options;
+@property (nonatomic, assign) BOOL hasPopulated;
 - (id)initWithRepository:(id)repo error:(NSError **)error;
 - (void)resetWithOptions:(GTEnumeratorOptions)options;
 - (void)pushGlob:(NSString *)glob error:(NSError **)error;
 - (void)pushSHA:(NSString *)sha error:(NSError **)error;
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error;
+- (void)populateQueueWithRevList;
+- (void)parseRevListOutput:(NSString *)output;
 @end
 
-// GTEnumerator option constants
-#define GTEnumeratorOptionsTimeSort 0
-#define GTEnumeratorOptionsTopologicalSort 1

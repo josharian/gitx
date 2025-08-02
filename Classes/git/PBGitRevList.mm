@@ -61,81 +61,195 @@
 
 @implementation GTEnumerator
 @synthesize repository;
-@synthesize shaQueue;
+@synthesize commitQueue;
 
 - (id)initWithRepository:(id)repo error:(NSError **)error { 
     self = [super init];
     if (self) {
         self.repository = repo;
-        self.shaQueue = [[NSMutableArray alloc] init];
+        self.commitQueue = [[NSMutableArray alloc] init];
+        self.options = GTEnumeratorOptionsNone;
+        self.revListArgs = [[NSMutableArray alloc] init];
+        self.hasPopulated = NO;
     }
     return self; 
 }
 
 - (void)resetWithOptions:(GTEnumeratorOptions)options { 
-    [self.shaQueue removeAllObjects];
+    [self.commitQueue removeAllObjects];
+    [self.revListArgs removeAllObjects];
+    self.options = options;
+    self.hasPopulated = NO;
 }
 
 - (void)pushGlob:(NSString *)glob error:(NSError **)error { 
-    // Cast repository to access workingDirectory method
-    PBGitRepository *pbRepo = (PBGitRepository *)self.repository;
-    if (!pbRepo) return;
-    
-    // Use git for-each-ref to resolve glob pattern to commit SHAs
-    NSTask *gitTask = [[NSTask alloc] init];
-    gitTask.launchPath = @"/usr/bin/git";
-    gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", glob];
-    gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-    
-    NSPipe *outputPipe = [NSPipe pipe];
-    gitTask.standardOutput = outputPipe;
-    gitTask.standardError = [NSPipe pipe];
-    
-    @try {
-        [gitTask launch];
-        [gitTask waitUntilExit];
-        
-        if (gitTask.terminationStatus == 0) {
-            NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-            NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-            NSArray *lines = [output componentsSeparatedByString:@"\n"];
-            
-            for (NSString *line in lines) {
-                NSString *sha = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-                if ([sha length] >= 40) {  // Valid SHA length
-                    [self.shaQueue addObject:sha];
-                }
-            }
-        }
-    } @catch (NSException *exception) {
-        // Git command failed, silently continue
-    }
+    [self.revListArgs addObject:[@"--glob=" stringByAppendingString:glob]];
 }
 
 - (void)pushSHA:(NSString *)sha error:(NSError **)error { 
     if (sha && [sha length] > 0) {
-        [self.shaQueue addObject:sha];
+        [self.revListArgs addObject:sha];
     }
 }
 
 - (GTCommit *)nextObjectWithSuccess:(BOOL *)success error:(NSError **)error {
-    if (self.shaQueue.count > 0) {
-        NSString *sha = [self.shaQueue firstObject];
-        [self.shaQueue removeObjectAtIndex:0];
-        
-        GTCommit *commit = [[GTCommit alloc] init];
-        commit.SHA = sha;
-        commit.shortSHA = [sha substringToIndex:MIN(7, [sha length])];
-        
-        GTOID *oid = [GTOID oidWithSHA:sha];
-        commit.OID = oid;
+    // If we haven't populated the queue yet, do it now using git rev-list
+    if (self.commitQueue.count == 0 && !self.hasPopulated) {
+        NSLog(@"GITX_DEBUG: Populating commit queue");
+        [self populateQueueWithRevList];
+        self.hasPopulated = YES;
+        NSLog(@"GITX_DEBUG: Queue populated with %lu commits", (unsigned long)self.commitQueue.count);
+    }
+    
+    NSLog(@"GITX_DEBUG: Checking queue count: %lu", (unsigned long)self.commitQueue.count);
+    if (self.commitQueue.count > 0) {
+        GTCommit *commit = [self.commitQueue firstObject];
+        [self.commitQueue removeObjectAtIndex:0];
+        NSLog(@"GITX_DEBUG: Returning commit %@, %lu commits remaining", [commit.SHA substringToIndex:7], (unsigned long)self.commitQueue.count);
         
         if (success) *success = YES;
         return commit;
     }
     
+    NSLog(@"GITX_DEBUG: No more commits available (queue count is 0)");
     if (success) *success = NO;
     return nil;
+}
+
+- (void)populateQueueWithRevList {
+    PBGitRepository *pbRepo = self.repository;
+    if (!pbRepo || self.revListArgs.count == 0) {
+        NSLog(@"GTEnumerator: Cannot populate - no repository or no rev args");
+        return;
+    }
+    
+    NSMutableArray *args = [[NSMutableArray alloc] initWithObjects:@"rev-list", nil];
+    
+    // Add format to get commit data including parents in one call
+    [args addObject:@"--pretty=format:%H%n%s%n%B%n%an%n%cn%n%ct%n%P"];
+    
+    // Add sorting options based on GTEnumeratorOptions
+    if (self.options & GTEnumeratorOptionsTopologicalSort) {
+        [args addObject:@"--topo-order"];
+    } else if (self.options & GTEnumeratorOptionsTimeSort) {
+        [args addObject:@"--date-order"];
+    }
+    
+    // Add all the revisions/globs that were pushed
+    [args addObjectsFromArray:self.revListArgs];
+    
+    NSLog(@"GTEnumerator: Running git with args: %@", args);
+    NSLog(@"GTEnumerator: Working directory: %@", [pbRepo workingDirectory]);
+    
+    NSTask *gitTask = [[NSTask alloc] init];
+    gitTask.launchPath = @"/usr/bin/git";
+    gitTask.arguments = args;
+    gitTask.currentDirectoryPath = [pbRepo workingDirectory];
+    
+    NSPipe *outputPipe = [NSPipe pipe];
+    NSPipe *errorPipe = [NSPipe pipe];
+    gitTask.standardOutput = outputPipe;
+    gitTask.standardError = errorPipe;
+    
+    @try {
+        NSLog(@"GTEnumerator: About to launch git task");
+        [gitTask launch];
+        NSLog(@"GTEnumerator: Git task launched, reading output immediately");
+        
+        // Read output immediately to prevent deadlock
+        NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+        NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
+        
+        [gitTask waitUntilExit];
+        NSLog(@"GTEnumerator: Git task completed with status: %d", gitTask.terminationStatus);
+        
+        NSString *errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
+        
+        if (gitTask.terminationStatus == 0) {
+            NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+            [self parseRevListOutput:output];
+            
+            NSLog(@"GTEnumerator: Added %lu commits to queue", (unsigned long)self.commitQueue.count);
+        } else {
+            NSLog(@"GTEnumerator: git rev-list failed with status %d, error: %@", gitTask.terminationStatus, errorOutput);
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"GTEnumerator: Exception running git rev-list: %@", exception);
+    }
+}
+
+- (void)parseRevListOutput:(NSString *)output {
+    NSLog(@"GITX_DEBUG: Starting to parse rev-list output, length: %lu", (unsigned long)[output length]);
+    NSArray *commits = [output componentsSeparatedByString:@"\ncommit "];
+    NSLog(@"GITX_DEBUG: Split into %lu commit blocks", (unsigned long)[commits count]);
+    
+    int processedCount = 0;
+    for (NSString *commitBlock in commits) {
+        if ([commitBlock length] == 0) continue;
+        
+        // Skip the "commit " prefix if it exists
+        NSString *block = commitBlock;
+        if ([block hasPrefix:@"commit "]) {
+            block = [block substringFromIndex:7];
+        }
+        
+        NSArray *lines = [block componentsSeparatedByString:@"\n"];
+        if ([lines count] >= 7) {
+            processedCount++;
+            if (processedCount % 100 == 0) {
+                NSLog(@"GITX_DEBUG: Processed %d commits so far", processedCount);
+            }
+            NSString *shaString = lines[0];
+            NSString *messageSummary = lines[1];
+            NSString *message = lines[2];
+            NSString *authorName = lines[3];
+            NSString *committerName = lines[4];
+            NSString *timestampString = lines[5];
+            NSString *parentSHAsString = lines[6];
+            
+            if ([shaString length] >= 40) {
+                GTCommit *commit = [[GTCommit alloc] init];
+                commit.SHA = shaString;
+                commit.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
+                commit.messageSummary = messageSummary;
+                commit.message = message;
+                
+                GTSignature *author = [[GTSignature alloc] init];
+                author.name = authorName;
+                commit.author = author;
+                
+                GTSignature *committer = [[GTSignature alloc] init];
+                committer.name = committerName;
+                commit.committer = committer;
+                
+                NSTimeInterval timestamp = [timestampString doubleValue];
+                commit.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
+                
+                // Parse parent commit SHAs
+                NSMutableArray *parentCommits = [NSMutableArray array];
+                if ([parentSHAsString length] > 0) {
+                    NSArray *parentSHAs = [parentSHAsString componentsSeparatedByString:@" "];
+                    for (NSString *parentSHA in parentSHAs) {
+                        NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                        if ([trimmedSHA length] >= 40) {
+                            GTCommit *parentCommit = [[GTCommit alloc] init];
+                            parentCommit.SHA = trimmedSHA;
+                            parentCommit.OID = [GTOID oidWithSHA:trimmedSHA];
+                            [parentCommits addObject:parentCommit];
+                        }
+                    }
+                }
+                commit.parents = parentCommits;
+                
+                // Create GTOID for the SHA
+                GTOID *oid = [GTOID oidWithSHA:shaString];
+                commit.OID = oid;
+                
+                [self.commitQueue addObject:commit];
+            }
+        }
+    }
+    NSLog(@"GITX_DEBUG: Finished parsing, total commits: %lu", (unsigned long)[self.commitQueue count]);
 }
 @end
 
@@ -228,7 +342,7 @@ using namespace std;
 	GTRepository *repo = pbRepo.gtRepo;
 	
 	NSError *error = nil;
-	GTEnumerator *enu = [[GTEnumerator alloc] initWithRepository:repo error:&error];
+	GTEnumerator *enu = [[GTEnumerator alloc] initWithRepository:pbRepo error:&error];
 	
 	[self setupEnumerator:enu forRevspec:rev inRepository:pbRepo];
 	
@@ -270,198 +384,16 @@ using namespace std;
 		     inRepository:(PBGitRepository*)pbRepo
 {
 	[enumerator resetWithOptions:GTEnumeratorOptionsTopologicalSort];
-	NSMutableSet *enumCommits = [NSMutableSet new];
+	
 	if (rev.isSimpleRef) {
-		// Use git show to resolve the ref to a commit SHA
-		NSTask *gitTask = [[NSTask alloc] init];
-		gitTask.launchPath = @"/usr/bin/git";
-		gitTask.arguments = @[@"show", @"--format=%H", @"--no-patch", rev.simpleRef];
-		gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-		
-		NSPipe *outputPipe = [NSPipe pipe];
-		gitTask.standardOutput = outputPipe;
-		gitTask.standardError = [NSPipe pipe];
-		
-		[gitTask launch];
-		[gitTask waitUntilExit];
-		
-		if (gitTask.terminationStatus == 0) {
-			NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-			NSString *commitSHA = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-			commitSHA = [commitSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			if ([commitSHA length] >= 40) {
-				[enumerator pushSHA:commitSHA error:nil];
-			}
-		}
+		// Simple ref - just push it directly to rev-list
+		[enumerator pushSHA:rev.simpleRef error:nil];
 	} else {
-		// NSArray *allRefs = [repo referenceNamesWithError:&error];
+		// Complex revspec - pass all parameters to git rev-list
 		for (NSString *param in rev.parameters) {
-			if ([param isEqualToString:@"--branches"]) {
-				NSTask *gitTask = [[NSTask alloc] init];
-				gitTask.launchPath = @"/usr/bin/git";
-				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", @"refs/heads/"];
-				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-				
-				NSPipe *outputPipe = [NSPipe pipe];
-				gitTask.standardOutput = outputPipe;
-				gitTask.standardError = [NSPipe pipe];
-				
-				[gitTask launch];
-				[gitTask waitUntilExit];
-				
-				if (gitTask.terminationStatus == 0) {
-					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-					NSArray *shas = [output componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-					
-					for (NSString *sha in shas) {
-						NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-						if ([trimmedSHA length] >= 40) {
-							[enumerator pushSHA:trimmedSHA error:nil];
-						}
-					}
-				}
-			} else if ([param isEqualToString:@"--remotes"]) {
-				NSTask *gitTask = [[NSTask alloc] init];
-				gitTask.launchPath = @"/usr/bin/git";
-				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", @"refs/remotes/"];
-				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-				
-				NSPipe *outputPipe = [NSPipe pipe];
-				gitTask.standardOutput = outputPipe;
-				gitTask.standardError = [NSPipe pipe];
-				
-				[gitTask launch];
-				[gitTask waitUntilExit];
-				
-				if (gitTask.terminationStatus == 0) {
-					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-					NSArray *shas = [output componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-					
-					for (NSString *sha in shas) {
-						NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-						if ([trimmedSHA length] >= 40) {
-							[enumerator pushSHA:trimmedSHA error:nil];
-						}
-					}
-				}
-			} else if ([param isEqualToString:@"--tags"]) {
-				NSTask *gitTask = [[NSTask alloc] init];
-				gitTask.launchPath = @"/usr/bin/git";
-				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", @"refs/tags/"];
-				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-				
-				NSPipe *outputPipe = [NSPipe pipe];
-				gitTask.standardOutput = outputPipe;
-				gitTask.standardError = [NSPipe pipe];
-				
-				[gitTask launch];
-				[gitTask waitUntilExit];
-				
-				if (gitTask.terminationStatus == 0) {
-					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-					NSArray *shas = [output componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-					
-					for (NSString *sha in shas) {
-						NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-						if ([trimmedSHA length] >= 40) {
-							[enumerator pushSHA:trimmedSHA error:nil];
-						}
-					}
-				}
-			} else if ([param hasPrefix:@"--glob="]) {
-				NSString *globPattern = [param substringFromIndex:@"--glob=".length];
-				NSTask *gitTask = [[NSTask alloc] init];
-				gitTask.launchPath = @"/usr/bin/git";
-				gitTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", globPattern];
-				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-				
-				NSPipe *outputPipe = [NSPipe pipe];
-				gitTask.standardOutput = outputPipe;
-				gitTask.standardError = [NSPipe pipe];
-				
-				[gitTask launch];
-				[gitTask waitUntilExit];
-				
-				if (gitTask.terminationStatus == 0) {
-					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-					NSArray *shas = [output componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-					
-					for (NSString *sha in shas) {
-						NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-						if ([trimmedSHA length] >= 40) {
-							[enumerator pushSHA:trimmedSHA error:nil];
-						}
-					}
-				}
-			} else {
-				NSTask *gitTask = [[NSTask alloc] init];
-				gitTask.launchPath = @"/usr/bin/git";
-				gitTask.arguments = @[@"rev-parse", @"--verify", param];
-				gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-				
-				NSPipe *outputPipe = [NSPipe pipe];
-				gitTask.standardOutput = outputPipe;
-				gitTask.standardError = [NSPipe pipe];
-				
-				[gitTask launch];
-				[gitTask waitUntilExit];
-				
-				if (gitTask.terminationStatus == 0) {
-					NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-					NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-					NSString *sha = [output stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-					
-					if (sha.length >= 40) {
-						[enumerator pushSHA:sha error:nil];
-					}
-				} else {
-					NSTask *globTask = [[NSTask alloc] init];
-					globTask.launchPath = @"/usr/bin/git";
-					globTask.arguments = @[@"for-each-ref", @"--format=%(objectname)", param];
-					globTask.currentDirectoryPath = [pbRepo workingDirectory];
-					
-					NSPipe *globOutputPipe = [NSPipe pipe];
-					globTask.standardOutput = globOutputPipe;
-					globTask.standardError = [NSPipe pipe];
-					
-					[globTask launch];
-					[globTask waitUntilExit];
-					
-					if (globTask.terminationStatus == 0) {
-						NSData *globOutputData = [[globOutputPipe fileHandleForReading] readDataToEndOfFile];
-						NSString *globOutput = [[NSString alloc] initWithData:globOutputData encoding:NSUTF8StringEncoding];
-						NSArray *shas = [globOutput componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-						
-						for (NSString *sha in shas) {
-							NSString *trimmedSHA = [sha stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-							if ([trimmedSHA length] >= 40) {
-								[enumerator pushSHA:trimmedSHA error:nil];
-							}
-						}
-					}
-				}
-			}
+			[enumerator pushSHA:param error:nil];
 		}
 	}
-
-	NSArray *sortedBranchesAndTags = [[enumCommits allObjects] sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(id obj1, id obj2) {
-		GTCommit *branchCommit1 = obj1;
-		GTCommit *branchCommit2 = obj2;
-
-		return [branchCommit2.commitDate compare:branchCommit1.commitDate];
-	}];
-
-	for (GTCommit *commit in sortedBranchesAndTags) {
-		NSError *pushError = nil;
-		[enumerator pushSHA:commit.SHA error:&pushError];
-	}
-
-
 }
 
 - (void) addCommitsFromEnumerator:(GTEnumerator *)enumerator
@@ -489,15 +421,31 @@ using namespace std;
 			if (cachedCommit) {
 				newCommit = cachedCommit;
 			} else {
-				newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andSHA:commit.SHA];
-				[self.commitCache setObject:newCommit forKey:commit.SHA];
+				@try {
+					newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andSHA:commit.SHA];
+					[self.commitCache setObject:newCommit forKey:commit.SHA];
+				} @catch (NSException *exception) {
+					NSLog(@"GITX_DEBUG: CRASH creating PBGitCommit for %@: %@", [commit.SHA substringToIndex:7], exception);
+					return;
+				}
 			}
 			
 			[revisions addObject:newCommit];
 			
 			if (self.isGraphing) {
 				dispatch_group_async(decorateGroup, decorateQueue, ^{
-					[g decorateCommit:newCommit];
+					if (num % 50 == 0) {
+						NSLog(@"GITX_DEBUG: About to decorate commit %d: %@", num, [commit.SHA substringToIndex:7]);
+					}
+					@try {
+						[g decorateCommit:newCommit];
+						if (num % 50 == 0) {
+							NSLog(@"GITX_DEBUG: Finished decorating commit %d", num);
+						}
+					} @catch (NSException *exception) {
+						NSLog(@"GITX_DEBUG: CRASH in decorateCommit for commit %d (%@): %@", num, [commit.SHA substringToIndex:7], exception);
+						@throw exception;
+					}
 				});
 			}
 			
