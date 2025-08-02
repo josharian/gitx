@@ -16,7 +16,6 @@
 #import "PBGitRevSpecifier.h"
 
 #define kDialogAcceptDroppedRef @"Accept Dropped Ref"
-#define kDialogConfirmPush @"Confirm Push"
 #define kDialogDeleteRef @"Delete Ref"
 
 

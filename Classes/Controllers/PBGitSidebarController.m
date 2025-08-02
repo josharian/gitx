@@ -442,23 +442,6 @@
 
 #pragma mark Remote controls
 
-enum  {
-	kAddRemoteSegment = 0,
-	kFetchSegment = 1,
-	kPullSegment = 2,
-	kPushSegment = 3
-};
-
-- (void) updateRemoteControls
-{
-	[remoteControls setEnabled:NO forSegment:kFetchSegment];
-	[remoteControls setEnabled:NO forSegment:kPullSegment];
-	[remoteControls setEnabled:NO forSegment:kPushSegment];
-}
-
-- (IBAction) fetchPullPushAction:(id)sender
-{
-}
 
 
 @end

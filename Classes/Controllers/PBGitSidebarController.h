@@ -18,7 +18,6 @@
 	IBOutlet NSOutlineView *sourceView;
 	IBOutlet NSView *sourceListControlsView;
 	IBOutlet NSPopUpButton *actionButton;
-	IBOutlet NSSegmentedControl *remoteControls;
 
 	NSMutableArray *items;
 
@@ -37,7 +36,6 @@
 - (NSMenu *) menuForRow:(NSInteger)row;
 - (void) menuNeedsUpdate:(NSMenu *)menu;
 
-- (IBAction) fetchPullPushAction:(id)sender;
 
 - (void)setHistorySearch:(NSString *)searchString mode:(NSInteger)mode;
 

@@ -9,7 +9,6 @@
         <customObject id="-2" userLabel="File's Owner" customClass="PBGitSidebarController">
             <connections>
                 <outlet property="actionButton" destination="39" id="46"/>
-                <outlet property="remoteControls" destination="47" id="49"/>
                 <outlet property="sourceListControlsView" destination="38" id="45"/>
                 <outlet property="sourceView" destination="11" id="26"/>
                 <outlet property="view" destination="36" id="37"/>
@@ -89,38 +88,10 @@
                         </menu>
                     </popUpButtonCell>
                 </popUpButton>
-                <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="47">
-                    <rect key="frame" x="94" y="1" width="161" height="25"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <segmentedCell key="cell" state="on" borderStyle="border" alignment="left" segmentDistribution="fill" style="texturedRounded" trackingMode="momentary" id="48">
-                        <font key="font" metaFont="system"/>
-                        <segments>
-                            <segment toolTip="Add remote" image="AddRemoteTemplate" width="38">
-                                <nil key="label"/>
-                            </segment>
-                            <segment toolTip="Fetch from default remote" image="FetchTemplate" width="38" tag="1">
-                                <nil key="label"/>
-                            </segment>
-                            <segment toolTip="Pull from default remote" image="PullTemplate" width="38" tag="2">
-                                <nil key="label"/>
-                            </segment>
-                            <segment toolTip="Push to remote" image="PushTemplate" width="38" tag="3">
-                                <nil key="label"/>
-                            </segment>
-                        </segments>
-                    </segmentedCell>
-                    <connections>
-                        <action selector="fetchPullPushAction:" target="-2" id="50"/>
-                    </connections>
-                </segmentedControl>
             </subviews>
         </customView>
     </objects>
     <resources>
-        <image name="AddRemoteTemplate" width="25" height="18"/>
-        <image name="FetchTemplate" width="25" height="18"/>
         <image name="NSActionTemplate" width="20" height="20"/>
-        <image name="PullTemplate" width="25" height="18"/>
-        <image name="PushTemplate" width="25" height="18"/>
     </resources>
 </document>
