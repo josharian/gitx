@@ -174,11 +174,11 @@ dragDestinationActionMaskForDraggingInfo:(id<NSDraggingInfo>)draggingInfo
 - (void) runCommand:(WebScriptObject *)arguments inRepository:(PBGitRepository *)repo callBack:(WebScriptObject *)callBack
 {
 	// The JS bridge does not handle JS Arrays, even though the docs say it does. So, we convert it ourselves.
-	int length = [[arguments valueForKey:@"length"] intValue];
-	NSMutableArray *realArguments = [NSMutableArray arrayWithCapacity:length];
-	int i = 0;
+	NSInteger length = [[arguments valueForKey:@"length"] integerValue];
+	NSMutableArray *realArguments = [NSMutableArray arrayWithCapacity:(NSUInteger)length];
+	NSInteger i = 0;
 	for (i = 0; i < length; i++)
-		[realArguments addObject:[arguments webScriptValueAtIndex:i]];
+		[realArguments addObject:[arguments webScriptValueAtIndex:(unsigned int)i]];
 
 	NSFileHandle *handle = [repo handleInWorkDirForArguments:realArguments];
 	[callbacks setObject:callBack forKey:handle];
