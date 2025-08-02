@@ -281,7 +281,7 @@
 {
     [[alert window] orderOut:nil];
 
-	if (returnCode == NSAlertDefaultReturn) {
+	if (returnCode == NSAlertFirstButtonReturn) {
         [commitController.index discardChangesForFiles:(__bridge NSArray*)contextInfo];
 	}
 }

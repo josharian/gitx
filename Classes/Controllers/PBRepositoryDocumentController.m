@@ -34,7 +34,7 @@
 	[op setAllowsMultipleSelection:NO];
 	[op setMessage:@"Initialize a repository here:"];
 	[op setTitle:@"New Repository"];
-	if ([op runModal] != NSFileHandlingPanelOKButton) {
+	if ([op runModal] != NSModalResponseOK) {
 		if (outError) {
 			*outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil];
 		}
