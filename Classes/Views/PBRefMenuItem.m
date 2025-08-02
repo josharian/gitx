@@ -47,11 +47,6 @@
 	BOOL isOnHeadBranch = isHead ? YES : [repo isRefOnHeadBranch:ref];
 	BOOL isDetachedHead = (isHead && [headRefName isEqualToString:@"HEAD"]);
 
-	NSString *remoteName = [ref remoteName];
-	if (!remoteName && [ref isBranch]) {
-		remoteName = [[repo remoteRefForBranch:ref error:NULL] remoteName];
-	}
-	BOOL hasRemote = (remoteName ? YES : NO);
 	BOOL isRemote = ([ref isRemote] && ![ref isRemoteBranch]);
 
 	if (!isRemote) {
@@ -87,60 +82,17 @@
 		[items addObject:[PBRefMenuItem separatorItem]];
 	}
 
-	// fetch
-	NSString *fetchTitle = hasRemote ? [NSString stringWithFormat:@"Fetch %@", remoteName] : @"Fetch";
-	[items addObject:[PBRefMenuItem itemWithTitle:fetchTitle action:@selector(fetchRemote:) enabled:hasRemote]];
-
-	// pull
-	NSString *pullTitle = hasRemote ? [NSString stringWithFormat:@"Pull %@ and update %@", remoteName, headRefName] : @"Pull";
-	[items addObject:[PBRefMenuItem itemWithTitle:pullTitle action:@selector(pullRemote:) enabled:hasRemote]];
-
-	// push
-	if (isRemote || [ref isRemoteBranch]) {
-		// push updates to remote
-		NSString *pushTitle = [NSString stringWithFormat:@"Push updates to %@", remoteName];
-		[items addObject:[PBRefMenuItem itemWithTitle:pushTitle action:@selector(pushUpdatesToRemote:) enabled:YES]];
-	}
-	else if (isDetachedHead) {
-		[items addObject:[PBRefMenuItem itemWithTitle:@"Push" action:nil enabled:NO]];
-	}
-	else {
-		// push to default remote
-		BOOL hasDefaultRemote = NO;
-		if (![ref isTag] && hasRemote) {
-			hasDefaultRemote = YES;
-			NSString *pushTitle = [NSString stringWithFormat:@"Push %@ to %@", targetRefName, remoteName];
-			[items addObject:[PBRefMenuItem itemWithTitle:pushTitle action:@selector(pushDefaultRemoteForRef:) enabled:YES]];
-		}
-
-		// push to remotes submenu
-		NSArray *remoteNames = [repo remotes];
-		if ([remoteNames count] && !(hasDefaultRemote && ([remoteNames count] == 1))) {
-			NSString *pushToTitle = [NSString stringWithFormat:@"Push %@ to", targetRefName];
-			PBRefMenuItem *pushToItem = [PBRefMenuItem itemWithTitle:pushToTitle action:nil enabled:YES];
-			NSMenu *remotesMenu = [[NSMenu alloc] initWithTitle:@"remotesMenu"];
-			for (NSString *remote in remoteNames) {
-				PBRefMenuItem *remoteItem = [PBRefMenuItem itemWithTitle:remote action:@selector(pushToRemote:) enabled:YES];
-				[remoteItem setTarget:target];
-				[remoteItem setRefish:ref];
-				[remoteItem setRepresentedObject:remote];
-				[remotesMenu addItem:remoteItem];
-			}
-			[pushToItem setSubmenu:remotesMenu];
-			[items addObject:pushToItem];
-		}
-	}
 
 	// delete ref
 	[items addObject:[PBRefMenuItem separatorItem]];
 	{
-		NSString *deleteTitle = [NSString stringWithFormat:@"Delete %@…", targetRefName];
-		if ([ref isRemote]) {
-			deleteTitle = [NSString stringWithFormat:@"Remove %@…", targetRefName];
+		// Don't show delete/remove options for remotes since we don't support remote operations
+		if (![ref isRemote]) {
+			NSString *deleteTitle = [NSString stringWithFormat:@"Delete %@…", targetRefName];
+			BOOL deleteEnabled = !(isDetachedHead || isHead);
+			PBRefMenuItem *deleteItem = [PBRefMenuItem itemWithTitle:deleteTitle action:@selector(showDeleteRefSheet:) enabled:deleteEnabled];
+			[items addObject:deleteItem];
 		}
-		BOOL deleteEnabled = !(isDetachedHead || isHead);
-		PBRefMenuItem *deleteItem = [PBRefMenuItem itemWithTitle:deleteTitle action:@selector(showDeleteRefSheet:) enabled:deleteEnabled];
-		[items addObject:deleteItem];
 	}
 
 	for (PBRefMenuItem *item in items) {
