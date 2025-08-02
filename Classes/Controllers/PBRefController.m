@@ -262,9 +262,9 @@
 {
     
 	NSPoint location = [(PBCommitList *)tv mouseDownPoint];
-	int row = [tv rowAtPoint:location];
-	int column = [tv columnAtPoint:location];
-	int subjectColumn = [tv columnWithIdentifier:@"SubjectColumn"];
+	NSInteger row = [tv rowAtPoint:location];
+	NSInteger column = [tv columnAtPoint:location];
+	NSInteger subjectColumn = [tv columnWithIdentifier:@"SubjectColumn"];
 	if (column != subjectColumn)
 		return NO;
 	
