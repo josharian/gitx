@@ -29,7 +29,6 @@
 #import "PBGitRepositoryWatcher.h"
 #define QLPreviewPanel NSClassFromString(@"QLPreviewPanel")
 #import "PBQLTextView.h"
-#import "GLFileView.h"
 
 #define kHistorySplitViewPositionDefault @"History SplitView Position"
 
@@ -356,7 +355,6 @@
 	}
 
 	[webHistoryController closeView];
-	[fileView closeView];
 
 	[super closeView];
 }

@@ -13,7 +13,6 @@
                 <outlet property="commitController" destination="39" id="42"/>
                 <outlet property="commitList" destination="27" id="43"/>
                 <outlet property="fileBrowser" destination="15" id="87"/>
-                <outlet property="fileView" destination="452" id="488"/>
                 <outlet property="historySplitView" destination="2" id="275"/>
                 <outlet property="mergeButton" destination="337" id="352"/>
                 <outlet property="rebaseButton" destination="343" id="354"/>
@@ -62,15 +61,6 @@
                 <outlet property="contextMenuDelegate" destination="231" id="260"/>
                 <outlet property="historyController" destination="-2" id="62"/>
                 <outlet property="view" destination="21" id="44"/>
-            </connections>
-        </customObject>
-        <customObject id="452" customClass="GLFileView">
-            <connections>
-                <outlet property="accessoryView" destination="486" id="487"/>
-                <outlet property="fileListSplitView" destination="9" id="489"/>
-                <outlet property="historyController" destination="-2" id="454"/>
-                <outlet property="typeBar" destination="475" id="484"/>
-                <outlet property="view" destination="450" id="453"/>
             </connections>
         </customObject>
         <customView focusRingType="none" id="46" userLabel="History">

@@ -19,7 +19,6 @@
 @class PBRefController;
 @class QLPreviewPanel;
 @class PBCommitList;
-@class GLFileView;
 @class GTOID;
 @class PBHistorySearchController;
 
@@ -32,7 +31,6 @@
 	IBOutlet PBWebHistoryController *webHistoryController;
     QLPreviewPanel* previewPanel;
 	IBOutlet PBHistorySearchController *searchController;
-	IBOutlet GLFileView *fileView;
 
 	IBOutlet PBGitGradientBarView *upperToolbarView;
 	IBOutlet NSButton *mergeButton;
