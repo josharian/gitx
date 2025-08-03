@@ -315,3 +315,30 @@ var loadCommitDetails = function(data)
 	hideNotification();
 	enableFeatures();
 }
+
+var copyShaToClipboard = function() {
+	var sha = document.getElementById('commitID').textContent;
+	if (sha) {
+		try {
+			// Create a temporary input element to copy the SHA
+			var tempInput = document.createElement('input');
+			tempInput.style.position = 'absolute';
+			tempInput.style.left = '-1000px';
+			tempInput.value = sha;
+			document.body.appendChild(tempInput);
+			tempInput.select();
+			document.execCommand('copy');
+			document.body.removeChild(tempInput);
+			
+			// Provide visual feedback
+			var button = document.getElementById('copyShaButton');
+			var originalText = button.textContent;
+			button.textContent = 'copied!';
+			setTimeout(function() {
+				button.textContent = originalText;
+			}, 1000);
+		} catch (e) {
+			console.error('Failed to copy SHA to clipboard:', e);
+		}
+	}
+}
