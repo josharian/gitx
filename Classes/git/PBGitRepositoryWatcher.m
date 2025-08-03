@@ -186,8 +186,9 @@ void PBGitRepositoryWatcherCallback(ConstFSEventStreamRef streamRef,
 
 	self.statusCache = [NSMutableDictionary new];
 	
-	if ([PBGitDefaults useRepositoryWatcher])
-		[self start];
+	// Disable automatic fsnotify refreshing - keep the code but don't start
+	// if ([PBGitDefaults useRepositoryWatcher])
+	//	[self start];
 	return self;
 }
 

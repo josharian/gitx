@@ -18,6 +18,7 @@
 @interface PBGitWindowController ()
 
 @property (nonatomic, strong) RJModalRepoSheet* currentModalSheet;
+@property (nonatomic, assign) BOOL wasWindowKey;
 
 @end
 
@@ -25,6 +26,7 @@
 
 @synthesize repository;
 @synthesize currentModalSheet;
+@synthesize wasWindowKey;
 
 - (id)initWithRepository:(PBGitRepository*)theRepository displayDefault:(BOOL)displayDefault
 {
@@ -86,6 +88,8 @@
 	[[statusField cell] setBackgroundStyle:NSBackgroundStyleRaised];
 	[progressIndicator setUsesThreadedAnimation:YES];
 
+	// Initialize focus tracking
+	self.wasWindowKey = [[self window] isKeyWindow];
 
 	[self showWindow:nil];
 }
@@ -279,6 +283,22 @@
 
 	[sourceView setFrame:sourceFrame];
 	[mainView setFrame:mainFrame];
+}
+
+#pragma mark - Window Focus Tracking
+
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+	// If window was not key before and now becomes key, trigger refresh
+	if (!self.wasWindowKey) {
+		[self refresh:self];
+	}
+	self.wasWindowKey = YES;
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification
+{
+	self.wasWindowKey = NO;
 }
 
 @end
