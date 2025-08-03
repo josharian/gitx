@@ -105,6 +105,16 @@ table.diff {
     background-color: #FFF;
 }
 
+#selected #splithunk {
+    padding-left: 2px;
+    width: auto;
+    padding-right: 2px;
+    margin-right: 2px;
+    margin-top: 1px;
+    clear: right;
+    background-color: #FFF;
+}
+
 .disabled {
     display: none;
 }

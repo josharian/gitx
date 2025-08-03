@@ -257,6 +257,125 @@ var discardHunk = function(hunk, event)
 	}
 }
 
+/* Split a hunk at the selected unchanged line */
+var splitHunk = function(button)
+{
+	var selection = document.getElementById("selected");
+	if (!selection) return false;
+	
+	var selectedLine = selection.childNodes[1]; // First child is the button, second is the line
+	if (!selectedLine || selectedLine.getAttribute("class") != "noopline") return false;
+	
+	var selectedIndex = parseInt(selectedLine.getAttribute("index"));
+	var hunkHeader = null;
+	var preselect = 0;
+
+	// Find the hunk header
+	for(var next = selection.previousSibling; next; next = next.previousSibling) {
+		var elem_class = next.getAttribute("class");
+		if(elem_class == "hunkheader") {
+			hunkHeader = next.lastChild.data;
+			break;
+		}
+		preselect++;
+	}
+
+	if (!hunkHeader) return false;
+
+	// Parse the original hunk header to get line numbers
+	var m;
+	if (m = hunkHeader.match(/@@ \-(\d+)(,\d+)? \+(\d+)(,\d+)? @@/)) {
+		var start_old = parseInt(m[1]);
+		var start_new = parseInt(m[3]);
+	} else return false;
+
+	// Get all lines in this hunk
+	var subhunkText = getLines(hunkHeader);
+	var lines = subhunkText.split('\n');
+	lines.shift();  // Remove hunk header
+	if (lines[lines.length-1] == "") lines.pop(); // Remove final newline
+
+	// Split the lines at the selected position
+	var firstHunkLines = lines.slice(0, preselect);
+	var secondHunkLines = lines.slice(preselect + 1); // Skip the splitting line
+
+	// Calculate line counts for each new hunk
+	var calculateCounts = function(hunkLines) {
+		var oldCount = 0, newCount = 0;
+		for (var i = 0; i < hunkLines.length; i++) {
+			var firstChar = hunkLines[i].charAt(0);
+			if (firstChar == '-') {
+				oldCount++;
+			} else if (firstChar == '+') {
+				newCount++;
+			} else {
+				oldCount++; 
+				newCount++;
+			}
+		}
+		return [oldCount, newCount];
+	};
+
+	var firstCounts = calculateCounts(firstHunkLines);
+	var secondCounts = calculateCounts(secondHunkLines);
+
+	// Calculate line numbers for second hunk
+	var secondStart_old = start_old;
+	var secondStart_new = start_new;
+	for (var i = 0; i <= preselect; i++) {
+		var firstChar = lines[i].charAt(0);
+		if (firstChar == '-' || firstChar == ' ') {
+			secondStart_old++;
+		}
+		if (firstChar == '+' || firstChar == ' ') {
+			secondStart_new++;
+		}
+	}
+
+	// Create the two new hunks
+	var firstHunk = "";
+	if (firstHunkLines.length > 0) {
+		firstHunk = diffHeader + '\n' + 
+			"@@ -" + start_old + "," + firstCounts[0] + 
+			" +" + start_new + "," + firstCounts[1] + " @@\n" +
+			firstHunkLines.join('\n') + '\n';
+	}
+
+	var secondHunk = "";
+	if (secondHunkLines.length > 0) {
+		secondHunk = diffHeader + '\n' + 
+			"@@ -" + secondStart_old + "," + secondCounts[0] + 
+			" +" + secondStart_new + "," + secondCounts[1] + " @@\n" +
+			secondHunkLines.join('\n') + '\n';
+	}
+
+	// Apply the split by creating a modified diff and refreshing
+	var modifiedDiff = originalDiff;
+	var originalHunkStart = modifiedDiff.indexOf(hunkHeader);
+	var originalHunkEnd = modifiedDiff.indexOf("\n@@", originalHunkStart + 1);
+	var originalHunkEnd2 = modifiedDiff.indexOf("\ndiff", originalHunkStart + 1);
+	if (originalHunkEnd2 < originalHunkEnd && originalHunkEnd2 > 0)
+		originalHunkEnd = originalHunkEnd2;
+	if (originalHunkEnd == -1)
+		originalHunkEnd = modifiedDiff.length;
+
+	var beforeHunk = modifiedDiff.substring(0, originalHunkStart);
+	var afterHunk = modifiedDiff.substring(originalHunkEnd);
+	
+	var newHunksText = "";
+	if (firstHunk) {
+		newHunksText += firstHunk.substring(diffHeader.length + 1); // Remove diff header since it's already in modifiedDiff
+	}
+	if (secondHunk) {
+		newHunksText += secondHunk.substring(diffHeader.length + 1); // Remove diff header since it's already in modifiedDiff
+	}
+	
+	modifiedDiff = beforeHunk + newHunksText + afterHunk;
+	
+	// Refresh the display with the modified diff
+	displayDiff(modifiedDiff, originalCached);
+}
+
 /* Find all contiguous add/del lines. A quick way to select "just this
  * chunk". */
 var findsubhunk = function(start) { 
@@ -442,20 +561,32 @@ var showSelection = function(file, from, to, trust)
 	var selection = document.createElement("div");
 	selection.setAttribute("id", "selected");
 
+	// Check if this is a single unchanged line selection for split hunk functionality
+	var isSingleUnchangedLine = (elementList.length == 1 && 
+								elementList[0].getAttribute("class") == "noopline");
+
 	var button = document.createElement('a');
 	button.setAttribute("href","#");
-	button.appendChild(document.createTextNode(
-				   (originalCached?"Uns":"S")+"tage line"+
-				   (elementList.length > 1?"s":"")));
-	button.setAttribute("class","hunkbutton");
-	button.setAttribute("id","stagelines");
-
-	if (sel.good) {
-		button.setAttribute('onclick','stageLines('+
-				    (originalCached?'true':'false')+
-				    '); return false;');
+	
+	if (isSingleUnchangedLine) {
+		button.appendChild(document.createTextNode("Split hunk"));
+		button.setAttribute("class","hunkbutton");
+		button.setAttribute("id","splithunk");
+		button.setAttribute('onclick','splitHunk(this); return false;');
 	} else {
-		button.setAttribute("class","disabled");
+		button.appendChild(document.createTextNode(
+					   (originalCached?"Uns":"S")+"tage line"+
+					   (elementList.length > 1?"s":"")));
+		button.setAttribute("class","hunkbutton");
+		button.setAttribute("id","stagelines");
+
+		if (sel.good) {
+			button.setAttribute('onclick','stageLines('+
+					    (originalCached?'true':'false')+
+					    '); return false;');
+		} else {
+			button.setAttribute("class","disabled");
+		}
 	}
 	selection.appendChild(button);
 
