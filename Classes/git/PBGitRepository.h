@@ -51,6 +51,7 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 	__strong PBGitRevSpecifier *_headRef; // Caching
 	__strong GTOID* _headSha;
 	__strong GTRepository* _gtRepo;
+	__strong NSString* _cachedWorkingDirectory; // Cache for workingDirectory to avoid repeated git calls
 }
 
 

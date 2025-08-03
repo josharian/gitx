@@ -58,6 +58,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 {
 	// NSLog(@"Dealloc of repository");
 	[watcher stop];
+	_cachedWorkingDirectory = nil;
 }
 
 
@@ -767,6 +768,11 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSString *) workingDirectory
 {
+	// Return cached value if available
+	if (_cachedWorkingDirectory) {
+		return _cachedWorkingDirectory;
+	}
+	
 	NSTask *task = [[NSTask alloc] init];
 	task.launchPath = @"/usr/bin/git";
 	task.arguments = @[@"rev-parse", @"--show-toplevel"];
@@ -786,7 +792,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 			workdir = [workdir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 			
 			if (workdir.length > 0) {
-				return [workdir stringByStandardizingPath];
+				_cachedWorkingDirectory = [workdir stringByStandardizingPath];
+				return _cachedWorkingDirectory;
 			}
 		}
 	}
@@ -794,8 +801,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		// Git not available or other error, fall back
 	}
 	
-	// Fallback to original logic
-	return self.fileURL.path;
+	// Fallback to original logic and cache it
+	_cachedWorkingDirectory = self.fileURL.path;
+	return _cachedWorkingDirectory;
 }
 
 #pragma mark Remotes
