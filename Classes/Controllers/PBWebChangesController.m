@@ -110,7 +110,7 @@
         [alert addButtonWithTitle:@"Discard"];
         [alert addButtonWithTitle:@"Cancel"];
 		[alert beginSheetModalForWindow:[[controller view] window] completionHandler:^(NSModalResponse returnCode) {
-			if (returnCode == NSAlertFirstButtonReturn) {
+			if (returnCode == NSAlertFirstButtonReturn || returnCode == NSModalResponseOK) {
 				[self discardHunk:hunk];
 			}
 		}];
