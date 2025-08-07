@@ -2,6 +2,9 @@
 
 set -e
 
+echo "🔐 Requesting sudo access (will be needed for installation)..."
+sudo echo "✅ Sudo access granted"
+
 echo "🧹 Cleaning previous build..."
 xcodebuild -project GitX.xcodeproj -scheme Release clean
 
