@@ -35,5 +35,10 @@
 				   inputString:(NSString *)input
 				      retValue:(int *)      ret;
 
+// Convenience method for git commands with standardized error handling
++ (NSString*) gitOutputForArgs:(NSArray *)args
+                         inDir:(NSString *)dir
+                         error:(NSError **)error;
+
 
 @end

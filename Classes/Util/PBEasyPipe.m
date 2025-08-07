@@ -111,45 +111,49 @@
 	return string;
 }	
 
-// We don't use the above function because then we'd have to wait until the program was finished
-// with running
 
-+ (NSString*) outputForCommand: (NSString*) cmd withArgs: (NSArray*) args  inDir: (NSString*) dir
+
++ (NSString*) outputForCommand: (NSString*) cmd withArgs: (NSArray*) args inDir: (NSString*) dir
 {
-	NSTask *task = [self taskForCommand:cmd withArgs:args inDir:dir];
-	NSFileHandle* handle = [[task standardOutput] fileHandleForReading];
-	
-	[task launch];
-	// This can cause a "Bad file descriptor"... when?
-	NSData *data = nil;
-	@try {
-		data = [handle readDataToEndOfFile];
-	}
-	@catch (NSException * e) {
-		NSLog(@"Got a bad file descriptor in %@!", NSStringFromSelector(_cmd));
-		if ([NSThread currentThread] != [NSThread mainThread])
-			[task waitUntilExit];
-
-		return nil;
-	}
-	NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-	if (!string)
-		string = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
-	
-	// Strip trailing newline
-	if ([string hasSuffix:@"\n"])
-		string = [string substringToIndex:[string length]-1];
-
-	if ([NSThread currentThread] != [NSThread mainThread])
-		[task waitUntilExit];
-
-	return string;
+	int ret;
+	return [self outputForCommand:cmd withArgs:args inDir:dir retValue:&ret];
 }
-
 
 + (NSString*) outputForCommand: (NSString*) cmd withArgs: (NSArray*) args
 {
 	return [self outputForCommand:cmd withArgs:args inDir:nil];
+}
+
++ (NSString*) gitOutputForArgs:(NSArray *)args
+                         inDir:(NSString *)dir
+                         error:(NSError **)error
+{
+    NSString *gitPath = [[NSClassFromString(@"PBGitBinary") performSelector:@selector(path)] copy];
+    if (!gitPath) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"PBGitError" 
+                                         code:-1 
+                                     userInfo:@{NSLocalizedDescriptionKey: @"Git binary not found"}];
+        }
+        return nil;
+    }
+    
+    int exitCode = 0;
+    NSString *output = [self outputForCommand:gitPath 
+                                     withArgs:args 
+                                        inDir:dir 
+                                     retValue:&exitCode];
+    
+    if (exitCode != 0 && error) {
+        NSString *errorMessage = [NSString stringWithFormat:@"Git command failed with exit code %d", exitCode];
+        *error = [NSError errorWithDomain:@"PBGitError" 
+                                     code:exitCode 
+                                 userInfo:@{NSLocalizedDescriptionKey: errorMessage,
+                                           @"GitArgs": args ?: @[],
+                                           @"ExitCode": @(exitCode)}];
+    }
+    
+    return exitCode == 0 ? output : nil;
 }
 
 @end
