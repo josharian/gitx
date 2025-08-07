@@ -185,31 +185,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 #endif
 }
 
-// see if the current appleEvent has the command line arguments from the gitx cli
-// this could be from an openApplication or an openDocument apple event
-// when opening a repository this is called before the sidebar controller gets it's awakeFromNib: message
-// if the repository is already open then this is also a good place to catch the event as the window is about to be brought forward
 - (void)showWindows
 {
-	NSAppleEventDescriptor *currentAppleEvent = [[NSAppleEventManager sharedAppleEventManager] currentAppleEvent];
-
-	if (currentAppleEvent) {
-		NSAppleEventDescriptor *eventRecord = [currentAppleEvent paramDescriptorForKeyword:keyAEPropData];
-
-		// on app launch there may be many repositories opening, so double check that this is the right repo
-		NSString *path = [[eventRecord paramDescriptorForKeyword:typeFileURL] stringValue];
-		if (path) {
-			NSURL *workingDirectory = [NSURL URLWithString:path];
-			if ([[GitRepoFinder gitDirForURL:workingDirectory] isEqual:[self fileURL]]) {
-				NSAppleEventDescriptor *argumentsList = [eventRecord paramDescriptorForKeyword:kGitXAEKeyArgumentsList];
-				[self handleGitXScriptingArguments:argumentsList inWorkingDirectory:workingDirectory];
-
-				// showWindows may be called more than once during app launch so remove the CLI data after we handle the event
-				[currentAppleEvent removeDescriptorWithKeyword:keyAEPropData];
-			}
-		}
-	}
-
 	[super showWindows];
 }
 
@@ -1065,86 +1042,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 #pragma mark GitX Scripting
 
-- (void)handleRevListArguments:(NSArray *)arguments inWorkingDirectory:(NSURL *)workingDirectory
-{
-	if (![arguments count])
-		return;
 
-	PBGitRevSpecifier *revListSpecifier = nil;
-
-	// the argument may be a branch or tag name but will probably not be the full reference
-	if ([arguments count] == 1) {
-		PBGitRef *refArgument = [self refForName:[arguments lastObject]];
-		if (refArgument) {
-			revListSpecifier = [[PBGitRevSpecifier alloc] initWithRef:refArgument];
-			revListSpecifier.workingDirectory = workingDirectory;
-		}
-	}
-
-	if (!revListSpecifier) {
-		revListSpecifier = [[PBGitRevSpecifier alloc] initWithParameters:arguments];
-		revListSpecifier.workingDirectory = workingDirectory;
-	}
-
-	self.currentBranch = [self addBranch:revListSpecifier];
-	[PBGitDefaults setShowStageView:NO];
-	[self.windowController showHistoryView:self];
-}
-
-- (void)handleBranchFilterEventForFilter:(PBGitXBranchFilterType)filter additionalArguments:(NSMutableArray *)arguments inWorkingDirectory:(NSURL *)workingDirectory
-{
-	self.currentBranchFilter = filter;
-	[PBGitDefaults setShowStageView:NO];
-	[self.windowController showHistoryView:self];
-
-	// treat any additional arguments as a rev-list specifier
-	if ([arguments count] > 1) {
-		[arguments removeObjectAtIndex:0];
-		[self handleRevListArguments:arguments inWorkingDirectory:workingDirectory];
-	}
-}
-
-- (void)handleGitXScriptingArguments:(NSAppleEventDescriptor *)argumentsList inWorkingDirectory:(NSURL *)workingDirectory
-{
-	NSMutableArray *arguments = [NSMutableArray array];
-	uint argumentsIndex = 1; // AppleEvent list descriptor's are one based
-	while(1) {
-		NSAppleEventDescriptor *arg = [argumentsList descriptorAtIndex:argumentsIndex++];
-		if (arg)
-			[arguments addObject:[arg stringValue]];
-		else
-			break;
-	}
-
-	if (![arguments count])
-		return;
-
-	NSString *firstArgument = [arguments objectAtIndex:0];
-
-	if ([firstArgument isEqualToString:@"-c"] || [firstArgument isEqualToString:@"--commit"]) {
-		[PBGitDefaults setShowStageView:YES];
-		[self.windowController showCommitView:self];
-		return;
-	}
-
-	if ([firstArgument isEqualToString:@"--all"]) {
-		[self handleBranchFilterEventForFilter:kGitXAllBranchesFilter additionalArguments:arguments inWorkingDirectory:workingDirectory];
-		return;
-	}
-
-	if ([firstArgument isEqualToString:@"--local"]) {
-		[self handleBranchFilterEventForFilter:kGitXLocalRemoteBranchesFilter additionalArguments:arguments inWorkingDirectory:workingDirectory];
-		return;
-	}
-
-	if ([firstArgument isEqualToString:@"--branch"]) {
-		[self handleBranchFilterEventForFilter:kGitXSelectedBranchFilter additionalArguments:arguments inWorkingDirectory:workingDirectory];
-		return;
-	}
-
-	// if the argument is not a known command then treat it as a rev-list specifier
-	[self handleRevListArguments:arguments inWorkingDirectory:workingDirectory];
-}
 
 // for the scripting bridge
 - (void)findInModeScriptCommand:(NSScriptCommand *)command

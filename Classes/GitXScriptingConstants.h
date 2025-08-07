@@ -9,8 +9,5 @@
 #define kGitXBundleIdentifier @"xyz.commaok.GitX"
 
 
-#define kGitXAEKeyArgumentsList 'ARGS'
-
-
 #define kGitXFindSearchStringKey @"searchString"
 #define kGitXFindInModeKey @"inMode"

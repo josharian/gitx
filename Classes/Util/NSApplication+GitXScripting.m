@@ -7,66 +7,10 @@
 //
 
 #import "NSApplication+GitXScripting.h"
-#import "GitXScriptingConstants.h"
-#import "PBDiffWindowController.h"
-#import "PBGitRepository.h"
-
-// #import <ObjectiveGit/GTRepository.h>
 
 
 @implementation NSApplication (GitXScripting)
 
-- (void)showDiffScriptCommand:(NSScriptCommand *)command
-{
-	NSString *diffText = [command directParameter];
-	if (diffText) {
-		PBDiffWindowController *diffController = [[PBDiffWindowController alloc] initWithDiff:diffText];
-		[diffController showWindow:nil];
-		[[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-	}
-}
-
-- (void)initRepositoryScriptCommand:(NSScriptCommand *)command
-{
-	NSURL *repositoryURL = [command directParameter];
-	if (!repositoryURL)
-        return;
-
-    // Initialize empty repository using git init
-    NSTask *gitTask = [[NSTask alloc] init];
-    gitTask.launchPath = @"/usr/bin/git";
-    gitTask.arguments = @[@"init"];
-    gitTask.currentDirectoryPath = [repositoryURL path];
-    
-    NSPipe *errorPipe = [NSPipe pipe];
-    gitTask.standardError = errorPipe;
-    
-    @try {
-        [gitTask launch];
-        [gitTask waitUntilExit];
-        
-        if (gitTask.terminationStatus == 0) {
-            // Success
-        } else {
-            NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
-            NSString *errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
-            NSLog(@"Failed to create repository at %@: %@", repositoryURL, errorOutput);
-            return;
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Failed to create repository at %@: %@", repositoryURL, exception.reason);
-        return;
-    }
-
-    [[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:repositoryURL
-                                                                           display:YES
-                                                                 completionHandler:^(NSDocument *document, BOOL documentWasAlreadyOpen, NSError *error) {
-                                                                     if (error) {
-                                                                         NSLog(@"Failed to open repository at %@: %@", repositoryURL, error);
-                                                                     }
-                                                                 }];
-}
 
 
 @end
