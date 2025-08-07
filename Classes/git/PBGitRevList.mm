@@ -143,14 +143,6 @@ using namespace std;
 	[set addObject:commit];
 }
 
-- (void) addGitBranches:(NSArray *)branches fromRepo:(GTRepository *)repo toCommitSet:(NSMutableSet *)set
-{
-	for (GTBranch *branch in branches) {
-		GTCommit *commit = [[GTCommit alloc] init];
-		commit.SHA = branch.SHA;
-		[self addGitObject:commit toCommitSet:set];
-	}
-}
 
 - (void) setupEnumerator:(GTEnumerator*)enumerator
 			  forRevspec:(PBGitRevSpecifier*)rev

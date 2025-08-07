@@ -37,13 +37,6 @@ static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
 @property (nonatomic, strong) NSString *shortSHA;
 @end
 
-@interface GTBranch : NSObject
-@property (nonatomic, strong) NSString *SHA;
-@end
-
-@interface GTTag : NSObject
-@end
-
 @interface GTRepository : NSObject
 @end
 

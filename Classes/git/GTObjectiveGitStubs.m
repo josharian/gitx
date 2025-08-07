@@ -18,12 +18,6 @@
 @implementation GTObject
 @end
 
-@implementation GTBranch
-@end
-
-@implementation GTTag
-@end
-
 @implementation GTRepository
 @end
 
