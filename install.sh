@@ -6,17 +6,17 @@ echo "🔐 Requesting sudo access (will be needed for installation)..."
 sudo echo "✅ Sudo access granted"
 
 echo "🧹 Cleaning previous build..."
-xcodebuild -project GitX.xcodeproj -scheme Release clean
+xcodebuild -project GitX.xcodeproj -scheme Release -arch arm64 clean
 
 echo "🔨 Building GitX app in Release configuration..."
-xcodebuild -project GitX.xcodeproj -scheme Release -configuration Release build
+xcodebuild -project GitX.xcodeproj -scheme Release -configuration Release -arch arm64 build
 
 echo "🔨 Building gitx CLI tool..."
-xcodebuild -project GitX.xcodeproj -target "cli tool" -configuration Release build
+xcodebuild -project GitX.xcodeproj -target "cli tool" -configuration Release -arch arm64 build
 
 echo "📦 Getting app path..."
-APP_PATH=$(xcodebuild -project GitX.xcodeproj -scheme Release -configuration Release -showBuildSettings | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oE "/.*")
-APP_NAME=$(xcodebuild -project GitX.xcodeproj -scheme Release -configuration Release -showBuildSettings | grep -m 1 "FULL_PRODUCT_NAME" | grep -oE "[^=]*$" | xargs)
+APP_PATH=$(xcodebuild -project GitX.xcodeproj -scheme Release -configuration Release -arch arm64 -showBuildSettings | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oE "/.*")
+APP_NAME=$(xcodebuild -project GitX.xcodeproj -scheme Release -configuration Release -arch arm64 -showBuildSettings | grep -m 1 "FULL_PRODUCT_NAME" | grep -oE "[^=]*$" | xargs)
 
 FULL_APP_PATH="$APP_PATH/$APP_NAME"
 
