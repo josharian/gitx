@@ -12,7 +12,6 @@
 #import "PBWebChangesController.h"
 #import "PBGitIndex.h"
 #import "PBNiceSplitView.h"
-#import "PBGitRepositoryWatcher.h"
 #import "PBCommitMessageView.h"
 
 // #import <ObjectiveGit/GTRepository.h>
@@ -74,8 +73,6 @@
 	[cachedFilesController setSortDescriptors:[NSArray arrayWithObject:
 		[[NSSortDescriptor alloc] initWithKey:@"path" ascending:true]]];
 
-  // listen for updates
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_repositoryUpdatedNotification:) name:PBGitRepositoryEventNotification object:repository];
 
 	[cachedFilesController setAutomaticallyRearrangesObjects:NO];
 	[unstagedFilesController setAutomaticallyRearrangesObjects:NO];
@@ -84,13 +81,6 @@
 	[self performSelector:@selector(restoreCommitSplitViewPositiion) withObject:nil afterDelay:0];
 }
 
-- (void) _repositoryUpdatedNotification:(NSNotification *)notification {
-    PBGitRepositoryWatcherEventType eventType = [(NSNumber *)[[notification userInfo] objectForKey:kPBGitRepositoryEventTypeUserInfoKey] unsignedIntValue];
-    if(eventType & (PBGitRepositoryWatcherEventTypeWorkingDirectory | PBGitRepositoryWatcherEventTypeIndex)){
-      // refresh if the working directory or index is modified
-      [self refresh:self];
-    }
-}
 
 - (void)closeView
 {

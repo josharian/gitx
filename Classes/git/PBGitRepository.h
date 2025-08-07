@@ -44,10 +44,7 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 @class PBGitWindowController;
 @class PBGitCommit;
 @class GTOID;
-@class PBGitRepositoryWatcher;
-
 @interface PBGitRepository : NSDocument {
-	__strong PBGitRepositoryWatcher *watcher;
 	__strong PBGitRevSpecifier *_headRef; // Caching
 	__strong GTOID* _headSha;
 	__strong GTRepository* _gtRepo;

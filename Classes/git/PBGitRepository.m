@@ -20,7 +20,6 @@
 #import "PBGitDefaults.h"
 #import "GitXScriptingConstants.h"
 #import "PBHistorySearchController.h"
-#import "PBGitRepositoryWatcher.h"
 #import "GitRepoFinder.h"
 #import "PBGitHistoryList.h"
 #import "PBGitSVSubmoduleItem.h"
@@ -57,7 +56,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 - (void) dealloc
 {
 	// NSLog(@"Dealloc of repository");
-	[watcher stop];
 	_cachedWorkingDirectory = nil;
 }
 
@@ -133,8 +131,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 	[self reloadRefs];
 
-    // Setup the FSEvents watcher to fire notifications when things change
-    watcher = [[PBGitRepositoryWatcher alloc] initWithRepository:self];
 
 	return YES;
 }

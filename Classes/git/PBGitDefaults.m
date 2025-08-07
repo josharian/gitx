@@ -25,7 +25,6 @@
 #define kBranchFilterState @"PBBranchFilter"
 #define kHistorySearchMode @"PBHistorySearchMode"
 #define kSuppressedDialogWarnings @"Suppressed Dialog Warnings"
-#define kUseRepositoryWatcher @"PBUseRepositoryWatcher"
 
 @implementation PBGitDefaults
 
@@ -54,8 +53,6 @@
                       forKey:kHistorySearchMode];
 	[defaultValues setObject:[NSNumber numberWithInteger:0]
                       forKey:kBranchFilterState];
-	[defaultValues setObject:[NSNumber numberWithBool:YES]
-                      forKey:kUseRepositoryWatcher];
 	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultValues];
 }
 
@@ -189,9 +186,5 @@
 }
 
 
-+ (BOOL) useRepositoryWatcher
-{
-	return [[NSUserDefaults standardUserDefaults] boolForKey:kUseRepositoryWatcher];
-}
 
 @end

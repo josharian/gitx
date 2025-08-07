@@ -26,7 +26,6 @@
 #import "PBGitDefaults.h"
 #import "PBGitRevList.h"
 #import "PBHistorySearchController.h"
-#import "PBGitRepositoryWatcher.h"
 #define QLPreviewPanel NSClassFromString(@"QLPreviewPanel")
 #import "PBQLTextView.h"
 
@@ -82,8 +81,6 @@
 	// Always use All branches filter
 	repository.currentBranchFilter = kGitXAllBranchesFilter;
 
-	// listen for updates
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_repositoryUpdatedNotification:) name:PBGitRepositoryEventNotification object:repository];
 
 	__unsafe_unretained PBGitHistoryController *weakSelf = self;
 	commitList.findPanelActionBlock = ^(id sender) {
@@ -93,13 +90,6 @@
 	[super awakeFromNib];
 }
 
-- (void) _repositoryUpdatedNotification:(NSNotification *)notification {
-    PBGitRepositoryWatcherEventType eventType = [(NSNumber *)[[notification userInfo] objectForKey:kPBGitRepositoryEventTypeUserInfoKey] unsignedIntValue];
-    if(eventType & PBGitRepositoryWatcherEventTypeGitDirectory){
-      // refresh if the .git repository is modified
-      [self refresh:NULL];
-    }
-}
 
 - (void)updateKeys
 {
