@@ -131,8 +131,8 @@
     NSString *gitPath = [[NSClassFromString(@"PBGitBinary") performSelector:@selector(path)] copy];
     if (!gitPath) {
         if (error) {
-            *error = [NSError errorWithDomain:@"PBGitError" 
-                                         code:-1 
+            *error = [NSError errorWithDomain:@"PBGitRepositoryErrorDomain" 
+                                         code:1004 // PBGitErrorGitNotFound
                                      userInfo:@{NSLocalizedDescriptionKey: @"Git binary not found"}];
         }
         return nil;
@@ -146,8 +146,8 @@
     
     if (exitCode != 0 && error) {
         NSString *errorMessage = [NSString stringWithFormat:@"Git command failed with exit code %d", exitCode];
-        *error = [NSError errorWithDomain:@"PBGitError" 
-                                     code:exitCode 
+        *error = [NSError errorWithDomain:@"PBGitRepositoryErrorDomain" 
+                                     code:1001 // PBGitErrorCommandFailed
                                  userInfo:@{NSLocalizedDescriptionKey: errorMessage,
                                            @"GitArgs": args ?: @[],
                                            @"ExitCode": @(exitCode)}];

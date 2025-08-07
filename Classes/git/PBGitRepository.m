@@ -74,7 +74,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		if (outError) {
 			NSDictionary* userInfo = [NSDictionary dictionaryWithObject:[PBGitBinary notFoundError]
 																 forKey:NSLocalizedRecoverySuggestionErrorKey];
-			*outError = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:0 userInfo:userInfo];
+			*outError = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:PBGitErrorGitNotFound userInfo:userInfo];
 		}
 		return NO;
 	}
@@ -85,7 +85,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		if (outError) {
 			NSDictionary* userInfo = [NSDictionary dictionaryWithObject:@"Reading files is not supported."
 																 forKey:NSLocalizedRecoverySuggestionErrorKey];
-			*outError = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:0 userInfo:userInfo];
+			*outError = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:PBGitErrorInvalidRepository userInfo:userInfo];
 		}
 		return NO;
 	}
@@ -122,7 +122,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
                                       [NSString stringWithFormat:@"%@ does not appear to be a git repository.", [[self fileURL] path]], NSLocalizedRecoverySuggestionErrorKey,
                                       error, NSUnderlyingErrorKey,
                                       nil];
-			*outError = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:0 userInfo:userInfo];
+			*outError = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:PBGitErrorInvalidRepository userInfo:userInfo];
 		}
 		return NO;
 	}
@@ -794,7 +794,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 	if (error != NULL) {
 		NSString *info = [NSString stringWithFormat:@"There is no remote configured for the %@ '%@'.\n\nPlease select a branch from the popup menu, which has a corresponding remote tracking branch set up.\n\nYou can also use a contextual menu to choose a branch by right clicking on its label in the commit history list.", [branch refishType], [branch shortName]];
-		*error = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:0
+		*error = [NSError errorWithDomain:PBGitRepositoryErrorDomain code:PBGitErrorInvalidRef
 								 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 										   @"No remote configured for branch", NSLocalizedDescriptionKey,
 										   info, NSLocalizedRecoverySuggestionErrorKey,
