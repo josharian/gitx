@@ -277,27 +277,21 @@
 	}
 }
 
-- (void) discardChangesForFilesAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
-{
-    [[alert window] orderOut:nil];
-
-	if (returnCode == NSAlertFirstButtonReturn || returnCode == NSModalResponseOK) {
-        [commitController.index discardChangesForFiles:(__bridge NSArray*)contextInfo];
-	}
-}
 
 - (void) discardChangesForFiles:(NSArray *)files force:(BOOL)force
 {
 	if (!force) {
-		NSAlert *alert = [NSAlert alertWithMessageText:@"Discard changes"
-                                         defaultButton:nil
-                                       alternateButton:@"Cancel"
-                                           otherButton:nil
-                             informativeTextWithFormat:@"Are you sure you wish to discard the changes to this file?\n\nYou cannot undo this operation."];
-        [alert beginSheetModalForWindow:[[commitController view] window]
-                          modalDelegate:self
-                         didEndSelector:@selector(discardChangesForFilesAlertDidEnd:returnCode:contextInfo:)
-                            contextInfo:(__bridge_retained void*)files];
+		NSAlert *alert = [[NSAlert alloc] init];
+		alert.messageText = @"Discard changes";
+		alert.informativeText = @"Are you sure you wish to discard the changes to this file?\n\nYou cannot undo this operation.";
+		[alert addButtonWithTitle:@"Discard"];
+		[alert addButtonWithTitle:@"Cancel"];
+		
+		[alert beginSheetModalForWindow:[[commitController view] window] completionHandler:^(NSModalResponse returnCode) {
+			if (returnCode == NSAlertFirstButtonReturn || returnCode == NSModalResponseOK) {
+				[commitController.index discardChangesForFiles:files];
+			}
+		}];
 	} else {
         [commitController.index discardChangesForFiles:files];
     }

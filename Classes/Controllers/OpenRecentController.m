@@ -78,7 +78,9 @@
 	if(selectedResult != nil) {
 		[[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:selectedResult
                                                                                display:YES
-                                                                                 error:nil];
+                                                                     completionHandler:^(NSDocument *document, BOOL documentWasAlreadyOpen, NSError *error) {
+                                                                         // No action needed
+                                                                     }];
 	}
 	[self hide];
 }
@@ -89,7 +91,9 @@
 		if(selectedResult != nil) {
 			[[NSDocumentController sharedDocumentController] openDocumentWithContentsOfURL:selectedResult
                                                                                    display:YES
-                                                                                     error:nil];
+                                                                         completionHandler:^(NSDocument *document, BOOL documentWasAlreadyOpen, NSError *error) {
+                                                                             // No action needed
+                                                                         }];
 		}
 		[self hide];
 //		[searchWindow makeKeyAndOrderFront: nil];
