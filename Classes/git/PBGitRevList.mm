@@ -102,7 +102,7 @@
     
     
     NSTask *gitTask = [[NSTask alloc] init];
-    gitTask.launchPath = @"/usr/bin/git";
+    gitTask.launchPath = [PBGitBinary path];
     gitTask.arguments = args;
     gitTask.currentDirectoryPath = [pbRepo workingDirectory];
     
