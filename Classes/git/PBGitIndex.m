@@ -8,8 +8,6 @@
 
 #import "PBGitIndex.h"
 #import "PBGitRepository.h"
-#import "PBGitBinary.h"
-#import "PBEasyPipe.h"
 #import "NSString_RegEx.h"
 #import "PBChangedFile.h"
 
@@ -130,9 +128,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	[nc removeObserver:self]; 
 
 	// Ask Git to refresh the index
-	NSFileHandle *updateHandle = [PBEasyPipe handleForCommand:[PBGitBinary path] 
-													 withArgs:[NSArray arrayWithObjects:@"update-index", @"-q", @"--unmerged", @"--ignore-missing", @"--refresh", nil]
-														inDir:[workingDirectory path]];
+	NSFileHandle *updateHandle = [repository handleInWorkDirForArguments:[NSArray arrayWithObjects:@"update-index", @"-q", @"--unmerged", @"--ignore-missing", @"--refresh", nil]];
 
 	[nc addObserver:self
 		   selector:@selector(indexRefreshFinished:)
@@ -403,11 +399,11 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 
 	NSArray *arguments = [NSArray arrayWithObjects:@"checkout-index", @"--index", @"--quiet", @"--force", @"-z", @"--stdin", nil];
 
-	int ret = 1;
-	[PBEasyPipe outputForCommand:[PBGitBinary path]	withArgs:arguments inDir:[workingDirectory path] inputString:input retValue:&ret];
+	NSError *error = nil;
+	[repository executeGitCommand:arguments withInput:input error:&error];
 
-	if (ret) {
-		[self postOperationFailed:[NSString stringWithFormat:@"Discarding changes failed with return value %i", ret]];
+	if (error) {
+		[self postOperationFailed:[NSString stringWithFormat:@"Discarding changes failed: %@", error.localizedDescription]];
 		return;
 	}
 
@@ -516,25 +512,19 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	
 	// Other files (not tracked, not ignored)
 	refreshStatus++;
-	NSFileHandle *handle = [PBEasyPipe handleForCommand:[PBGitBinary path] 
-											   withArgs:[NSArray arrayWithObjects:@"ls-files", @"--others", @"--exclude-standard", @"-z", nil]
-												  inDir:[workingDirectory path]];
+	NSFileHandle *handle = [repository handleInWorkDirForArguments:[NSArray arrayWithObjects:@"ls-files", @"--others", @"--exclude-standard", @"-z", nil]];
 	[nc addObserver:self selector:@selector(readOtherFiles:) name:NSFileHandleReadToEndOfFileCompletionNotification object:handle]; 
 	[handle readToEndOfFileInBackgroundAndNotify];
 
 	// Unstaged files
 	refreshStatus++;
-	handle = [PBEasyPipe handleForCommand:[PBGitBinary path] 
-											   withArgs:[NSArray arrayWithObjects:@"diff-files", @"-z", nil]
-												  inDir:[workingDirectory path]];
+	handle = [repository handleInWorkDirForArguments:[NSArray arrayWithObjects:@"diff-files", @"-z", nil]];
 	[nc addObserver:self selector:@selector(readUnstagedFiles:) name:NSFileHandleReadToEndOfFileCompletionNotification object:handle]; 
 	[handle readToEndOfFileInBackgroundAndNotify];
 
 	// Staged files
 	refreshStatus++;
-	handle = [PBEasyPipe handleForCommand:[PBGitBinary path] 
-								 withArgs:[NSArray arrayWithObjects:@"diff-index", @"--cached", @"-z", [self parentTree], nil]
-									inDir:[workingDirectory path]];
+	handle = [repository handleInWorkDirForArguments:[NSArray arrayWithObjects:@"diff-index", @"--cached", @"-z", [self parentTree], nil]];
 	[nc addObserver:self selector:@selector(readStagedFiles:) name:NSFileHandleReadToEndOfFileCompletionNotification object:handle]; 
 	[handle readToEndOfFileInBackgroundAndNotify];
 }

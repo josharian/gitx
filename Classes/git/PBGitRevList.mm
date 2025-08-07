@@ -100,35 +100,14 @@
     // Add all the revisions/globs that were pushed
     [args addObjectsFromArray:self.revListArgs];
     
+    // Use PBGitRepository's executeGitCommand for consistency
+    NSError *error = nil;
+    NSString *output = [pbRepo executeGitCommand:args inWorkingDir:YES error:&error];
     
-    NSTask *gitTask = [[NSTask alloc] init];
-    gitTask.launchPath = [PBGitBinary path];
-    gitTask.arguments = args;
-    gitTask.currentDirectoryPath = [pbRepo workingDirectory];
-    
-    NSPipe *outputPipe = [NSPipe pipe];
-    NSPipe *errorPipe = [NSPipe pipe];
-    gitTask.standardOutput = outputPipe;
-    gitTask.standardError = errorPipe;
-    
-    @try {
-        [gitTask launch];
-        
-        // Read output immediately to prevent deadlock
-        NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-        NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
-        
-        [gitTask waitUntilExit];
-        
-        if (gitTask.terminationStatus == 0) {
-            NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-            [self parseRevListOutput:output];
-            
-        } else {
-            NSString *errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
-            NSLog(@"Git rev-list command failed with error: %@", errorOutput);
-        }
-    } @catch (NSException *exception) {
+    if (error) {
+        NSLog(@"Git rev-list command failed with error: %@", error.localizedDescription);
+    } else if (output) {
+        [self parseRevListOutput:output];
     }
 }
 
