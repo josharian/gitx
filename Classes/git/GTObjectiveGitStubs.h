@@ -11,10 +11,6 @@
 @class GTOID;
 @class GTRepository;
 
-// GTObjectType constants
-typedef enum {
-    GTObjectTypeCommit = 1
-} GTObjectType;
 
 // GTEnumeratorOptions constants
 typedef NSUInteger GTEnumeratorOptions;
@@ -28,7 +24,6 @@ static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
 
 @interface GTObject : NSObject
 @property (nonatomic, strong) NSString *SHA;
-- (id)objectByPeelingToType:(GTObjectType)type error:(NSError **)error;
 @end
 
 @interface GTCommit : GTObject
@@ -47,7 +42,6 @@ static const GTEnumeratorOptions GTEnumeratorOptionsTopologicalSort = 2;
 @end
 
 @interface GTTag : NSObject
-- (GTCommit *)objectByPeelingTagError:(NSError **)error;
 @end
 
 @interface GTRepository : NSObject

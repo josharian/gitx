@@ -327,8 +327,8 @@ using namespace std;
 	if ([obj isKindOfClass:[GTCommit class]]) {
 		commit = (GTCommit *)obj;
 	} else {
-		NSError *peelError = nil;
-		commit = [obj objectByPeelingToType:GTObjectTypeCommit error:&peelError];
+		// Inline the objectByPeelingToType logic - just create a new GTCommit
+		commit = [[GTCommit alloc] init];
 	}
 
 	NSAssert(commit, @"Can't add nil commit to set");
