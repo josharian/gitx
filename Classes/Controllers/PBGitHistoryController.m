@@ -14,7 +14,6 @@
 #import "PBCollapsibleSplitView.h"
 #import "PBGitHistoryController.h"
 #import "PBWebHistoryController.h"
-#import "CWQuickLook.h"
 #import "PBGitGrapher.h"
 #import "PBGitRevisionCell.h"
 #import "PBCommitList.h"
@@ -26,7 +25,6 @@
 #import "PBGitDefaults.h"
 #import "PBGitRevList.h"
 #import "PBHistorySearchController.h"
-#define QLPreviewPanel NSClassFromString(@"QLPreviewPanel")
 #import "PBQLTextView.h"
 
 #define kHistorySplitViewPositionDefault @"History SplitView Position"
@@ -230,36 +228,7 @@
 
 }
 
-- (IBAction) toggleQLPreviewPanel:(id)sender
-{
-	if ([[QLPreviewPanel sharedPreviewPanel] respondsToSelector:@selector(setDataSource:)]) {
-		// Public QL API
-		if ([QLPreviewPanel sharedPreviewPanelExists] && [[QLPreviewPanel sharedPreviewPanel] isVisible])
-			[[QLPreviewPanel sharedPreviewPanel] orderOut:nil];
-		else
-			[[QLPreviewPanel sharedPreviewPanel] makeKeyAndOrderFront:nil];
-	}
-	else {
-		// Private QL API (10.5 only)
-		if ([[QLPreviewPanel sharedPreviewPanel] isOpen])
-			[[QLPreviewPanel sharedPreviewPanel] closePanel];
-		else {
-			[[QLPreviewPanel sharedPreviewPanel] makeKeyAndOrderFrontWithEffect:1];
-			[self updateQuicklookForce:YES];
-		}
-	}
-}
 
-- (void) updateQuicklookForce:(BOOL)force
-{
-	if (!force && ![[QLPreviewPanel sharedPreviewPanel] isOpen])
-		return;
-
-	if ([[QLPreviewPanel sharedPreviewPanel] respondsToSelector:@selector(setDataSource:)]) {
-		// Public QL API
-		[previewPanel reloadData];
-	}
-}
 
 - (IBAction) refresh:(id)sender
 {
@@ -494,34 +463,6 @@
 		[repository rebaseBranch:nil onRefish:selectedCommit];
 }
 
-#pragma mark -
-#pragma mark Quick Look Public API support
-
-@protocol QLPreviewItem;
-
-#pragma mark (QLPreviewPanelController)
-
-- (BOOL) acceptsPreviewPanelControl:(id)panel
-{
-    return YES;
-}
-
-- (void)beginPreviewPanelControl:(id)panel
-{
-    // This document is now responsible of the preview panel
-    // It is allowed to set the delegate, data source and refresh panel.
-    previewPanel = panel;
-	[previewPanel setDelegate:self];
-	[previewPanel setDataSource:self];
-}
-
-- (void)endPreviewPanelControl:(id)panel
-{
-    // This document loses its responsisibility on the preview panel
-    // Until the next call to -beginPreviewPanelControl: it must not
-    // change the panel's delegate, data source or refresh it.
-    previewPanel = nil;
-}
 
 
 

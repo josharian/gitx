@@ -17,7 +17,6 @@
 @class PBWebHistoryController;
 @class PBGitGradientBarView;
 @class PBRefController;
-@class QLPreviewPanel;
 @class PBCommitList;
 @class GTOID;
 @class PBHistorySearchController;
@@ -29,7 +28,6 @@
 	IBOutlet PBCommitList* commitList;
 	IBOutlet PBCollapsibleSplitView *historySplitView;
 	IBOutlet PBWebHistoryController *webHistoryController;
-    QLPreviewPanel* previewPanel;
 	IBOutlet PBHistorySearchController *searchController;
 
 	IBOutlet PBGitGradientBarView *upperToolbarView;
@@ -53,8 +51,6 @@
 
 - (void)selectCommit:(GTOID *)commit;
 - (IBAction) refresh:(id)sender;
-- (IBAction) toggleQLPreviewPanel:(id)sender;
-- (void) updateQuicklookForce: (BOOL) force;
 
 // Repository Methods
 - (IBAction) createBranch:(id)sender;
