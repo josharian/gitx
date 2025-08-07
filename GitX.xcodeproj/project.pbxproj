@@ -101,8 +101,6 @@
 		4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CF14A9A9CC00DF6C68 /* PBGitXMessageSheet.m */; };
 		4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */; };
 		4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */; };
-		4A5D773414A9A9CC00DF6C68 /* PBQLOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D514A9A9CC00DF6C68 /* PBQLOutlineView.m */; };
-		4A5D773514A9A9CC00DF6C68 /* PBQLTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D714A9A9CC00DF6C68 /* PBQLTextView.m */; };
 		4A5D773614A9A9CC00DF6C68 /* PBRefMenuItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D914A9A9CC00DF6C68 /* PBRefMenuItem.m */; };
 		4A5D773814A9A9CC00DF6C68 /* PBSourceViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76DD14A9A9CC00DF6C68 /* PBSourceViewCell.m */; };
 		4A5D773914A9A9CC00DF6C68 /* PBSourceViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76DF14A9A9CC00DF6C68 /* PBSourceViewItem.m */; };
@@ -334,10 +332,6 @@
 		4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBIconAndTextCell.m; sourceTree = "<group>"; };
 		4A5D76D214A9A9CC00DF6C68 /* PBNiceSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBNiceSplitView.h; sourceTree = "<group>"; };
 		4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBNiceSplitView.m; sourceTree = "<group>"; };
-		4A5D76D414A9A9CC00DF6C68 /* PBQLOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBQLOutlineView.h; sourceTree = "<group>"; };
-		4A5D76D514A9A9CC00DF6C68 /* PBQLOutlineView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBQLOutlineView.m; sourceTree = "<group>"; };
-		4A5D76D614A9A9CC00DF6C68 /* PBQLTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBQLTextView.h; sourceTree = "<group>"; };
-		4A5D76D714A9A9CC00DF6C68 /* PBQLTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBQLTextView.m; sourceTree = "<group>"; };
 		4A5D76D814A9A9CC00DF6C68 /* PBRefMenuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRefMenuItem.h; sourceTree = "<group>"; };
 		4A5D76D914A9A9CC00DF6C68 /* PBRefMenuItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRefMenuItem.m; sourceTree = "<group>"; };
 		4A5D76DC14A9A9CC00DF6C68 /* PBSourceViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBSourceViewCell.h; sourceTree = "<group>"; };
@@ -748,10 +742,6 @@
 				4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */,
 				4A5D76D214A9A9CC00DF6C68 /* PBNiceSplitView.h */,
 				4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */,
-				4A5D76D414A9A9CC00DF6C68 /* PBQLOutlineView.h */,
-				4A5D76D514A9A9CC00DF6C68 /* PBQLOutlineView.m */,
-				4A5D76D614A9A9CC00DF6C68 /* PBQLTextView.h */,
-				4A5D76D714A9A9CC00DF6C68 /* PBQLTextView.m */,
 				4A5D76D814A9A9CC00DF6C68 /* PBRefMenuItem.h */,
 				4A5D76D914A9A9CC00DF6C68 /* PBRefMenuItem.m */,
 				4A5D776C14A9AEB000DF6C68 /* PBSourceViewAction.h */,
@@ -1004,8 +994,6 @@
 				4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */,
 				4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */,
 				4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */,
-				4A5D773414A9A9CC00DF6C68 /* PBQLOutlineView.m in Sources */,
-				4A5D773514A9A9CC00DF6C68 /* PBQLTextView.m in Sources */,
 				4A5D773614A9A9CC00DF6C68 /* PBRefMenuItem.m in Sources */,
 				4A5D773814A9A9CC00DF6C68 /* PBSourceViewCell.m in Sources */,
 				4A5D773914A9A9CC00DF6C68 /* PBSourceViewItem.m in Sources */,

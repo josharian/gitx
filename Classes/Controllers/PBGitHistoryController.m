@@ -25,7 +25,6 @@
 #import "PBGitDefaults.h"
 #import "PBGitRevList.h"
 #import "PBHistorySearchController.h"
-#import "PBQLTextView.h"
 
 #define kHistorySplitViewPositionDefault @"History SplitView Position"
 
@@ -184,8 +183,8 @@
 - (IBAction)selectNext:(id)sender
 {
 	NSResponder *firstResponder = [[[self view] window] firstResponder];
-	if ([firstResponder isKindOfClass:[PBQLTextView class]]) {
-		[(PBQLTextView *)firstResponder performFindPanelAction:sender];
+	if ([firstResponder isKindOfClass:[NSTextView class]]) {
+		[(NSTextView *)firstResponder performFindPanelAction:sender];
 		return;
 	}
 
@@ -194,8 +193,8 @@
 - (IBAction)selectPrevious:(id)sender
 {
 	NSResponder *firstResponder = [[[self view] window] firstResponder];
-	if ([firstResponder isKindOfClass:[PBQLTextView class]]) {
-		[(PBQLTextView *)firstResponder performFindPanelAction:sender];
+	if ([firstResponder isKindOfClass:[NSTextView class]]) {
+		[(NSTextView *)firstResponder performFindPanelAction:sender];
 		return;
 	}
 
