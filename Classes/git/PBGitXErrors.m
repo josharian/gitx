@@ -20,7 +20,6 @@
 #import "PBGitXErrors.h"
 
 NSString * const PBGitXErrorDomain      = @"PBGitXErrorDomain";
-NSString * const PBCLIProxyErrorDomain  = @"PBCLIProxyErrorDomain";
 NSString * const PBGitRepositoryErrorDomain  = @"PBGitRepositoryErrorDomain";
 
 NSString * const PBInvalidBranchErrorMessage  = @"Please select a local branch from the branch popup menu, which has a corresponding remote tracking branch set up.\n\n"
@@ -32,5 +31,3 @@ const NSInteger PBNotAGitRepositoryErrorCode            = 1;
 const NSInteger PBFileReadingUnsupportedErrorCode       = 2;
 const NSInteger PBGitBinaryNotFoundErrorCode            = 3;
 const NSInteger PBNotAValidRefFormatErrorCode           = 4;
-// const NSInteger PBCLINilValueForArgumentsCode           = 5;
-// const NSInteger PBCLINilValueForRepositoryPathErrorCode = 6;

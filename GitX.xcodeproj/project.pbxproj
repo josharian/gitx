@@ -80,7 +80,6 @@
 		4A5D770E14A9A9CC00DF6C68 /* PBGitXProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768414A9A9CC00DF6C68 /* PBGitXProtocol.m */; };
 		4A5D771214A9A9CC00DF6C68 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768B14A9A9CC00DF6C68 /* main.m */; };
 		4A5D771314A9A9CC00DF6C68 /* PBChangedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */; };
-		4A5D771414A9A9CC00DF6C68 /* PBCLIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768F14A9A9CC00DF6C68 /* PBCLIProxy.m */; };
 		4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */; };
 		4A5D771614A9A9CC00DF6C68 /* PBGraphCellInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769314A9A9CC00DF6C68 /* PBGraphCellInfo.m */; };
 		4A5D771714A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769514A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m */; };
@@ -295,8 +294,6 @@
 		4A5D768B14A9A9CC00DF6C68 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4A5D768C14A9A9CC00DF6C68 /* PBChangedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBChangedFile.h; sourceTree = "<group>"; };
 		4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBChangedFile.m; sourceTree = "<group>"; };
-		4A5D768E14A9A9CC00DF6C68 /* PBCLIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBCLIProxy.h; sourceTree = "<group>"; };
-		4A5D768F14A9A9CC00DF6C68 /* PBCLIProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBCLIProxy.m; sourceTree = "<group>"; };
 		4A5D769014A9A9CC00DF6C68 /* PBCommitList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBCommitList.h; sourceTree = "<group>"; };
 		4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBCommitList.m; sourceTree = "<group>"; };
 		4A5D769214A9A9CC00DF6C68 /* PBGraphCellInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGraphCellInfo.h; sourceTree = "<group>"; };
@@ -592,8 +589,6 @@
 				4A5D768B14A9A9CC00DF6C68 /* main.m */,
 				4A5D768C14A9A9CC00DF6C68 /* PBChangedFile.h */,
 				4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */,
-				4A5D768E14A9A9CC00DF6C68 /* PBCLIProxy.h */,
-				4A5D768F14A9A9CC00DF6C68 /* PBCLIProxy.m */,
 				4A5D769014A9A9CC00DF6C68 /* PBCommitList.h */,
 				4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */,
 				4A5D769214A9A9CC00DF6C68 /* PBGraphCellInfo.h */,
@@ -1008,7 +1003,6 @@
 				4A5D771214A9A9CC00DF6C68 /* main.m in Sources */,
 				2682AABB1929140E00271A4D /* GTOID+JavaScript.mm in Sources */,
 				4A5D771314A9A9CC00DF6C68 /* PBChangedFile.m in Sources */,
-				4A5D771414A9A9CC00DF6C68 /* PBCLIProxy.m in Sources */,
 				4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */,
 				4A5D771614A9A9CC00DF6C68 /* PBGraphCellInfo.m in Sources */,
 				4A5D771714A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m in Sources */,

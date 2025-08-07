@@ -20,7 +20,6 @@
 #import <Cocoa/Cocoa.h>
 
 extern NSString * const PBGitXErrorDomain;
-extern NSString * const PBCLIProxyErrorDomain;
 extern NSString * const PBGitRepositoryErrorDomain;
 
 extern NSString * const PBInvalidBranchErrorMessage;
@@ -30,5 +29,3 @@ extern const NSInteger PBFileReadingUnsupportedErrorCode;           /* @"Reading
 extern const NSInteger PBNotAGitRepositoryErrorCode;                /* @"%@ does not appear to be a git repository." */
 extern const NSInteger PBGitBinaryNotFoundErrorCode;
 extern const NSInteger PBNotAValidRefFormatErrorCode;               /* happens when check-ref-format in PBGitRepository -checkRefFormat returns NO */
-// extern const NSInteger PBCLINilValueForArgumentsCode;               /* PBCLIProxy -openRepository:arguments:error: is passed nil for arguments */
-// extern const NSInteger PBCLINilValueForRepositoryPathErrorCode;     /* PBCLIProxy -openRepository:arguments:error: is passed nil for repositoryPath */
