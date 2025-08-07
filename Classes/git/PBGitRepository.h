@@ -18,6 +18,15 @@
 extern NSString* PBGitRepositoryErrorDomain;
 extern NSString *PBGitRepositoryDocumentType;
 
+// Standardized Git Error Codes
+typedef NS_ENUM(NSInteger, PBGitErrorCode) {
+    PBGitErrorCommandFailed = 1001,
+    PBGitErrorInvalidRepository = 1002,
+    PBGitErrorInvalidRef = 1003,
+    PBGitErrorGitNotFound = 1004,
+    PBGitErrorInvalidArguments = 1005
+};
+
 typedef enum branchFilterTypes {
 	kGitXAllBranchesFilter = 0,
 	kGitXLocalRemoteBranchesFilter,
@@ -77,6 +86,13 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 
 - (NSURL *) gitURL ;
 
+// Centralized Git Execution Methods (New Standardized Interface)
+- (NSString *)executeGitCommand:(NSArray *)arguments error:(NSError **)error;
+- (NSString *)executeGitCommand:(NSArray *)arguments inWorkingDir:(BOOL)useWorkDir error:(NSError **)error;
+- (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input error:(NSError **)error;
+- (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input environment:(NSDictionary *)env error:(NSError **)error;
+
+// Legacy Methods (To be replaced gradually)
 - (NSFileHandle*) handleForCommand:(NSString*) cmd;
 - (NSFileHandle*) handleForArguments:(NSArray*) args;
 - (NSFileHandle *) handleInWorkDirForArguments:(NSArray *)args;

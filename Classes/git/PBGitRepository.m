@@ -151,23 +151,12 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 {
     // Build our display name depending on the current HEAD and whether it's detached or not
     // Check if HEAD is detached using git symbolic-ref
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/git";
-    task.arguments = @[@"symbolic-ref", @"HEAD"];
-    task.currentDirectoryPath = [self workingDirectory];
-    task.standardOutput = [NSPipe pipe];
-    task.standardError = [NSPipe pipe];
+    NSError *error = nil;
+    NSString *symbolicRef = [self executeGitCommand:@[@"symbolic-ref", @"HEAD"] error:&error];
     
-    @try {
-        [task launch];
-        [task waitUntilExit];
-        
-        // If symbolic-ref fails, HEAD is detached
-        if (task.terminationStatus != 0)
-            return [NSString localizedStringWithFormat:@"%@ (detached HEAD)", self.projectName];
-    }
-    @catch (NSException *exception) {
-        // If git is not available, assume not detached
+    // If symbolic-ref fails, HEAD is detached
+    if (error || !symbolicRef) {
+        return [NSString localizedStringWithFormat:@"%@ (detached HEAD)", self.projectName];
     }
 
     return [NSString localizedStringWithFormat:@"%@ (branch: %@)", self.projectName, [[self headRef] description]];
@@ -191,26 +180,14 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSURL *)getIndexURL
 {
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"rev-parse", @"--git-path", @"index"];
-	task.currentDirectoryPath = [self workingDirectory];
+	NSError *error = nil;
+	NSString *indexPath = [self executeGitCommand:@[@"rev-parse", @"--git-path", @"index"] error:&error];
 	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	
-	[task launch];
-	[task waitUntilExit];
-	
-	if (task.terminationStatus != 0) {
+	if (error || !indexPath) {
 		// Fallback to standard path if git command fails
-		NSString *indexPath = [[self workingDirectory] stringByAppendingPathComponent:@".git/index"];
+		indexPath = [[self workingDirectory] stringByAppendingPathComponent:@".git/index"];
 		return [NSURL fileURLWithPath:indexPath];
 	}
-	
-	NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-	NSString *indexPath = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-	indexPath = [indexPath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 	
 	// Convert relative path to absolute path
 	if (![indexPath isAbsolutePath]) {
@@ -222,66 +199,32 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (BOOL)isBareRepository
 {
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/git";
-    task.arguments = @[@"config", @"--get", @"core.bare"];
-    task.currentDirectoryPath = [self workingDirectory];
+    NSError *error = nil;
+    NSString *result = [self executeGitCommand:@[@"config", @"--get", @"core.bare"] error:&error];
     
-    NSPipe *pipe = [NSPipe pipe];
-    task.standardOutput = pipe;
-    task.standardError = [NSPipe pipe];
-    
-    @try {
-        [task launch];
-        [task waitUntilExit];
-        
-        if (task.terminationStatus == 0) {
-            NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-            NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            result = [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            return [result isEqualToString:@"true"];
-        }
-    }
-    @catch (NSException *exception) {
-        // Git not available or other error
+    if (error || !result) {
+        return NO;
     }
     
-    return NO;
+    return [result isEqualToString:@"true"];
 }
 
 
 - (NSURL *)gitURL {
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"rev-parse", @"--git-dir"];
-	task.currentDirectoryPath = [self workingDirectory];
+	NSError *error = nil;
+	NSString *gitPath = [self executeGitCommand:@[@"rev-parse", @"--git-dir"] error:&error];
 	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	
-	@try {
-		[task launch];
-		[task waitUntilExit];
-		
-		if (task.terminationStatus == 0) {
-			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-			NSString *gitPath = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			gitPath = [gitPath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			// Convert relative path to absolute path
-			if (![gitPath isAbsolutePath]) {
-				gitPath = [[self workingDirectory] stringByAppendingPathComponent:gitPath];
-			}
-			
-			return [NSURL fileURLWithPath:gitPath];
-		}
-	}
-	@catch (NSException *exception) {
-		NSLog(@"Error getting git directory: %@", exception.reason);
+	if (error || !gitPath) {
+		// Fallback to standard path if git command fails
+		gitPath = [[self workingDirectory] stringByAppendingPathComponent:@".git"];
+		return [NSURL fileURLWithPath:gitPath];
 	}
 	
-	// Fallback to standard path if git command fails
-	NSString *gitPath = [[self workingDirectory] stringByAppendingPathComponent:@".git"];
+	// Convert relative path to absolute path
+	if (![gitPath isAbsolutePath]) {
+		gitPath = [[self workingDirectory] stringByAppendingPathComponent:gitPath];
+	}
+	
 	return [NSURL fileURLWithPath:gitPath];
 }
 
@@ -628,46 +571,34 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (BOOL) checkRefFormat:(NSString *)refName
 {
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"check-ref-format", refName];
-	task.currentDirectoryPath = [self workingDirectory];
-	task.standardOutput = [NSPipe pipe];
-	task.standardError = [NSPipe pipe];
+	NSError *error = nil;
+	[self executeGitCommand:@[@"check-ref-format", refName] error:&error];
 	
-	@try {
-		[task launch];
-		[task waitUntilExit];
-		
-		// git check-ref-format returns 0 for valid refs
-		return task.terminationStatus == 0;
-	}
-	@catch (NSException *exception) {
+	// git check-ref-format returns 0 for valid refs
+	if (error) {
+		// Check if it's a command failure (invalid format) vs other error
+		if (error.code == PBGitErrorCommandFailed) {
+			return NO;
+		}
 		// If git is not available, assume valid
 		return YES;
 	}
+	
+	return YES;
 }
 
 - (BOOL) refExists:(PBGitRef *)ref
 {
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"show-ref", @"--verify", @"--quiet", ref.ref];
-	task.currentDirectoryPath = [self workingDirectory];
-	task.standardOutput = [NSPipe pipe];
-	task.standardError = [NSPipe pipe];
+	NSError *error = nil;
+	[self executeGitCommand:@[@"show-ref", @"--verify", @"--quiet", ref.ref] error:&error];
 	
-	@try {
-		[task launch];
-		[task waitUntilExit];
-		
-		// git show-ref --verify returns 0 if ref exists
-		return task.terminationStatus == 0;
-	}
-	@catch (NSException *exception) {
-		// If git is not available, assume ref doesn't exist
+	// git show-ref --verify returns 0 if ref exists
+	if (error) {
+		// Command failure means ref doesn't exist
 		return NO;
 	}
+	
+	return YES;
 }
 
 // useful for getting the full ref for a user entered name
@@ -783,9 +714,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSArray *) remotes
 {
-	int retValue = 1;
-	NSString *remotes = [self outputInWorkdirForArguments:[NSArray arrayWithObject:@"remote"] retValue:&retValue];
-	if (retValue || [remotes isEqualToString:@""])
+	NSError *error = nil;
+	NSString *remotes = [self executeGitCommand:@[@"remote"] error:&error];
+	if (error || [remotes isEqualToString:@""])
 		return nil;
 
 	return [remotes componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
@@ -1053,6 +984,153 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	}
 }
 
+
+#pragma mark Centralized Git Execution
+
+- (NSString *)executeGitCommand:(NSArray *)arguments error:(NSError **)error
+{
+    return [self executeGitCommand:arguments inWorkingDir:NO error:error];
+}
+
+- (NSString *)executeGitCommand:(NSArray *)arguments inWorkingDir:(BOOL)useWorkDir error:(NSError **)error
+{
+    // For now, we always use working directory since that's the current behavior
+    // This parameter is for future enhancement to support git-dir operations
+    return [self executeGitCommand:arguments withInput:nil environment:nil error:error];
+}
+
+- (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input error:(NSError **)error
+{
+    return [self executeGitCommand:arguments withInput:input environment:nil error:error];
+}
+
+- (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input environment:(NSDictionary *)env error:(NSError **)error
+{
+    // Validate arguments
+    if (!arguments || [arguments count] == 0) {
+        if (error) {
+            *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
+                                         code:PBGitErrorInvalidArguments
+                                     userInfo:@{NSLocalizedDescriptionKey: @"Git command arguments cannot be empty"}];
+        }
+        return nil;
+    }
+    
+    // Check that git binary is available
+    NSString *gitPath = [PBGitBinary path];
+    if (!gitPath) {
+        if (error) {
+            *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
+                                         code:PBGitErrorGitNotFound
+                                     userInfo:@{NSLocalizedDescriptionKey: @"Git binary not found",
+                                               NSLocalizedRecoverySuggestionErrorKey: [PBGitBinary notFoundError]}];
+        }
+        return nil;
+    }
+    
+    NSTask *task = [[NSTask alloc] init];
+    task.launchPath = gitPath;
+    task.arguments = arguments;
+    
+    // Set working directory 
+    NSString *workDir = [self workingDirectory];
+    if (workDir) {
+        task.currentDirectoryPath = workDir;
+    }
+    
+    // Prepare environment
+    NSMutableDictionary *environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
+    [environment removeObjectsForKeys:@[@"MallocStackLogging", @"MallocStackLoggingNoCompact", @"NSZombieEnabled"]];
+    if (env) {
+        [environment addEntriesFromDictionary:env];
+    }
+    task.environment = environment;
+    
+    // Set up pipes
+    NSPipe *outputPipe = [NSPipe pipe];
+    NSPipe *errorPipe = [NSPipe pipe];
+    task.standardOutput = outputPipe;
+    task.standardError = errorPipe;
+    
+    // Handle input if provided
+    if (input) {
+        NSPipe *inputPipe = [NSPipe pipe];
+        task.standardInput = inputPipe;
+    }
+    
+    // Debug logging
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"Show Debug Messages"]) {
+        NSLog(@"Executing git command: %@ %@ in %@", gitPath, [arguments componentsJoinedByString:@" "], workDir);
+    }
+    
+    NSString *output = nil;
+    NSString *errorOutput = nil;
+    
+    @try {
+        [task launch];
+        
+        // Write input if provided
+        if (input) {
+            NSFileHandle *inputHandle = [[task standardInput] fileHandleForWriting];
+            [inputHandle writeData:[input dataUsingEncoding:NSUTF8StringEncoding]];
+            [inputHandle closeFile];
+        }
+        
+        // Read output
+        NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+        NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
+        
+        [task waitUntilExit];
+        
+        // Convert output to string
+        output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+        if (!output) {
+            output = [[NSString alloc] initWithData:outputData encoding:NSISOLatin1StringEncoding];
+        }
+        
+        errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
+        if (!errorOutput) {
+            errorOutput = [[NSString alloc] initWithData:errorData encoding:NSISOLatin1StringEncoding];
+        }
+        
+        // Strip trailing newlines
+        if ([output hasSuffix:@"\n"]) {
+            output = [output substringToIndex:[output length] - 1];
+        }
+        
+        // Check for command failure
+        if (task.terminationStatus != 0) {
+            if (error) {
+                NSString *errorMessage = [NSString stringWithFormat:@"Git command failed with exit code %d", task.terminationStatus];
+                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                 errorMessage, NSLocalizedDescriptionKey,
+                                                 [NSString stringWithFormat:@"Command: git %@", [arguments componentsJoinedByString:@" "]], @"GitCommand",
+                                                 @(task.terminationStatus), @"ExitCode",
+                                                 nil];
+                
+                if (errorOutput && [errorOutput length] > 0) {
+                    [userInfo setObject:errorOutput forKey:NSLocalizedRecoverySuggestionErrorKey];
+                }
+                
+                *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
+                                             code:PBGitErrorCommandFailed
+                                         userInfo:userInfo];
+            }
+            return nil;
+        }
+        
+    } @catch (NSException *exception) {
+        if (error) {
+            *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
+                                         code:PBGitErrorCommandFailed
+                                     userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Git command execution failed: %@", exception.reason],
+                                               @"Exception": exception.reason ?: @"Unknown exception"}];
+        }
+        return nil;
+    }
+    
+    return output;
+}
 
 #pragma mark low level
 

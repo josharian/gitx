@@ -58,69 +58,53 @@ NSString * const kGitXCommitType = @"commit";
 	self.repository = repo;
 	
 	// Use git show to populate commit data including parent SHAs
-	NSTask *gitTask = [[NSTask alloc] init];
-	gitTask.launchPath = @"/usr/bin/git";
-	gitTask.arguments = @[@"show", @"--format=%H%n%s%n%B%n%an%n%cn%n%ct%n%P", @"--no-patch", sha];
-	gitTask.currentDirectoryPath = [repo.fileURL path];
-	
-	NSPipe *outputPipe = [NSPipe pipe];
-	gitTask.standardOutput = outputPipe;
-	gitTask.standardError = [NSPipe pipe];
+	NSError *error = nil;
+	NSString *output = [repo executeGitCommand:@[@"show", @"--format=%H%n%s%n%B%n%an%n%cn%n%ct%n%P", @"--no-patch", sha] error:&error];
 	
 	GTCommit *commit = [[GTCommit alloc] init];
 	
-	@try {
-		[gitTask launch];
-		[gitTask waitUntilExit];
+	if (!error && output) {
+		NSArray *lines = [output componentsSeparatedByString:@"\n"];
 		
-		if (gitTask.terminationStatus == 0) {
-			NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-			NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-			NSArray *lines = [output componentsSeparatedByString:@"\n"];
+		if (lines.count >= 7) {
+			NSString *shaString = lines[0];
+			commit.SHA = shaString;
+			commit.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
+			commit.messageSummary = lines[1];
+			commit.message = lines[2];
 			
-			if (lines.count >= 7) {
-				NSString *shaString = lines[0];
-				commit.SHA = shaString;
-				commit.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
-				commit.messageSummary = lines[1];
-				commit.message = lines[2];
-				
-				GTSignature *author = [[GTSignature alloc] init];
-				author.name = lines[3];
-				commit.author = author;
-				
-				GTSignature *committer = [[GTSignature alloc] init];
-				committer.name = lines[4];
-				commit.committer = committer;
-				
-				NSTimeInterval timestamp = [lines[5] doubleValue];
-				commit.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
-				
-				// Parse parent commit SHAs
-				NSString *parentSHAsString = lines[6];
-				NSMutableArray *parentCommits = [NSMutableArray array];
-				if ([parentSHAsString length] > 0) {
-					NSArray *parentSHAs = [parentSHAsString componentsSeparatedByString:@" "];
-					for (NSString *parentSHA in parentSHAs) {
-						NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-						if ([trimmedSHA length] >= 40) {
-							GTCommit *parentCommit = [[GTCommit alloc] init];
-							parentCommit.SHA = trimmedSHA;
-							parentCommit.OID = [GTOID oidWithSHA:trimmedSHA];
-							[parentCommits addObject:parentCommit];
-						}
+			GTSignature *author = [[GTSignature alloc] init];
+			author.name = lines[3];
+			commit.author = author;
+			
+			GTSignature *committer = [[GTSignature alloc] init];
+			committer.name = lines[4];
+			commit.committer = committer;
+			
+			NSTimeInterval timestamp = [lines[5] doubleValue];
+			commit.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
+			
+			// Parse parent commit SHAs
+			NSString *parentSHAsString = lines[6];
+			NSMutableArray *parentCommits = [NSMutableArray array];
+			if ([parentSHAsString length] > 0) {
+				NSArray *parentSHAs = [parentSHAsString componentsSeparatedByString:@" "];
+				for (NSString *parentSHA in parentSHAs) {
+					NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+					if ([trimmedSHA length] >= 40) {
+						GTCommit *parentCommit = [[GTCommit alloc] init];
+						parentCommit.SHA = trimmedSHA;
+						parentCommit.OID = [GTOID oidWithSHA:trimmedSHA];
+						[parentCommits addObject:parentCommit];
 					}
 				}
-				commit.parents = parentCommits;
-				
-				// Create GTOID for the SHA
-				GTOID *oid = [GTOID oidWithSHA:shaString];
-				commit.OID = oid;
 			}
+			commit.parents = parentCommits;
+			
+			// Create GTOID for the SHA
+			GTOID *oid = [GTOID oidWithSHA:shaString];
+			commit.OID = oid;
 		}
-	}
-	@catch (NSException *exception) {
-		// Fall back to empty commit on error
 	}
 	
 	self.gtCommit = commit;
