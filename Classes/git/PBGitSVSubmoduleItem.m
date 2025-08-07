@@ -7,27 +7,26 @@
 //
 
 #import "PBGitSVSubmoduleItem.h"
+#import "PBGitBinary.h"
+#import "PBEasyPipe.h"
 
 @implementation PBSubmoduleInfo
 
 + (NSArray<PBSubmoduleInfo *> *)submodulesForRepositoryURL:(NSURL *)repositoryURL {
     NSMutableArray *submodules = [NSMutableArray array];
     
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/git";
-    task.arguments = @[@"config", @"--file", @".gitmodules", @"--get-regexp", @"^submodule\\..*\\.path$"];
-    task.currentDirectoryPath = [repositoryURL path];
+    NSString *gitPath = [PBGitBinary path];
+    if (!gitPath) {
+        gitPath = @"/usr/bin/git"; // Fallback
+    }
     
-    NSPipe *pipe = [NSPipe pipe];
-    task.standardOutput = pipe;
-    task.standardError = [NSPipe pipe];
+    int exitCode = 0;
+    NSString *output = [PBEasyPipe outputForCommand:gitPath
+                                          withArgs:@[@"config", @"--file", @".gitmodules", @"--get-regexp", @"^submodule\\..*\\.path$"]
+                                             inDir:[repositoryURL path]
+                                          retValue:&exitCode];
     
-    [task launch];
-    [task waitUntilExit];
-    
-    if (task.terminationStatus == 0) {
-        NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-        NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if (exitCode == 0 && output) {
         
         NSArray *lines = [output componentsSeparatedByString:@"\n"];
         for (NSString *line in lines) {

@@ -93,27 +93,20 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
     NSError *error = nil;
     
     // Use git rev-parse to validate this is a git repository
-    NSTask *validateTask = [[NSTask alloc] init];
-    validateTask.launchPath = @"/usr/bin/git";
-    validateTask.arguments = @[@"rev-parse", @"--git-dir"];
-    validateTask.currentDirectoryPath = [absoluteURL path];
-    
-    NSPipe *validatePipe = [NSPipe pipe];
-    validateTask.standardOutput = validatePipe;
-    validateTask.standardError = [NSPipe pipe];
-    
-    BOOL isValidRepo = NO;
-    @try {
-        [validateTask launch];
-        [validateTask waitUntilExit];
-        
-        if (validateTask.terminationStatus == 0) {
-            isValidRepo = YES;
-        }
+    // Special case: can't use executeGitCommand as repository isn't initialized yet
+    // We need to use PBEasyPipe here since it doesn't require self to be initialized
+    int exitCode = 0;
+    NSString *gitPath = [PBGitBinary path];
+    if (!gitPath) {
+        gitPath = @"/usr/bin/git"; // Fallback for initial validation
     }
-    @catch (NSException *exception) {
-        isValidRepo = NO;
-    }
+    
+    [PBEasyPipe outputForCommand:gitPath
+                        withArgs:@[@"rev-parse", @"--git-dir"]
+                           inDir:[absoluteURL path]
+                        retValue:&exitCode];
+    
+    BOOL isValidRepo = (exitCode == 0);
     
     _gtRepo = [[GTRepository alloc] init];
 	if (!isValidRepo) {
@@ -269,48 +262,38 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 {
     self.submodules = [NSMutableArray array];
     
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/git";
-    task.arguments = @[@"submodule", @"status"];
-    task.currentDirectoryPath = [self workingDirectory];
+    NSError *error = nil;
+    NSString *output = [self executeGitCommand:@[@"submodule", @"status"] error:&error];
     
-    NSPipe *pipe = [NSPipe pipe];
-    task.standardOutput = pipe;
+    if (error) {
+        NSLog(@"Error loading submodules: %@", error.localizedDescription);
+        return;
+    }
     
-    @try {
-        [task launch];
-        [task waitUntilExit];
+    if (output) {
+        output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         
-        if (task.terminationStatus == 0) {
-            NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-            NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            
-            if ([output length] > 0) {
-                NSArray *lines = [output componentsSeparatedByString:@"\n"];
-                for (NSString *line in lines) {
-                    // Git submodule status format: " <sha> <path> (<description>)"
-                    // First character indicates status: ' ' initialized, '-' not initialized, '+' modified
-                    if ([line length] > 42) { // Minimum: status char + 40 char SHA + space + path
-                        NSString *trimmedLine = [line substringFromIndex:1]; // Skip status character
-                        NSArray *components = [trimmedLine componentsSeparatedByString:@" "];
-                        if ([components count] >= 2) {
-                            NSString *path = [components objectAtIndex:1];
-                            
-                            PBSubmoduleInfo *submoduleInfo = [[PBSubmoduleInfo alloc] init];
-                            submoduleInfo.name = [path lastPathComponent];
-                            submoduleInfo.path = path;
-                            submoduleInfo.parentRepositoryURL = [NSURL fileURLWithPath:[self workingDirectory]];
-                            
-                            [self.submodules addObject:submoduleInfo];
-                        }
+        if ([output length] > 0) {
+            NSArray *lines = [output componentsSeparatedByString:@"\n"];
+            for (NSString *line in lines) {
+                // Git submodule status format: " <sha> <path> (<description>)"
+                // First character indicates status: ' ' initialized, '-' not initialized, '+' modified
+                if ([line length] > 42) { // Minimum: status char + 40 char SHA + space + path
+                    NSString *trimmedLine = [line substringFromIndex:1]; // Skip status character
+                    NSArray *components = [trimmedLine componentsSeparatedByString:@" "];
+                    if ([components count] >= 2) {
+                        NSString *path = [components objectAtIndex:1];
+                        
+                        PBSubmoduleInfo *submoduleInfo = [[PBSubmoduleInfo alloc] init];
+                        submoduleInfo.name = [path lastPathComponent];
+                        submoduleInfo.path = path;
+                        submoduleInfo.parentRepositoryURL = [NSURL fileURLWithPath:[self workingDirectory]];
+                        
+                        [self.submodules addObject:submoduleInfo];
                     }
                 }
             }
         }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"Error loading submodules: %@", exception.reason);
     }
 }
 
@@ -323,66 +306,52 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	refToSHAMapping = [NSMutableDictionary dictionary];
 	
 	// Use git for-each-ref to enumerate all references with their commit SHAs
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"for-each-ref", @"--format=%(refname)%09%(objecttype)%09%(objectname)"];
-	task.currentDirectoryPath = [self workingDirectory];
-	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	task.standardError = [NSPipe pipe];
+	NSError *error = nil;
+	NSString *output = [self executeGitCommand:@[@"for-each-ref", @"--format=%(refname)%09%(objecttype)%09%(objectname)"] error:&error];
 	
 	NSMutableOrderedSet *oldBranches = [self.branchesSet mutableCopy];
 	
-	@try {
-		[task launch];
-		[task waitUntilExit];
+	if (error) {
+		NSLog(@"Error loading refs: %@", error.localizedDescription);
+	} else if (output) {
+		output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		
-		if (task.terminationStatus == 0) {
-			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-			NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			if ([output length] > 0) {
-				NSArray *lines = [output componentsSeparatedByString:@"\n"];
-				for (NSString *line in lines) {
-					// Format: refname<tab>objecttype<tab>objectname
-					NSArray *components = [line componentsSeparatedByString:@"\t"];
-					if ([components count] >= 3) {
-						NSString *referenceName = [components objectAtIndex:0];
-						NSString *objectType = [components objectAtIndex:1];
-						NSString *commitSHA = [components objectAtIndex:2];
+		if ([output length] > 0) {
+			NSArray *lines = [output componentsSeparatedByString:@"\n"];
+			for (NSString *line in lines) {
+				// Format: refname<tab>objecttype<tab>objectname
+				NSArray *components = [line componentsSeparatedByString:@"\t"];
+				if ([components count] >= 3) {
+					NSString *referenceName = [components objectAtIndex:0];
+					NSString *objectType = [components objectAtIndex:1];
+					NSString *commitSHA = [components objectAtIndex:2];
+					
+					// Skip symbolic references like origin/HEAD that point to other refs
+					if ([objectType isEqualToString:@"commit"] || [objectType isEqualToString:@"tag"]) {
+						PBGitRef* gitRef = [PBGitRef refFromString:referenceName];
+						PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
+						[self addBranch:revSpec];
+						[oldBranches removeObject:revSpec];
 						
-						// Skip symbolic references like origin/HEAD that point to other refs
-						if ([objectType isEqualToString:@"commit"] || [objectType isEqualToString:@"tag"]) {
-							PBGitRef* gitRef = [PBGitRef refFromString:referenceName];
-							PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
-							[self addBranch:revSpec];
-							[oldBranches removeObject:revSpec];
-							
-							// Add ref to commit SHA mapping for branch tags
-							if (commitSHA && [commitSHA length] >= 40) { // Ensure valid SHA
-								GTOID *sha = [GTOID oidWithSHA:commitSHA];
-								if (sha) {
-									NSMutableArray *refsForCommit = self->refs[sha];
-									if (!refsForCommit) {
-										refsForCommit = [NSMutableArray array];
-										self->refs[sha] = refsForCommit;
-									}
-									[refsForCommit addObject:gitRef];
-									
-									// Also store ref->SHA mapping for efficient lookup
-									refToSHAMapping[referenceName] = sha;
+						// Add ref to commit SHA mapping for branch tags
+						if (commitSHA && [commitSHA length] >= 40) { // Ensure valid SHA
+							GTOID *sha = [GTOID oidWithSHA:commitSHA];
+							if (sha) {
+								NSMutableArray *refsForCommit = self->refs[sha];
+								if (!refsForCommit) {
+									refsForCommit = [NSMutableArray array];
+									self->refs[sha] = refsForCommit;
 								}
+								[refsForCommit addObject:gitRef];
+								
+								// Also store ref->SHA mapping for efficient lookup
+								refToSHAMapping[referenceName] = sha;
 							}
 						}
 					}
 				}
 			}
 		}
-	}
-	@catch (NSException *exception) {
-		NSLog(@"Error loading refs: %@", exception.reason);
 	}
 	
 	// Remove old branches that no longer exist
@@ -461,36 +430,22 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
     }
     
 	// Last resort: use git rev-parse (should rarely be needed now)
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"rev-parse", ref.ref];
-	task.currentDirectoryPath = [self workingDirectory];
+	NSError *error = nil;
+	NSString *shaString = [self executeGitCommand:@[@"rev-parse", ref.ref] error:&error];
 	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	task.standardError = [NSPipe pipe];
-	
-	@try {
-		[task launch];
-		[task waitUntilExit];
+	if (!error && shaString) {
+		shaString = [shaString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		
-		if (task.terminationStatus == 0) {
-			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-			NSString *shaString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			shaString = [shaString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			if (shaString.length > 0) {
-				GTOID *fallbackSha = [GTOID oidWithSHA:shaString];
-				// Cache it for future lookups
-				if (fallbackSha) {
-					refToSHAMapping[ref.ref] = fallbackSha;
-				}
-				return fallbackSha;
+		if (shaString.length > 0) {
+			GTOID *fallbackSha = [GTOID oidWithSHA:shaString];
+			// Cache it for future lookups
+			if (fallbackSha) {
+				refToSHAMapping[ref.ref] = fallbackSha;
 			}
+			return fallbackSha;
 		}
-	}
-	@catch (NSException *exception) {
-		NSLog(@"Error looking up ref for %@: %@", ref.ref, exception.reason);
+	} else if (error) {
+		NSLog(@"Error looking up ref for %@: %@", ref.ref, error.localizedDescription);
 	}
 	
 	return nil;
@@ -678,32 +633,25 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		return _cachedWorkingDirectory;
 	}
 	
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"rev-parse", @"--show-toplevel"];
-	task.currentDirectoryPath = self.fileURL.path;
-	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	task.standardError = [NSPipe pipe];
-	
-	@try {
-		[task launch];
-		[task waitUntilExit];
-		
-		if (task.terminationStatus == 0) {
-			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-			NSString *workdir = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			workdir = [workdir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			if (workdir.length > 0) {
-				_cachedWorkingDirectory = [workdir stringByStandardizingPath];
-				return _cachedWorkingDirectory;
-			}
-		}
+	// Cannot use executeGitCommand here as it calls workingDirectory - would cause infinite recursion
+	// Use PBEasyPipe directly instead
+	NSString *gitPath = [PBGitBinary path];
+	if (!gitPath) {
+		gitPath = @"/usr/bin/git"; // Fallback
 	}
-	@catch (NSException *exception) {
-		// Git not available or other error, fall back
+	
+	int exitCode = 0;
+	NSString *workdir = [PBEasyPipe outputForCommand:gitPath
+	                                        withArgs:@[@"rev-parse", @"--show-toplevel"]
+	                                           inDir:self.fileURL.path
+	                                        retValue:&exitCode];
+	
+	if (exitCode == 0 && workdir.length > 0) {
+		workdir = [workdir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		if (workdir.length > 0) {
+			_cachedWorkingDirectory = [workdir stringByStandardizingPath];
+			return _cachedWorkingDirectory;
+		}
 	}
 	
 	// Fallback to original logic and cache it
@@ -737,58 +685,30 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	// Use git config to find the remote tracking branch
 	NSString *branchName = [branch shortName];
 	if (branchName) {
-		NSTask *gitTask = [[NSTask alloc] init];
-		gitTask.launchPath = @"/usr/bin/git";
-		gitTask.arguments = @[@"config", [NSString stringWithFormat:@"branch.%@.merge", branchName]];
-		gitTask.currentDirectoryPath = [self.fileURL path];
+		NSError *error = nil;
+		NSString *mergeRef = [self executeGitCommand:@[@"config", [NSString stringWithFormat:@"branch.%@.merge", branchName]] error:&error];
 		
-		NSPipe *outputPipe = [NSPipe pipe];
-		gitTask.standardOutput = outputPipe;
-		gitTask.standardError = [NSPipe pipe];
-		
-		@try {
-			[gitTask launch];
-			[gitTask waitUntilExit];
+		if (!error && mergeRef) {
+			mergeRef = [mergeRef stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 			
-			if (gitTask.terminationStatus == 0) {
-				NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-				NSString *mergeRef = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-				mergeRef = [mergeRef stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			if (mergeRef.length > 0) {
+				// Get the remote name
+				NSString *remoteName = [self executeGitCommand:@[@"config", [NSString stringWithFormat:@"branch.%@.remote", branchName]] error:&error];
 				
-				if (mergeRef.length > 0) {
-					// Get the remote name
-					NSTask *remoteTask = [[NSTask alloc] init];
-					remoteTask.launchPath = @"/usr/bin/git";
-					remoteTask.arguments = @[@"config", [NSString stringWithFormat:@"branch.%@.remote", branchName]];
-					remoteTask.currentDirectoryPath = [self.fileURL path];
+				if (!error && remoteName) {
+					remoteName = [remoteName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 					
-					NSPipe *remoteOutputPipe = [NSPipe pipe];
-					remoteTask.standardOutput = remoteOutputPipe;
-					remoteTask.standardError = [NSPipe pipe];
-					
-					[remoteTask launch];
-					[remoteTask waitUntilExit];
-					
-					if (remoteTask.terminationStatus == 0) {
-						NSData *remoteOutputData = [[remoteOutputPipe fileHandleForReading] readDataToEndOfFile];
-						NSString *remoteName = [[NSString alloc] initWithData:remoteOutputData encoding:NSUTF8StringEncoding];
-						remoteName = [remoteName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-						
-						if (remoteName.length > 0) {
-							// Convert refs/heads/branch to refs/remotes/remote/branch
-							if ([mergeRef hasPrefix:@"refs/heads/"]) {
-								NSString *branchPart = [mergeRef substringFromIndex:[@"refs/heads/" length]];
-								NSString *trackingRefName = [NSString stringWithFormat:@"refs/remotes/%@/%@", remoteName, branchPart];
-								PBGitRef *trackingBranchRef = [PBGitRef refFromString:trackingRefName];
-								return trackingBranchRef;
-							}
+					if (remoteName.length > 0) {
+						// Convert refs/heads/branch to refs/remotes/remote/branch
+						if ([mergeRef hasPrefix:@"refs/heads/"]) {
+							NSString *branchPart = [mergeRef substringFromIndex:[@"refs/heads/" length]];
+							NSString *trackingRefName = [NSString stringWithFormat:@"refs/remotes/%@/%@", remoteName, branchPart];
+							PBGitRef *trackingBranchRef = [PBGitRef refFromString:trackingRefName];
+							return trackingBranchRef;
 						}
 					}
 				}
 			}
-		}
-		@catch (NSException *exception) {
-			// Fall through to error handling below
 		}
 	}
 

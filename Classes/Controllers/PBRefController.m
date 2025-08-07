@@ -151,39 +151,25 @@
 	NSString* info = @"";
 	
 	// Use git tag -n to get tag annotation
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"tag", @"-n", @"--", tagName];
-	task.currentDirectoryPath = [historyController.repository workingDirectory];
+	NSError *error = nil;
+	NSString *output = [historyController.repository executeGitCommand:@[@"tag", @"-n", @"--", tagName] error:&error];
 	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	task.standardError = [NSPipe pipe];
-	
-	@try {
-		[task launch];
-		[task waitUntilExit];
+	if (!error && output) {
+		output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		
-		if (task.terminationStatus == 0) {
-			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-			NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			output = [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			// Parse the output - git tag -n shows "tagname    message"
-			NSArray *components = [output componentsSeparatedByString:@"\t"];
-			if (components.count > 1) {
-				info = [components objectAtIndex:1];
-			} else {
-				// Try splitting by spaces if no tab
-				NSRange spaceRange = [output rangeOfString:@" "];
-				if (spaceRange.location != NSNotFound) {
-					info = [output substringFromIndex:spaceRange.location + 1];
-				}
+		// Parse the output - git tag -n shows "tagname    message"
+		NSArray *components = [output componentsSeparatedByString:@"\t"];
+		if (components.count > 1) {
+			info = [components objectAtIndex:1];
+		} else {
+			// Try splitting by spaces if no tab
+			NSRange spaceRange = [output rangeOfString:@" "];
+			if (spaceRange.location != NSNotFound) {
+				info = [output substringFromIndex:spaceRange.location + 1];
 			}
 		}
-	}
-	@catch (NSException *exception) {
-		NSLog(@"Couldn't look up tag %@: %@", tagName, exception.reason);
+	} else if (error) {
+		NSLog(@"Couldn't look up tag %@: %@", tagName, error.localizedDescription);
 	}
 	
 	[historyController.repository.windowController showMessageSheet:title infoText:info];

@@ -41,24 +41,23 @@
         return nil;
     }
 
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = @"/usr/bin/git";
-    task.arguments = @[@"init"];
-    task.currentDirectoryPath = [[op URL] path];
-    
-    NSPipe *pipe = [NSPipe pipe];
-    task.standardOutput = pipe;
-    task.standardError = pipe;
-    
-    BOOL success = NO;
-    @try {
-        [task launch];
-        [task waitUntilExit];
-        success = (task.terminationStatus == 0);
+    NSString *gitPath = [PBGitBinary path];
+    if (!gitPath) {
+        if (outError) {
+            *outError = [NSError errorWithDomain:@"GitXError" 
+                                           code:1 
+                                       userInfo:@{NSLocalizedDescriptionKey: @"Git binary not found"}];
+        }
+        return nil;
     }
-    @catch (NSException *exception) {
-        success = NO;
-    }
+    
+    int exitCode = 0;
+    [PBEasyPipe outputForCommand:gitPath
+                        withArgs:@[@"init"]
+                           inDir:[[op URL] path]
+                        retValue:&exitCode];
+    
+    BOOL success = (exitCode == 0);
     
     if (!success) {
         if (outError) {

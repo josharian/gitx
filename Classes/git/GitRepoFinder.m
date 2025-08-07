@@ -7,6 +7,8 @@
 //
 
 #import "GitRepoFinder.h"
+#import "PBGitBinary.h"
+#import "PBEasyPipe.h"
 
 @implementation GitRepoFinder
 
@@ -17,31 +19,22 @@
 		return nil;
 	}
 	
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"rev-parse", @"--show-toplevel"];
-	task.currentDirectoryPath = fileURL.path;
-	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	task.standardError = [NSPipe pipe];
-	
-	@try {
-		[task launch];
-		[task waitUntilExit];
-		
-		if (task.terminationStatus == 0) {
-			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-			NSString *workdir = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			workdir = [workdir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			if (workdir.length > 0) {
-				return [NSURL fileURLWithPath:workdir];
-			}
-		}
+	NSString *gitPath = [PBGitBinary path];
+	if (!gitPath) {
+		gitPath = @"/usr/bin/git"; // Fallback
 	}
-	@catch (NSException *exception) {
-		// Git not found or other error
+	
+	int exitCode = 0;
+	NSString *workdir = [PBEasyPipe outputForCommand:gitPath
+	                                        withArgs:@[@"rev-parse", @"--show-toplevel"]
+	                                           inDir:fileURL.path
+	                                        retValue:&exitCode];
+	
+	if (exitCode == 0 && workdir.length > 0) {
+		workdir = [workdir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		if (workdir.length > 0) {
+			return [NSURL fileURLWithPath:workdir];
+		}
 	}
 	
 	return nil;
@@ -54,39 +47,31 @@
 		return nil;
 	}
 	
-	NSTask *task = [[NSTask alloc] init];
-	task.launchPath = @"/usr/bin/git";
-	task.arguments = @[@"rev-parse", @"--git-dir"];
-	task.currentDirectoryPath = fileURL.path;
+	NSString *gitPath = [PBGitBinary path];
+	if (!gitPath) {
+		gitPath = @"/usr/bin/git"; // Fallback
+	}
 	
-	NSPipe *pipe = [NSPipe pipe];
-	task.standardOutput = pipe;
-	task.standardError = [NSPipe pipe];
+	int exitCode = 0;
+	NSString *gitDir = [PBEasyPipe outputForCommand:gitPath
+	                                       withArgs:@[@"rev-parse", @"--git-dir"]
+	                                          inDir:fileURL.path
+	                                       retValue:&exitCode];
 	
-	@try {
-		[task launch];
-		[task waitUntilExit];
+	if (exitCode == 0 && gitDir.length > 0) {
+		gitDir = [gitDir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		
-		if (task.terminationStatus == 0) {
-			NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-			NSString *gitDir = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-			gitDir = [gitDir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		if (gitDir.length > 0) {
+			// Handle relative paths
+			if (![gitDir hasPrefix:@"/"]) {
+				gitDir = [[fileURL.path stringByAppendingPathComponent:gitDir] stringByStandardizingPath];
+			}
 			
-			if (gitDir.length > 0) {
-				// Handle relative paths
-				if (![gitDir hasPrefix:@"/"]) {
-					gitDir = [[fileURL.path stringByAppendingPathComponent:gitDir] stringByStandardizingPath];
-				}
-				
-				BOOL isDirectory;
-				if ([[NSFileManager defaultManager] fileExistsAtPath:gitDir isDirectory:&isDirectory] && isDirectory) {
-					return [NSURL fileURLWithPath:gitDir isDirectory:YES];
-				}
+			BOOL isDirectory;
+			if ([[NSFileManager defaultManager] fileExistsAtPath:gitDir isDirectory:&isDirectory] && isDirectory) {
+				return [NSURL fileURLWithPath:gitDir isDirectory:YES];
 			}
 		}
-	}
-	@catch (NSException *exception) {
-		// Git not found or other error
 	}
 	
 	return nil;
