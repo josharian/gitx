@@ -154,10 +154,7 @@
 	}
 	else
 	{
-		[[NSAlert alertWithError:error] beginSheetModalForWindow:[self window]
-												   modalDelegate:self
-												  didEndSelector:nil
-													 contextInfo:nil];
+		[[NSAlert alertWithError:error] beginSheetModalForWindow:[self window] completionHandler:nil];
 	}
 }
 
@@ -219,11 +216,7 @@
 - (void)showModalSheet:(RJModalRepoSheet *)sheet
 {
 	if (self.currentModalSheet == nil) {
-		[NSApp beginSheet:[sheet window]
-		   modalForWindow:self.window
-			modalDelegate:sheet
-		   didEndSelector:nil
-			  contextInfo:NULL];
+		[self.window beginSheet:[sheet window] completionHandler:nil];
 		self.currentModalSheet = sheet;
 	}
 }

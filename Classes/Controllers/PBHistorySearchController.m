@@ -479,7 +479,7 @@
 - (NSPanel *)rewindPanelReverse:(BOOL)isReversed
 {
 	NSRect windowFrame = [[[historyController view] window] frame];
-	NSRect historyFrame = [[historyController view] convertRectToBase:[[historyController view] frame]];
+	NSRect historyFrame = [[[historyController view] superview] convertRect:[[historyController view] frame] toView:nil];
 	NSRect panelRect = NSMakeRect(0.0f, 0.0f, kRewindPanelSize, kRewindPanelSize);
 	panelRect.origin.x = windowFrame.origin.x + historyFrame.origin.x + ((historyFrame.size.width - kRewindPanelSize) / 2.0f);
 	panelRect.origin.y = windowFrame.origin.y + historyFrame.origin.y + ((historyFrame.size.height - kRewindPanelSize) / 2.0f);
@@ -493,7 +493,6 @@
 	[panel setOpaque:NO];
 	[panel setBackgroundColor:[NSColor clearColor]];
 	[panel setHasShadow:NO];
-	[panel useOptimizedDrawing:YES];
 	[panel setAlphaValue:0.0f];
 
 	NSBox *box = [[NSBox alloc] initWithFrame:[[panel contentView] frame]];
@@ -504,8 +503,19 @@
 	[box setCornerRadius:12.0f];
 	[[panel contentView] addSubview:box];
 
-	NSImage *rewindImage = [[NSImage imageNamed:@"rewindImage"] copy];
-	[rewindImage setFlipped:isReversed];
+	NSImage *rewindImage = [NSImage imageNamed:@"rewindImage"];
+	if (isReversed) {
+		NSSize imageSize = [rewindImage size];
+		NSImage *flippedImage = [[NSImage alloc] initWithSize:imageSize];
+		[flippedImage lockFocus];
+		NSAffineTransform *transform = [NSAffineTransform transform];
+		[transform translateXBy:imageSize.width yBy:0];
+		[transform scaleXBy:-1.0 yBy:1.0];
+		[transform concat];
+		[rewindImage drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
+		[flippedImage unlockFocus];
+		rewindImage = flippedImage;
+	}
 	NSSize imageSize = [rewindImage size];
 	NSRect imageViewFrame = NSMakeRect(21.0f, 5.0f, imageSize.width, imageSize.height);
 	NSImageView *rewindImageView = [[NSImageView alloc] initWithFrame:imageViewFrame];
