@@ -609,9 +609,10 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if (!name)
 		return nil;
 
-	int retValue = 1;
-    NSString *output = [self outputInWorkdirForArguments:[NSArray arrayWithObjects:@"show-ref", name, nil] retValue:&retValue];
-	if (retValue)
+	NSError *error = nil;
+	NSArray<NSString *> *command = @[@"show-ref", name];
+    NSString *output = [self executeGitCommand:command error:&error];
+	if (error || !output)
 		return nil;
 
 	// the output is in the format: <SHA-1 ID> <space> <reference name>
@@ -815,12 +816,13 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	else
 		refName = [ref refishName];
 
-	int retValue = 1;
-	NSArray *arguments = [NSArray arrayWithObjects:@"checkout", refName, nil];
-	NSString *output = [self outputInWorkdirForArguments:arguments retValue:&retValue];
-	if (retValue) {
+	NSError *error = nil;
+	NSArray *arguments = @[@"checkout", refName];
+	[self executeGitCommand:arguments error:&error];
+	if (error) {
 		NSString *message = [NSString stringWithFormat:@"There was an error checking out the %@ '%@'.\n\nPerhaps your working directory is not clean?", [ref refishType], [ref shortName]];
-		[self.windowController showErrorSheetTitle:@"Checkout failed!" message:message arguments:arguments output:output];
+		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription;
+		[self.windowController showErrorSheetTitle:@"Checkout failed!" message:message arguments:arguments output:errorDetails];
 		return NO;
 	}
 
@@ -835,13 +837,14 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 {
 	NSString *refName = [ref refishName];
 
-	int retValue = 1;
-	NSArray *arguments = [NSArray arrayWithObjects:@"merge", refName, nil];
-	NSString *output = [self outputInWorkdirForArguments:arguments retValue:&retValue];
-	if (retValue) {
+	NSError *error = nil;
+	NSArray *arguments = @[@"merge", refName];
+	[self executeGitCommand:arguments error:&error];
+	if (error) {
 		NSString *headName = [[[self headRef] ref] shortName];
 		NSString *message = [NSString stringWithFormat:@"There was an error merging %@ into %@.", refName, headName];
-		[self.windowController showErrorSheetTitle:@"Merge failed!" message:message arguments:arguments output:output];
+		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription;
+		[self.windowController showErrorSheetTitle:@"Merge failed!" message:message arguments:arguments output:errorDetails];
 		return NO;
 	}
 
@@ -857,12 +860,13 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 	NSString *refName = [ref refishName];
 
-	int retValue = 1;
-	NSArray *arguments = [NSArray arrayWithObjects:@"cherry-pick", refName, nil];
-	NSString *output = [self outputInWorkdirForArguments:arguments retValue:&retValue];
-	if (retValue) {
+	NSError *error = nil;
+	NSArray *arguments = @[@"cherry-pick", refName];
+	[self executeGitCommand:arguments error:&error];
+	if (error) {
 		NSString *message = [NSString stringWithFormat:@"There was an error cherry picking the %@ '%@'.\n\nPerhaps your working directory is not clean?", [ref refishType], [ref shortName]];
-		[self.windowController showErrorSheetTitle:@"Cherry pick failed!" message:message arguments:arguments output:output];
+		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription;
+		[self.windowController showErrorSheetTitle:@"Cherry pick failed!" message:message arguments:arguments output:errorDetails];
 		return NO;
 	}
 
@@ -881,14 +885,15 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if (branch)
 		[arguments addObject:[branch refishName]];
 
-	int retValue = 1;
-	NSString *output = [self outputInWorkdirForArguments:arguments retValue:&retValue];
-	if (retValue) {
+	NSError *error = nil;
+	[self executeGitCommand:arguments error:&error];
+	if (error) {
 		NSString *branchName = @"HEAD";
 		if (branch)
 			branchName = [NSString stringWithFormat:@"%@ '%@'", [branch refishType], [branch shortName]];
 		NSString *message = [NSString stringWithFormat:@"There was an error rebasing %@ with %@ '%@'.", branchName, [upstream refishType], [upstream shortName]];
-		[self.windowController showErrorSheetTitle:@"Rebase failed!" message:message arguments:arguments output:output];
+		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription;
+		[self.windowController showErrorSheetTitle:@"Rebase failed!" message:message arguments:arguments output:errorDetails];
 		return NO;
 	}
 
@@ -902,10 +907,10 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if (!branchName || !ref)
 		return NO;
 
-	int retValue = 1;
 	NSArray *arguments = [NSArray arrayWithObjects:@"branch", branchName, [ref refishName], nil];
-	NSString *output = [self outputInWorkdirForArguments:arguments retValue:&retValue];
-	if (retValue) {
+	NSError *error = nil;
+	NSString *output = [self executeGitCommand:arguments inWorkingDir:YES error:&error];
+	if (error) {
 		NSString *message = [NSString stringWithFormat:@"There was an error creating the branch '%@' at %@ '%@'.", branchName, [ref refishType], [ref shortName]];
 		[self.windowController showErrorSheetTitle:@"Create Branch failed!" message:message arguments:arguments output:output];
 		return NO;
@@ -920,7 +925,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if (!tagName)
 		return NO;
 
-	int retValue = 1;
 	NSArray *arguments;
 	
 	// Create annotated tag if message is provided, otherwise lightweight tag
@@ -930,8 +934,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		arguments = [NSArray arrayWithObjects:@"tag", tagName, [target refishName], nil];
 	}
 	
-	NSString *output = [self outputForArguments:arguments retValue:&retValue];
-	if (retValue) {
+	NSError *error = nil;
+	NSString *output = [self executeGitCommand:arguments error:&error];
+	if (error) {
 		NSString *errorMessage = [NSString stringWithFormat:@"There was an error creating the tag '%@' at %@ '%@'.", tagName, [target refishType], [target shortName]];
 		[self.windowController showErrorSheetTitle:@"Create Tag failed!" message:errorMessage arguments:arguments output:output];
 		return NO;
@@ -949,10 +954,10 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if ([ref refishType] == kGitXRemoteType)
 		return NO;
 
-	int retValue = 1;
 	NSArray *arguments = [NSArray arrayWithObjects:@"update-ref", @"-d", [ref ref], nil];
-	NSString * output = [self outputForArguments:arguments retValue:&retValue];
-	if (retValue) {
+	NSError *error = nil;
+	NSString *output = [self executeGitCommand:arguments error:&error];
+	if (error) {
 		NSString *message = [NSString stringWithFormat:@"There was an error deleting the ref: %@\n\n", [ref shortName]];
 		[self.windowController showErrorSheetTitle:@"Delete ref failed!" message:message arguments:arguments output:output];
 		return NO;
@@ -1136,9 +1141,10 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (int) returnValueForCommand:(NSString *)cmd
 {
-	int i;
-	[self outputForCommand:cmd retValue: &i];
-	return i;
+	NSArray* arguments = [cmd componentsSeparatedByString:@" "];
+	NSError *error = nil;
+	[self executeGitCommand:arguments error:&error];
+	return error ? (int)error.code : 0;
 }
 
 - (NSFileHandle*) handleForArguments:(NSArray *)args
@@ -1157,62 +1163,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return [PBEasyPipe handleForCommand:[PBGitBinary path] withArgs:arguments inDir:[self workingDirectory]];
 }
 
-- (NSFileHandle*) handleForCommand:(NSString *)cmd
-{
-	NSArray* arguments = [cmd componentsSeparatedByString:@" "];
-	return [self handleForArguments:arguments];
-}
 
-- (NSString*) outputForCommand:(NSString *)cmd
-{
-	NSArray* arguments = [cmd componentsSeparatedByString:@" "];
-	return [self outputForArguments: arguments];
-}
-
-- (NSString*) outputForCommand:(NSString *)str retValue:(int *)ret;
-{
-	NSArray* arguments = [str componentsSeparatedByString:@" "];
-	return [self outputForArguments: arguments retValue: ret];
-}
-
-- (NSString*) outputForArguments:(NSArray*) arguments
-{
-	return [PBEasyPipe outputForCommand:[PBGitBinary path] withArgs:arguments inDir: self.fileURL.path];
-}
-
-- (NSString*) outputInWorkdirForArguments:(NSArray*) arguments
-{
-	return [PBEasyPipe outputForCommand:[PBGitBinary path] withArgs:arguments inDir: [self workingDirectory]];
-}
-
-- (NSString*) outputInWorkdirForArguments:(NSArray *)arguments retValue:(int *)ret
-{
-	return [PBEasyPipe outputForCommand:[PBGitBinary path] withArgs:arguments inDir:[self workingDirectory] retValue: ret];
-}
-
-- (NSString*) outputForArguments:(NSArray *)arguments retValue:(int *)ret
-{
-	return [PBEasyPipe outputForCommand:[PBGitBinary path] withArgs:arguments inDir: self.fileURL.path retValue: ret];
-}
-
-- (NSString*) outputForArguments:(NSArray *)arguments inputString:(NSString *)input retValue:(int *)ret
-{
-	return [PBEasyPipe outputForCommand:[PBGitBinary path]
-							   withArgs:arguments
-								  inDir:[self workingDirectory]
-							inputString:input
-							   retValue: ret];
-}
-
-- (NSString *)outputForArguments:(NSArray *)arguments inputString:(NSString *)input byExtendingEnvironment:(NSDictionary *)dict retValue:(int *)ret
-{
-	return [PBEasyPipe outputForCommand:[PBGitBinary path]
-							   withArgs:arguments
-								  inDir:[self workingDirectory]
-				 byExtendingEnvironment:dict
-							inputString:input
-							   retValue: ret];
-}
 
 - (BOOL)executeHook:(NSString *)name output:(NSString **)output
 {
@@ -1242,9 +1193,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSString *)parseReference:(NSString *)reference
 {
-	int ret = 1;
-	NSString *ref = [self outputForArguments:[NSArray arrayWithObjects: @"rev-parse", @"--verify", reference, nil] retValue: &ret];
-	if (ret)
+	NSError *error = nil;
+	NSString *ref = [self executeGitCommand:[NSArray arrayWithObjects: @"rev-parse", @"--verify", reference, nil] error:&error];
+	if (error)
 		return nil;
 
 	return ref;
@@ -1252,11 +1203,12 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSString*) parseSymbolicReference:(NSString*) reference
 {
-	NSString* ref = [self outputForArguments:[NSArray arrayWithObjects: @"symbolic-ref", @"-q", reference, nil]];
-	if ([ref hasPrefix:@"refs/"])
-		return ref;
+	NSError *error = nil;
+	NSString* ref = [self executeGitCommand:[NSArray arrayWithObjects: @"symbolic-ref", @"-q", reference, nil] error:&error];
+	if (error || ![ref hasPrefix:@"refs/"])
+		return nil;
 
-	return nil;
+	return ref;
 }
 
 @end

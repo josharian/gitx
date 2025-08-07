@@ -92,20 +92,9 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 - (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input error:(NSError **)error;
 - (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input environment:(NSDictionary *)env error:(NSError **)error;
 
-// Legacy Methods (To be replaced gradually)
-- (NSFileHandle*) handleForCommand:(NSString*) cmd;
+// Handle-based methods (for streaming data operations)
 - (NSFileHandle*) handleForArguments:(NSArray*) args;
 - (NSFileHandle *) handleInWorkDirForArguments:(NSArray *)args;
-- (NSString*) outputForCommand:(NSString*) cmd;
-- (NSString *)outputForCommand:(NSString *)str retValue:(int *)ret;
-- (NSString *)outputForArguments:(NSArray *)arguments inputString:(NSString *)input retValue:(int *)ret;
-- (NSString *)outputForArguments:(NSArray *)arguments inputString:(NSString *)input byExtendingEnvironment:(NSDictionary *)dict retValue:(int *)ret;
-
-
-- (NSString*) outputForArguments:(NSArray*) args;
-- (NSString*) outputForArguments:(NSArray*) args retValue:(int *)ret;
-- (NSString *)outputInWorkdirForArguments:(NSArray*) arguments;
-- (NSString *)outputInWorkdirForArguments:(NSArray*) arguments retValue:(int *)ret;
 - (BOOL)executeHook:(NSString *)name output:(NSString **)output;
 - (BOOL)executeHook:(NSString *)name withArgs:(NSArray*) arguments output:(NSString **)output;
 

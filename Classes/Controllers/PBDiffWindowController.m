@@ -45,10 +45,10 @@
 		[arguments addObjectsFromArray:filePaths];
 	}
 
-	int retValue;
-	NSString *diff = [startCommit.repository outputInWorkdirForArguments:arguments retValue:&retValue];
-	if (retValue) {
-		NSLog(@"diff failed with retValue: %d   for command: '%@'    output: '%@'", retValue, [arguments componentsJoinedByString:@" "], diff);
+	NSError *error = nil;
+	NSString *diff = [startCommit.repository executeGitCommand:arguments inWorkingDir:YES error:&error];
+	if (error) {
+		NSLog(@"diff failed with error: %@   for command: '%@'    output: '%@'", error.localizedDescription, [arguments componentsJoinedByString:@" "], diff);
 		return;
 	}
 

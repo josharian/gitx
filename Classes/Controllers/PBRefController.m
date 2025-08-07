@@ -305,9 +305,9 @@
 	if (!ref || ! oldCommit || !dropCommit)
 		return;
 
-	int retValue = 1;
-	[historyController.repository outputForArguments:[NSArray arrayWithObjects:@"update-ref", @"-mUpdate from GitX", [ref ref], [dropCommit realSha], NULL] retValue:&retValue];
-	if (retValue)
+	NSError *error = nil;
+	[historyController.repository executeGitCommand:[NSArray arrayWithObjects:@"update-ref", @"-mUpdate from GitX", [ref ref], [dropCommit realSha], NULL] error:&error];
+	if (error)
 		return;
 
 	[dropCommit addRef:ref];

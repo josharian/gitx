@@ -95,7 +95,8 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	// If we amend, we want to keep the author information for the previous commit
 	// We do this by reading in the previous commit, and storing the information
 	// in a dictionary. This dictionary will then later be read by [self commit:]
-	NSString *message = [repository outputForCommand:@"cat-file commit HEAD"];
+	NSError *error = nil;
+	NSString *message = [repository executeGitCommand:[NSArray arrayWithObjects:@"cat-file", @"commit", @"HEAD", nil] error:&error];
 	NSArray *match = [message substringsMatchingRegularExpression:@"\nauthor ([^\n]*) <([^\n>]*)> ([0-9]+[^\n]*)\n" count:3 options:0 ranges:nil error:nil];
 	if (match)
 		amendEnvironment = [NSDictionary dictionaryWithObjectsAndKeys:[match objectAtIndex:1], @"GIT_AUTHOR_NAME",
@@ -169,7 +170,8 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 
 	
 	[self postCommitUpdate:@"Creating tree"];
-	NSString *tree = [repository outputForCommand:@"write-tree"];
+	NSError *error = nil;
+	NSString *tree = [repository executeGitCommand:[NSArray arrayWithObjects:@"write-tree", nil] error:&error];
 	if ([tree length] != 40)
 		return [self postCommitFailure:@"Creating tree failed"];
 	
@@ -182,7 +184,6 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	}
 
 	[self postCommitUpdate:@"Creating commit"];
-	int ret = 1;
 	
     if (doVerify) {
         [self postCommitUpdate:@"Running hooks"];
@@ -207,18 +208,20 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	
 	commitMessage = [NSString stringWithContentsOfFile:commitMessageFile encoding:NSUTF8StringEncoding error:nil];
 	
-	NSString *commit = [repository outputForArguments:arguments
-										  inputString:commitMessage
-							   byExtendingEnvironment:amendEnvironment
-											 retValue: &ret];
+	NSError *commitError = nil;
+	NSString *commit = [repository executeGitCommand:arguments
+										   withInput:commitMessage
+										 environment:amendEnvironment
+											   error:&commitError];
 	
-	if (ret || [commit length] != 40)
+	if (commitError || [commit length] != 40)
 		return [self postCommitFailure:@"Could not create a commit object"];
 	
 	[self postCommitUpdate:@"Updating HEAD"];
-	[repository outputForArguments:[NSArray arrayWithObjects:@"update-ref", @"-m", commitSubject, @"HEAD", commit, nil]
-						  retValue: &ret];
-	if (ret)
+	error = nil;
+	[repository executeGitCommand:[NSArray arrayWithObjects:@"update-ref", @"-m", commitSubject, @"HEAD", commit, nil]
+							error:&error];
+	if (error)
 		return [self postCommitFailure:@"Could not update HEAD"];
 	
 	[self postCommitUpdate:@"Running post-commit hook"];
@@ -309,13 +312,13 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		}
 		
 			
-		int ret = 1;
-		[repository outputForArguments:[NSArray arrayWithObjects:@"update-index", @"--add", @"--remove", @"-z", @"--stdin", nil]
-						   inputString:input
-							  retValue:&ret];
+		NSError *error = nil;
+		[repository executeGitCommand:[NSArray arrayWithObjects:@"update-index", @"--add", @"--remove", @"-z", @"--stdin", nil]
+						   withInput:input
+							   error:&error];
 
-		if (ret) {
-			[self postOperationFailed:[NSString stringWithFormat:@"Error in staging files. Return value: %i", ret]];
+		if (error) {
+			[self postOperationFailed:[NSString stringWithFormat:@"Error in staging files: %@", error.localizedDescription]];
 			return NO;
 		}
 
@@ -364,14 +367,14 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 			[input appendString:[file indexInfo]];
 		}
 		
-		int ret = 1;
-		[repository outputForArguments:[NSArray arrayWithObjects:@"update-index", @"-z", @"--index-info", nil]
-						   inputString:input
-							  retValue:&ret];
+		NSError *error = nil;
+		[repository executeGitCommand:[NSArray arrayWithObjects:@"update-index", @"-z", @"--index-info", nil]
+						   withInput:input
+							   error:&error];
 		
-		if (ret)
+		if (error)
 		{
-			[self postOperationFailed:[NSString stringWithFormat:@"Error in unstaging files. Return value: %i", ret]];
+			[self postOperationFailed:[NSString stringWithFormat:@"Error in unstaging files: %@", error.localizedDescription]];
 			return NO;
 		}
 		
@@ -423,13 +426,13 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	if (reverse)
 		[array addObject:@"--reverse"];
 
-	int ret = 1;
-	NSString *error = [repository outputForArguments:array
-										 inputString:hunk
-											retValue:&ret];
+	NSError *error = nil;
+	NSString *output = [repository executeGitCommand:array
+										   withInput:hunk
+											   error:&error];
 
-	if (ret) {
-		[self postOperationFailed:[NSString stringWithFormat:@"Applying patch failed with return value %i. Error: %@", ret, error]];
+	if (error) {
+		[self postOperationFailed:[NSString stringWithFormat:@"Applying patch failed: %@. Output: %@", error.localizedDescription, output]];
 		return NO;
 	}
 
@@ -445,10 +448,13 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	if (staged) {
 		NSString *indexPath = [@":0:" stringByAppendingString:file.path];
 
-		if (file.status == NEW)
-			return [repository outputForArguments:[NSArray arrayWithObjects:@"show", indexPath, nil]];
+		if (file.status == NEW) {
+			NSError *error = nil;
+			return [repository executeGitCommand:[NSArray arrayWithObjects:@"show", indexPath, nil] error:&error];
+		}
 
-		return [repository outputInWorkdirForArguments:[NSArray arrayWithObjects:@"diff-index", parameter, @"--cached", [self parentTree], @"--", file.path, nil]];
+		NSError *error = nil;
+		return [repository executeGitCommand:[NSArray arrayWithObjects:@"diff-index", parameter, @"--cached", [self parentTree], @"--", file.path, nil] inWorkingDir:YES error:&error];
 	}
 
 	// unstaged
@@ -465,7 +471,8 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 		return contents;
 	}
 
-	return [repository outputInWorkdirForArguments:[NSArray arrayWithObjects:@"diff-files", parameter, @"--", file.path, nil]];
+	NSError *error = nil;
+	return [repository executeGitCommand:[NSArray arrayWithObjects:@"diff-files", parameter, @"--", file.path, nil] inWorkingDir:YES error:&error];
 }
 
 - (void)postIndexChange

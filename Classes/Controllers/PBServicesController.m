@@ -16,9 +16,9 @@
 	NSArray *documents = [[NSApplication sharedApplication] orderedDocuments];
 	for (PBGitRepository *repo in documents)
 	{
-		int ret = 1;
-		NSString *s = [repo outputForArguments:[NSArray arrayWithObjects:@"log", @"-1", @"--pretty=format:%h (%s)", sha, nil] retValue:&ret];
-		if (!ret)
+		NSError *error = nil;
+		NSString *s = [repo executeGitCommand:[NSArray arrayWithObjects:@"log", @"-1", @"--pretty=format:%h (%s)", sha, nil] error:&error];
+		if (!error)
 			return s;
 	}
 	return @"Could not find SHA";
@@ -30,9 +30,9 @@
 	if ([repositories count] == 0)
 		return s;
 	PBGitRepository *repo = [repositories objectAtIndex:0];
-	int ret = 1;
-	NSString *returnString = [repo outputForArguments:[NSArray arrayWithObjects:@"name-rev", @"--stdin", nil] inputString:s retValue:&ret];
-	if (ret)
+	NSError *error = nil;
+	NSString *returnString = [repo executeGitCommand:[NSArray arrayWithObjects:@"name-rev", @"--stdin", nil] withInput:s error:&error];
+	if (error)
 		return s;
 	return returnString;
 }

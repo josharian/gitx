@@ -212,7 +212,8 @@ NSString * const kGitXCommitType = @"commit";
 	if (self->_patch != nil)
 		return _patch;
 
-	NSString *p = [self.repository outputForArguments:[NSArray arrayWithObjects:@"format-patch",  @"-1", @"--stdout", [self realSha], nil]];
+	NSError *error = nil;
+	NSString *p = [self.repository executeGitCommand:[NSArray arrayWithObjects:@"format-patch",  @"-1", @"--stdout", [self realSha], nil] error:&error];
 	// Add a GitX identifier to the patch ;)
 	self.patch = [[p substringToIndex:[p length] -1] stringByAppendingString:@"+GitX"];
 	return self->_patch;

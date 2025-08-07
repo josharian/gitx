@@ -124,7 +124,8 @@
 		return string;
 	}
 	
-	return [repository outputForArguments:[NSArray arrayWithObjects:@"show", [self refSpec], nil]];
+	NSError *error = nil;
+	return [repository executeGitCommand:[NSArray arrayWithObjects:@"show", [self refSpec], nil] error:&error];
 }
 
 - (NSString *) blame
@@ -138,7 +139,8 @@
 	if ([self fileSize] > 52428800) // ~50MB
 		return [NSString stringWithFormat:@"%@ is too big to be displayed (%lld bytes)", [self fullPath], [self fileSize]];
 	
-	NSString *contents=[repository outputInWorkdirForArguments:[NSArray arrayWithObjects:@"blame", @"-p",  sha, @"--", [self fullPath], nil]];
+	NSError *error = nil;
+	NSString *contents=[repository executeGitCommand:[NSArray arrayWithObjects:@"blame", @"-p",  sha, @"--", [self fullPath], nil] inWorkingDir:YES error:&error];
 	
 	if ([self hasBinaryHeader:contents])
 		return [NSString stringWithFormat:@"%@ appears to be a binary file of %lld bytes", [self fullPath], [self fileSize]];
@@ -158,7 +160,8 @@
 	if ([self fileSize] > 52428800) // ~50MB
 		return [NSString stringWithFormat:@"%@ is too big to be displayed (%lld bytes)", [self fullPath], [self fileSize]];
 
-	NSString *contents=[repository outputInWorkdirForArguments:[NSArray arrayWithObjects:@"log", [NSString stringWithFormat:@"--pretty=format:%@",format], @"--", [self fullPath], nil]];
+	NSError *error = nil;
+	NSString *contents=[repository executeGitCommand:[NSArray arrayWithObjects:@"log", [NSString stringWithFormat:@"--pretty=format:%@",format], @"--", [self fullPath], nil] inWorkingDir:YES error:&error];
 	
 	if ([self hasBinaryHeader:contents])
 		return [NSString stringWithFormat:@"%@ appears to be a binary file of %lld bytes", [self fullPath], [self fileSize]];
