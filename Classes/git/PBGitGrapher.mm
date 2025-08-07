@@ -129,6 +129,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 				GTOID *oid = (GTOID *)parentObj;
 				parentOID = [oid git_oid];
 			} else {
+				delete currentLanes;
+				free(lines);
 				return; // Can't proceed without valid parent
 			}
 			
