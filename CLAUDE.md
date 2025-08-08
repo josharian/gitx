@@ -7,7 +7,7 @@ This is a project to resuscitate GitX.
 
 The last commit before starting surgery has the git tag 'before-revival'.
 
-When a set of fixes is ready, please launch the app for testing.
+When a set of fixes is ready, please ask the user to quit their current GitX. Then clean, rebuild, and launch the app for testing.
 
 If you need to instrument the app:
 
@@ -15,3 +15,5 @@ If you need to instrument the app:
 - run `log stream` in the background with a long timeout with appropriate filters, e.g. 'process == "GitX" AND eventMessage CONTAINS "DISTINCTIVE_SUBSTRING"'
 - launch the app
 - if necessary to reproduce, ask me to take appropriate reproduction steps
+
+NEVER leave behind breadcrumbs, backwards compatibility shims, dead code, or comments about how the code used to be. Make the code clean, as if someone was reading it for the first time ever after your work.
