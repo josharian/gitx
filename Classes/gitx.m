@@ -16,7 +16,7 @@
 void usage(char const *programName)
 {
 	printf("Usage: %s (--help|--version|--git-path)\n", programName);
-	printf("   or: %s [--git-dir=<path>]\n", programName);
+	printf("   or: %s [<path>]\n", programName);
 	printf("\n");
 	printf("    -h, --help             print this help\n");
 	printf("    -v, --version          prints version info for both GitX and git\n");
@@ -24,9 +24,9 @@ void usage(char const *programName)
 	printf("\n");
 	printf("Repository path\n");
 	printf("    By default gitx opens the repository in the current directory.\n");
-	printf("    Use --git-dir= to open a repository somewhere else.\n");
+	printf("    To open a repository somewhere else, provide the path as an argument.\n");
 	printf("\n");
-	printf("    --git-dir=<path>       open the repository located at <path>\n");
+	printf("    <path>                 open the repository located at <path>\n");
 	printf("\n");
 	exit(1);
 }
@@ -76,26 +76,24 @@ void handleOpenRepository(NSURL *repositoryURL)
 #pragma mark main
 
 
-#define kGitDirPrefix @"--git-dir="
-
 NSURL *workingDirectoryURL(NSMutableArray *arguments)
 {
-    // path to git repository has been explicitly passed?
-	if ([arguments count] && [[arguments objectAtIndex:0] hasPrefix:kGitDirPrefix]) {
-		NSString *path = [[[arguments objectAtIndex:0] substringFromIndex:[kGitDirPrefix length]] stringByStandardizingPath];
+    // path to git repository has been explicitly passed as positional argument?
+	if ([arguments count] && ![[arguments objectAtIndex:0] hasPrefix:@"-"]) {
+		NSString *path = [[arguments objectAtIndex:0] stringByStandardizingPath];
 
 		// the path must exist and point to a directory
 		BOOL isDirectory = YES;
 		if (![[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory] || !isDirectory) {
 			if (!isDirectory)
-				printf("Fatal: --git-dir path does not point to a directory.\n");
+				printf("Fatal: path does not point to a directory.\n");
 			else
-				printf("Fatal: --git-dir path does not exist.\n");
+				printf("Fatal: path does not exist.\n");
 			printf("Cannot open git repository at path: '%s'\n", [path UTF8String]);
 			exit(2);
 		}
 
-		// remove the git-dir argument
+		// remove the path argument
 		[arguments removeObjectAtIndex:0];
 
         // create and return corresponding NSURL
