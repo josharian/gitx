@@ -17,3 +17,5 @@ If you need to instrument the app:
 - if necessary to reproduce, ask me to take appropriate reproduction steps
 
 NEVER leave behind breadcrumbs, backwards compatibility shims, dead code, or comments about how the code used to be. Make the code clean, as if someone was reading it for the first time ever after your work.
+
+Do not make git commits.
