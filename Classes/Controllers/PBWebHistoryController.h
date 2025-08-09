@@ -14,14 +14,13 @@
 #import "PBRefContextDelegate.h"
 
 
-@class PBCommitID;
 
 
 @interface PBWebHistoryController : PBWebController {
 	IBOutlet PBGitHistoryController* historyController;
 	IBOutlet id<PBRefContextDelegate> contextMenuDelegate;
 
-	PBCommitID* currentSha;
+	NSString* currentSha;
 	NSString* diff;
 }
 

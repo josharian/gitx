@@ -105,10 +105,10 @@ const BOOL SHUFFLE_COLORS = NO;
 
 - (BOOL) isCurrentCommit
 {
-	PBCommitID *thisSha = [self.objectValue sha];
+	NSString *thisSha = [self.objectValue sha];
 
 	PBGitRepository* repository = [self.objectValue repository];
-	PBCommitID *currentSha = [repository headSHA];
+	NSString *currentSha = [repository headSHA];
 
 	return [currentSha isEqual:thisSha];
 }

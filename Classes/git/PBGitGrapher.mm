@@ -14,7 +14,6 @@
 #import "PBGitCommit.h"
 #import "PBGitLane.h"
 #import "PBGitGraphLine.h"
-#import "PBCommitID.h"
 
 #import <vector>
 // #import <git2/oid.h>
@@ -65,7 +64,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	// Debug: check what's actually in the parents array
 	for (NSUInteger idx = 0; idx < nParents; idx++) {
 		id parentObj = [parents objectAtIndex:idx];
-		if (![parentObj isKindOfClass:[PBCommitID class]]) {
+		if (![parentObj isKindOfClass:[NSString class]]) {
 		}
 	}
 
@@ -75,7 +74,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	PBGitLane *currentLane = NULL;
 	BOOL didFirst = NO;
-	NSString *commitSHA = [[commit sha] sha];
+	NSString *commitSHA = [commit sha];
 	
 	// First, iterate over earlier columns and pass through any that don't want this commit
 	if (self.previous != nil) {
@@ -122,9 +121,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			id parentObj = [parents objectAtIndex:0];
 			NSString *parentSHA = nil;
 			
-			if ([parentObj isKindOfClass:[PBCommitID class]]) {
-				PBCommitID *oid = (PBCommitID *)parentObj;
-				parentSHA = [oid sha];
+			if ([parentObj isKindOfClass:[NSString class]]) {
+				parentSHA = (NSString *)parentObj;
 			} else {
 				delete currentLanes;
 				free(lines);
@@ -151,9 +149,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			id parentObj = [parents objectAtIndex:parentIndex];
 			NSString *parentSHA = nil;
 			
-			if ([parentObj isKindOfClass:[PBCommitID class]]) {
-				PBCommitID *oid = (PBCommitID *)parentObj;
-				parentSHA = [oid sha];
+			if ([parentObj isKindOfClass:[NSString class]]) {
+				parentSHA = (NSString *)parentObj;
 			} else {
 				continue; // Skip this parent
 			}
@@ -208,9 +205,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 				id parentObj = [parents objectAtIndex:0];
 				NSString *parentSHA = nil;
 				
-				if ([parentObj isKindOfClass:[PBCommitID class]]) {
-					PBCommitID *oid = (PBCommitID *)parentObj;
-					parentSHA = [oid sha];
+				if ([parentObj isKindOfClass:[NSString class]]) {
+					parentSHA = (NSString *)parentObj;
 				} else {
 					parentSHA = nil;
 				}

@@ -12,7 +12,6 @@
 #import "PBGitRef.h"
 #import "PBGitDefaults.h"
 #import "PBCommitData.h"
-#import "PBCommitID.h"
 
 
 
@@ -25,7 +24,7 @@ NSString * const kGitXCommitType = @"commit";
 @property (nonatomic, strong) NSArray *parents;
 
 @property (nonatomic, strong) NSString *patch;
-@property (nonatomic, strong) PBCommitID *sha;
+@property (nonatomic, strong) NSString *sha;
 
 @end
 
@@ -118,7 +117,7 @@ NSString * const kGitXCommitType = @"commit";
 		NSArray *parentSHAs = self.commitData.parentSHAs;
 		NSMutableArray *parents = [NSMutableArray arrayWithCapacity:parentSHAs.count];
 		for (NSString *parentSHA in parentSHAs) {
-			[parents addObject:[PBCommitID commitIDWithSHA:parentSHA]];
+			[parents addObject:parentSHA];
 		}
 		self.parents = parents;
 	}
@@ -141,13 +140,13 @@ NSString * const kGitXCommitType = @"commit";
 }
 
 
-- (PBCommitID *)sha
+- (NSString *)sha
 {
-	PBCommitID *result = _sha;
+	NSString *result = _sha;
 	if (result) {
 		return result;
 	}
-    result = [PBCommitID commitIDWithSHA:self.commitData.sha];
+    result = self.commitData.sha;
 	_sha = result;
 	return result;
 }

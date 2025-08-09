@@ -11,7 +11,6 @@
 // #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
-#import "PBCommitID.h"
 
 @implementation PBWebHistoryController
 
@@ -72,7 +71,7 @@
 	// but this caused some funny behaviour because NSTask's and NSThread's don't really
 	// like each other. Instead, just do it async.
 
-	NSMutableArray *taskArguments = [NSMutableArray arrayWithObjects:@"show", @"--pretty=raw", @"-M", @"--no-color", [currentSha SHA], nil];
+	NSMutableArray *taskArguments = [NSMutableArray arrayWithObjects:@"show", @"--pretty=raw", @"-M", @"--no-color", currentSha, nil];
 	if (![PBGitDefaults showWhitespaceDifferences])
 		[taskArguments insertObject:@"-w" atIndex:1];
 
@@ -111,7 +110,7 @@
 	if (!error && validatedSHA) {
 		validatedSHA = [validatedSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		
-		PBCommitID *oid = [PBCommitID commitIDWithSHA:validatedSHA];
+		NSString *oid = validatedSHA;
 		[historyController selectCommit: oid];
 	} else {
 		if (error) {
@@ -120,7 +119,7 @@
 			NSLog(@"Invalid commit SHA: %@", sha);
 		}
 		// Fallback to original behavior for compatibility
-		PBCommitID *oid = [PBCommitID commitIDWithSHA:sha];
+		NSString *oid = sha;
 		[historyController selectCommit: oid];
 	}
 }

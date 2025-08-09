@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0A6858C711F7EA8A00AC2BE4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A6858C611F7EA8A00AC2BE4 /* CoreServices.framework */; };
 		49B1A450FBA5F3D4225D3B25 /* PBCommitData.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E9450B2C8026200C52D446 /* PBCommitData.m */; };
-		49B1A450FBA5F3D4225D3B26 /* PBCommitID.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54E9450B2C8026200C52D447 /* PBCommitID.mm */; };
 		4A1F4E6917AFE969004D51E9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 		4A40159714067B6300DB9C07 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159614067B6300DB9C07 /* CoreFoundation.framework */; };
 		4A40159914067B7A00DB9C07 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159814067B7A00DB9C07 /* AppKit.framework */; };
@@ -165,8 +164,6 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		4DE31B7C6DC4D2AA3522FED8 /* PBCommitData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBCommitData.h; sourceTree = "<group>"; };
 		54E9450B2C8026200C52D446 /* PBCommitData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBCommitData.m; sourceTree = "<group>"; };
-		4DE31B7C6DC4D2AA3522FED9 /* PBCommitID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBCommitID.h; sourceTree = "<group>"; };
-		54E9450B2C8026200C52D447 /* PBCommitID.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PBCommitID.mm; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		4A40159614067B6300DB9C07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -690,8 +687,6 @@
 				4AB057E21652652000DE751D /* GitRepoFinder.m */,
 				4DE31B7C6DC4D2AA3522FED8 /* PBCommitData.h */,
 				54E9450B2C8026200C52D446 /* PBCommitData.m */,
-				4DE31B7C6DC4D2AA3522FED9 /* PBCommitID.h */,
-				54E9450B2C8026200C52D447 /* PBCommitID.mm */,
 			);
 			path = git;
 			sourceTree = "<group>";
@@ -1003,7 +998,6 @@
 				643952771603EF9B00BB7AFF /* PBGitSVSubmoduleItem.m in Sources */,
 				4AB057E31652652000DE751D /* GitRepoFinder.m in Sources */,
 				49B1A450FBA5F3D4225D3B25 /* PBCommitData.m in Sources */,
-				49B1A450FBA5F3D4225D3B26 /* PBCommitID.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

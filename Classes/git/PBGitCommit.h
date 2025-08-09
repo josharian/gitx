@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 #import "PBGitRefish.h" // for @protocol PBGitRefish
-#import "PBCommitID.h"
 
 @class PBGitRepository;
 @class PBGitTree;
@@ -23,7 +22,7 @@ extern NSString * const kGitXCommitType;
 
 @property (nonatomic, weak, readonly) PBGitRepository* repository;
 
-@property (nonatomic, strong, readonly) PBCommitID *sha;
+@property (nonatomic, strong, readonly) NSString *sha;
 
 @property (nonatomic, strong, readonly) NSDate *date;
 @property (nonatomic, strong, readonly) NSString *subject;

@@ -51,10 +51,9 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 
 @class PBGitWindowController;
 @class PBGitCommit;
-@class PBCommitID;
 @interface PBGitRepository : NSDocument {
 	__strong PBGitRevSpecifier *_headRef; // Caching
-	__strong PBCommitID* _headSha;
+	__strong NSString* _headSha;
 	__strong NSString* _cachedWorkingDirectory; // Cache for workingDirectory to avoid repeated git calls
 }
 
@@ -104,13 +103,13 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 - (void) reloadRefs;
 - (void) lazyReload;
 - (PBGitRevSpecifier*)headRef;
-- (PBCommitID *)headSHA;
+- (NSString *)headSHA;
 - (PBGitCommit *)headCommit;
-- (PBCommitID *)shaForRef:(PBGitRef *)ref;
+- (NSString *)shaForRef:(PBGitRef *)ref;
 - (PBGitCommit *)commitForRef:(PBGitRef *)ref;
-- (PBGitCommit *)commitForSHA:(PBCommitID *)sha;
-- (BOOL)isOnSameBranch:(PBCommitID *)baseSHA asSHA:(PBCommitID *)testSHA;
-- (BOOL)isSHAOnHeadBranch:(PBCommitID *)testSHA;
+- (PBGitCommit *)commitForSHA:(NSString *)sha;
+- (BOOL)isOnSameBranch:(NSString *)baseSHA asSHA:(NSString *)testSHA;
+- (BOOL)isSHAOnHeadBranch:(NSString *)testSHA;
 - (BOOL)isRefOnHeadBranch:(PBGitRef *)testRef;
 - (BOOL)checkRefFormat:(NSString *)refName;
 - (BOOL)refExists:(PBGitRef *)ref;

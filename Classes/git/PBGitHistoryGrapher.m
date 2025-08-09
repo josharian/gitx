@@ -9,7 +9,6 @@
 #import "PBGitHistoryGrapher.h"
 #import "PBGitGrapher.h"
 #import "PBGitCommit.h"
-#import "PBCommitID.h"
 
 @implementation PBGitHistoryGrapher
 
@@ -57,7 +56,7 @@
 		if ([currentThread isCancelled]) {
 			return;
 		}
-		PBCommitID *commitSHA = [commit sha];
+		NSString *commitSHA = [commit sha];
 		if (counter % 50 == 0) {
 		}
 		BOOL shouldInclude = viewAllBranches || [searchSHAs containsObject:commitSHA];
@@ -70,7 +69,7 @@
 					[searchSHAs removeObject:commitSHA];
 					// Parent SHAs are already PBCommitID objects
 					NSArray *parentCommitIDs = [commit parents];
-					for (PBCommitID *parentCommitID in parentCommitIDs) {
+					for (NSString *parentCommitID in parentCommitIDs) {
 						[searchSHAs addObject:parentCommitID];
 					}
 				}
