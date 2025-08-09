@@ -28,7 +28,7 @@ public:
 	
 	bool isCommit(NSString *sha) const
 	{
-		return d_sha == [sha UTF8String];
+		return d_sha.compare([sha UTF8String]) == 0;
 	}
 	
 	void setSha(NSString *sha);
