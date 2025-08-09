@@ -7,46 +7,35 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
-typedef struct {
-    unsigned char id[20]; // SHA-1 is 20 bytes
-} git_oid;
-
-static inline void git_oid_cpy(git_oid *out, const git_oid *src) {
-    memcpy(out, src, sizeof(git_oid));
-}
-
-static inline int git_oid_cmp(const git_oid *a, const git_oid *b) {
-    return memcmp(a, b, sizeof(git_oid));
-}
+#include <string>
 
 class PBGitLane {
-	git_oid d_sha;
+	std::string d_sha;
 	int d_index;
 
 public:
 
-	PBGitLane(const git_oid *sha)
+	PBGitLane(NSString *sha)
 	{
-		d_sha = *sha;
+		d_sha = [sha UTF8String];
 	}
 
-	PBGitLane(int index, const git_oid *sha)
+	PBGitLane(int index, NSString *sha)
 	: d_index(index)
 	{
-		git_oid_cpy(&d_sha, sha);
+		d_sha = [sha UTF8String];
 	}
 	
-	bool isCommit(const git_oid *sha) const
+	bool isCommit(NSString *sha) const
 	{
-		return !git_oid_cmp(&d_sha, sha);
+		return d_sha == [sha UTF8String];
 	}
 	
-	void setSha(const git_oid *sha);
+	void setSha(NSString *sha);
 	
-	git_oid const *sha() const
+	NSString *sha() const
 	{
-		return &d_sha;
+		return [NSString stringWithUTF8String:d_sha.c_str()];
 	}
 	
 	int index() const;

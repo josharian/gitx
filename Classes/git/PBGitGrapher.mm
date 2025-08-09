@@ -75,7 +75,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 	PBGitLane *currentLane = NULL;
 	BOOL didFirst = NO;
-	const git_oid *commit_oid = [[commit sha] git_oid];
+	NSString *commitSHA = [[commit sha] sha];
 	
 	// First, iterate over earlier columns and pass through any that don't want this commit
 	if (self.previous != nil) {
@@ -88,7 +88,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 
 			// This is our commit! We should do a "merge": move the line from
 			// our upperMapping to their lowerMapping
-			if ((*it)->isCommit(commit_oid)) {
+			if ((*it)->isCommit(commitSHA)) {
 				if (!didFirst) {
 					didFirst = YES;
 					currentLanes->push_back(*it);
@@ -120,18 +120,18 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	if (!didFirst && nParents) {
 		@try {
 			id parentObj = [parents objectAtIndex:0];
-			const git_oid *parentOID = NULL;
+			NSString *parentSHA = nil;
 			
 			if ([parentObj isKindOfClass:[PBCommitID class]]) {
 				PBCommitID *oid = (PBCommitID *)parentObj;
-				parentOID = [oid git_oid];
+				parentSHA = [oid sha];
 			} else {
 				delete currentLanes;
 				free(lines);
 				return; // Can't proceed without valid parent
 			}
 			
-			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
+			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentSHA);
 			currentLanes->push_back(newLane);
 			newPos = (int)currentLanes->size();
 			add_line(lines, &currentLine, 0, newPos, newPos, newLane->index());
@@ -149,11 +149,11 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	for (parentIndex = 1; parentIndex < nParents; ++parentIndex) {
 		@try {
 			id parentObj = [parents objectAtIndex:parentIndex];
-			const git_oid *parentOID = NULL;
+			NSString *parentSHA = nil;
 			
 			if ([parentObj isKindOfClass:[PBCommitID class]]) {
 				PBCommitID *oid = (PBCommitID *)parentObj;
-				parentOID = [oid git_oid];
+				parentSHA = [oid sha];
 			} else {
 				continue; // Skip this parent
 			}
@@ -163,7 +163,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			LaneCollection::iterator it = currentLanes->begin();
 			for (; it != currentLanes->end(); ++it) {
 				i++;
-				if ((*it)->isCommit(parentOID)) {
+				if ((*it)->isCommit(parentSHA)) {
 					add_line(lines, &currentLine, 0, i, newPos,(*it)->index());
 					was_displayed = YES;
 					break;
@@ -174,7 +174,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			
 			// Really add this parent
 			addedParent = YES;
-			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentOID);
+			PBGitLane *newLane = new PBGitLane(_laneIndex++, parentSHA);
 			currentLanes->push_back(newLane);
 			add_line(lines, &currentLine, 0, (int)currentLanes->size(), newPos, newLane->index());
 		} @catch (NSException *exception) {
@@ -206,17 +206,17 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 		if (nParents > 0) {
 			@try {
 				id parentObj = [parents objectAtIndex:0];
-				const git_oid *parentOID = NULL;
+				NSString *parentSHA = nil;
 				
 				if ([parentObj isKindOfClass:[PBCommitID class]]) {
 					PBCommitID *oid = (PBCommitID *)parentObj;
-					parentOID = [oid git_oid];
+					parentSHA = [oid sha];
 				} else {
-					parentOID = NULL;
+					parentSHA = nil;
 				}
 				
-				if (parentOID) {
-					currentLane->setSha(parentOID);
+				if (parentSHA) {
+					currentLane->setSha(parentSHA);
 				}
 			} @catch (NSException *exception) {
 			}
