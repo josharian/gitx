@@ -268,7 +268,7 @@
     commitList.useAdjustScroll = NO;
 }
 
-- (NSArray *) selectedObjectsForSHA:(GTOID *)commitSHA
+- (NSArray *) selectedObjectsForSHA:(PBCommitID *)commitSHA
 {
 	NSPredicate *selection = [NSPredicate predicateWithFormat:@"sha == %@", commitSHA];
 	NSArray *selectedCommits = [[commitController content] filteredArrayUsingPredicate:selection];
@@ -279,7 +279,7 @@
 	return selectedCommits;
 }
 
-- (void)selectCommit:(GTOID *)commitSHA
+- (void)selectCommit:(PBCommitID *)commitSHA
 {
 	if (!forceSelectionUpdate && [[[[commitController selectedObjects] lastObject] sha] isEqual:commitSHA])
 		return;

@@ -11,7 +11,8 @@
 #import "PBGitTree.h"
 #import "PBGitRef.h"
 #import "PBGitDefaults.h"
-#import "GTObjectiveGitStubs.h"
+#import "PBCommitData.h"
+#import "PBCommitID.h"
 
 
 
@@ -20,11 +21,11 @@ NSString * const kGitXCommitType = @"commit";
 @interface PBGitCommit ()
 
 @property (nonatomic, weak) PBGitRepository *repository;
-@property (nonatomic, strong) GTCommit *gtCommit;
+@property (nonatomic, strong) PBCommitData *commitData;
 @property (nonatomic, strong) NSArray *parents;
 
 @property (nonatomic, strong) NSString *patch;
-@property (nonatomic, strong) GTOID *sha;
+@property (nonatomic, strong) PBCommitID *sha;
 
 @end
 
@@ -33,8 +34,7 @@ NSString * const kGitXCommitType = @"commit";
 
 - (NSDate *) date
 {
-	return self.gtCommit.commitDate;
-	// previous behaviour was equiv. to:  return self.gtCommit.author.time;
+	return self.commitData.commitDate;
 }
 
 - (NSString *) dateString
@@ -61,65 +61,52 @@ NSString * const kGitXCommitType = @"commit";
 	NSError *error = nil;
 	NSString *output = [repo executeGitCommand:@[@"show", @"--format=%H%n%s%n%B%n%an%n%cn%n%ct%n%P", @"--no-patch", sha] error:&error];
 	
-	GTCommit *commit = [[GTCommit alloc] init];
+	PBCommitData *commitData = [[PBCommitData alloc] init];
 	
 	if (!error && output) {
 		NSArray *lines = [output componentsSeparatedByString:@"\n"];
 		
 		if (lines.count >= 7) {
 			NSString *shaString = lines[0];
-			commit.SHA = shaString;
-			commit.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
-			commit.messageSummary = lines[1];
-			commit.message = lines[2];
-			
-			GTSignature *author = [[GTSignature alloc] init];
-			author.name = lines[3];
-			commit.author = author;
-			
-			GTSignature *committer = [[GTSignature alloc] init];
-			committer.name = lines[4];
-			commit.committer = committer;
+			commitData.sha = shaString;
+			commitData.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
+			commitData.messageSummary = lines[1];
+			commitData.message = lines[2];
+			commitData.authorName = lines[3];
+			commitData.committerName = lines[4];
 			
 			NSTimeInterval timestamp = [lines[5] doubleValue];
-			commit.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
+			commitData.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
 			
-			// Parse parent commit SHAs
+			// Parse parent commit SHAs - just store the SHA strings
 			NSString *parentSHAsString = lines[6];
-			NSMutableArray *parentCommits = [NSMutableArray array];
+			NSMutableArray *parentSHAs = [NSMutableArray array];
 			if ([parentSHAsString length] > 0) {
-				NSArray *parentSHAs = [parentSHAsString componentsSeparatedByString:@" "];
-				for (NSString *parentSHA in parentSHAs) {
+				NSArray *parentSHAsList = [parentSHAsString componentsSeparatedByString:@" "];
+				for (NSString *parentSHA in parentSHAsList) {
 					NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 					if ([trimmedSHA length] >= 40) {
-						GTCommit *parentCommit = [[GTCommit alloc] init];
-						parentCommit.SHA = trimmedSHA;
-						parentCommit.OID = [GTOID oidWithSHA:trimmedSHA];
-						[parentCommits addObject:parentCommit];
+						[parentSHAs addObject:trimmedSHA];
 					}
 				}
 			}
-			commit.parents = parentCommits;
-			
-			// Create GTOID for the SHA
-			GTOID *oid = [GTOID oidWithSHA:shaString];
-			commit.OID = oid;
+			commitData.parentSHAs = parentSHAs;
 		}
 	}
 	
-	self.gtCommit = commit;
+	self.commitData = commitData;
 	
 	return self;
 }
 
-- (id)initWithRepository:(PBGitRepository *)repo andGTCommit:(GTCommit *)gtCommit
+- (id)initWithRepository:(PBGitRepository *)repo andCommitData:(PBCommitData *)commitData
 {
 	self = [super init];
 	if (!self) {
 		return nil;
 	}
 	self.repository = repo;
-	self.gtCommit = gtCommit;
+	self.commitData = commitData;
 	
 	return self;
 }
@@ -128,10 +115,10 @@ NSString * const kGitXCommitType = @"commit";
 - (NSArray *)parents
 {
 	if (!self->_parents) {
-		NSArray *gtParents = self.gtCommit.parents;
-		NSMutableArray *parents = [NSMutableArray arrayWithCapacity:gtParents.count];
-		for (GTCommit *parent in gtParents) {
-			[parents addObject:parent.OID];
+		NSArray *parentSHAs = self.commitData.parentSHAs;
+		NSMutableArray *parents = [NSMutableArray arrayWithCapacity:parentSHAs.count];
+		for (NSString *parentSHA in parentSHAs) {
+			[parents addObject:[PBCommitID commitIDWithSHA:parentSHA]];
 		}
 		self.parents = parents;
 	}
@@ -140,36 +127,34 @@ NSString * const kGitXCommitType = @"commit";
 
 - (NSString *)subject
 {
-	return self.gtCommit.messageSummary;
+	return self.commitData.messageSummary;
 }
 
 - (NSString *)author
 {
-	NSString *result = self.gtCommit.author.name;
-	return result;
+	return self.commitData.authorName;
 }
 
 - (NSString *)committer
 {
-	GTSignature *sig = self.gtCommit.committer;
-	return sig.name;
+	return self.commitData.committerName;
 }
 
 
-- (GTOID *)sha
+- (PBCommitID *)sha
 {
-	GTOID *result = _sha;
+	PBCommitID *result = _sha;
 	if (result) {
 		return result;
 	}
-    result = self.gtCommit.OID;
+    result = [PBCommitID commitIDWithSHA:self.commitData.sha];
 	_sha = result;
 	return result;
 }
 
 - (NSString *)realSha
 {
-	return self.gtCommit.SHA;
+	return self.commitData.sha;
 }
 
 - (BOOL) isOnSameBranchAs:(PBGitCommit *)otherCommit
@@ -282,7 +267,7 @@ NSString * const kGitXCommitType = @"commit";
 
 - (NSString *) shortName
 {
-	return self.gtCommit.shortSHA;
+	return self.commitData.shortSHA;
 }
 
 - (NSString *) refishType

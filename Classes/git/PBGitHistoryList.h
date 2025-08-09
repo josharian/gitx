@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-#import "GTOID+JavaScript.h" // Import GTOID definition
+#import "PBCommitID.h" // Import GTOID definition
 
 @class PBGitRepository;
 @class PBGitRevSpecifier;
@@ -23,7 +23,7 @@
 	PBGitRevList *projectRevList;
 	PBGitRevList *currentRevList;
 
-	GTOID *lastSHA;
+	PBCommitID *lastSHA;
 	NSSet *lastRefSHAs;
 	NSInteger lastBranchFilter;
 	PBGitRef *lastRemoteRef;

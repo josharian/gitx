@@ -11,6 +11,7 @@
 // #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
+#import "PBCommitID.h"
 
 @implementation PBWebHistoryController
 
@@ -103,14 +104,14 @@
 
 - (void)selectCommit:(NSString *)sha
 {
-	// Validate SHA using git rev-parse before creating GTOID
+	// Validate SHA using git rev-parse before creating PBCommitID
 	NSError *error = nil;
 	NSString *validatedSHA = [historyController.repository executeGitCommand:@[@"rev-parse", @"--verify", [NSString stringWithFormat:@"%@^{commit}", sha]] error:&error];
 	
 	if (!error && validatedSHA) {
 		validatedSHA = [validatedSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		
-		GTOID *oid = [GTOID oidWithSHA:validatedSHA];
+		PBCommitID *oid = [PBCommitID commitIDWithSHA:validatedSHA];
 		[historyController selectCommit: oid];
 	} else {
 		if (error) {
@@ -119,7 +120,7 @@
 			NSLog(@"Invalid commit SHA: %@", sha);
 		}
 		// Fallback to original behavior for compatibility
-		GTOID *oid = [GTOID oidWithSHA:sha];
+		PBCommitID *oid = [PBCommitID commitIDWithSHA:sha];
 		[historyController selectCommit: oid];
 	}
 }

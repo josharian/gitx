@@ -14,12 +14,12 @@
 #import "PBGitCommit.h"
 #import "PBGitLane.h"
 #import "PBGitGraphLine.h"
-#import "GTObjectiveGitStubs.h"
+#import "PBCommitID.h"
 
 #import <vector>
 // #import <git2/oid.h>
 #include <algorithm>
-// #import <ObjectiveGit/GTOID.h>
+// #import <ObjectiveGit/PBCommitID.h>
 
 using namespace std;
 typedef std::vector<PBGitLane *> LaneCollection;
@@ -65,7 +65,7 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 	// Debug: check what's actually in the parents array
 	for (NSUInteger idx = 0; idx < nParents; idx++) {
 		id parentObj = [parents objectAtIndex:idx];
-		if (![parentObj isKindOfClass:[GTCommit class]]) {
+		if (![parentObj isKindOfClass:[PBCommitID class]]) {
 		}
 	}
 
@@ -122,11 +122,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			id parentObj = [parents objectAtIndex:0];
 			const git_oid *parentOID = NULL;
 			
-			if ([parentObj isKindOfClass:[GTCommit class]]) {
-				GTCommit *parentCommit = (GTCommit *)parentObj;
-				parentOID = [parentCommit.OID git_oid];
-			} else if ([parentObj isKindOfClass:[GTOID class]]) {
-				GTOID *oid = (GTOID *)parentObj;
+			if ([parentObj isKindOfClass:[PBCommitID class]]) {
+				PBCommitID *oid = (PBCommitID *)parentObj;
 				parentOID = [oid git_oid];
 			} else {
 				delete currentLanes;
@@ -154,11 +151,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 			id parentObj = [parents objectAtIndex:parentIndex];
 			const git_oid *parentOID = NULL;
 			
-			if ([parentObj isKindOfClass:[GTCommit class]]) {
-				GTCommit *parentCommit = (GTCommit *)parentObj;
-				parentOID = [parentCommit.OID git_oid];
-			} else if ([parentObj isKindOfClass:[GTOID class]]) {
-				GTOID *oid = (GTOID *)parentObj;
+			if ([parentObj isKindOfClass:[PBCommitID class]]) {
+				PBCommitID *oid = (PBCommitID *)parentObj;
 				parentOID = [oid git_oid];
 			} else {
 				continue; // Skip this parent
@@ -214,11 +208,8 @@ void add_line(struct PBGitGraphLine *lines, int *nLines, int upper, int from, in
 				id parentObj = [parents objectAtIndex:0];
 				const git_oid *parentOID = NULL;
 				
-				if ([parentObj isKindOfClass:[GTCommit class]]) {
-					GTCommit *parentCommit = (GTCommit *)parentObj;
-					parentOID = [parentCommit.OID git_oid];
-				} else if ([parentObj isKindOfClass:[GTOID class]]) {
-					GTOID *oid = (GTOID *)parentObj;
+				if ([parentObj isKindOfClass:[PBCommitID class]]) {
+					PBCommitID *oid = (PBCommitID *)parentObj;
 					parentOID = [oid git_oid];
 				} else {
 					parentOID = NULL;

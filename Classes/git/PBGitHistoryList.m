@@ -179,7 +179,7 @@
 	NSMutableSet *baseCommitSHAs = [NSMutableSet set];
 	NSDictionary *refs = repository.refs;
 
-	for (GTOID *sha in refs)
+	for (PBCommitID *sha in refs)
 		for (PBGitRef *ref in [refs objectForKey:sha])
 			if ([ref isBranch] || [ref isTag])
 				[baseCommitSHAs addObject:sha];
@@ -198,7 +198,7 @@
 
 	PBGitRef *remoteRef = [[repository.currentBranch ref] remoteRef];
 
-	for (GTOID *sha in refs)
+	for (PBCommitID *sha in refs)
 		for (PBGitRef *ref in [refs objectForKey:sha])
 			if ([remoteRef isEqualToRef:[ref remoteRef]])
 				[baseCommitSHAs addObject:sha];
@@ -214,7 +214,7 @@
 			return [NSMutableSet setWithObject:lastSHA];
 		else if ([repository.currentBranch isSimpleRef]) {
 			PBGitRef *currentRef = [repository.currentBranch ref];
-			GTOID *sha = [repository shaForRef:currentRef];
+			PBCommitID *sha = [repository shaForRef:currentRef];
 			if (sha)
 				return [NSMutableSet setWithObject:sha];
 		}
@@ -284,7 +284,7 @@
 		return NO;
 	}
 
-	GTOID *revSHA = [repository shaForRef:[rev ref]];
+	PBCommitID *revSHA = [repository shaForRef:[rev ref]];
 	if ([revSHA isEqual:lastSHA] && (lastBranchFilter == repository.currentBranchFilter))
 		return NO;
 

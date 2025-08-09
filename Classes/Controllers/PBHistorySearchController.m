@@ -16,6 +16,7 @@
 #import "PBEasyPipe.h"
 #import "PBGitBinary.h"
 #import "PBGitCommit.h"
+#import "PBCommitID.h"
 
 @interface PBHistorySearchController ()
 
@@ -445,7 +446,7 @@
 
 	NSMutableSet *matches = [NSMutableSet new];
 	for (NSString *resultSHA in resultsArray) {
-		GTOID *resultOID = [GTOID oidWithSHA:resultSHA];
+		PBCommitID *resultOID = [PBCommitID commitIDWithSHA:resultSHA];
 		if (resultOID) {
 			[matches addObject:resultOID];
 		}

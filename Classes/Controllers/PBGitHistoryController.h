@@ -18,7 +18,7 @@
 @class PBGitGradientBarView;
 @class PBRefController;
 @class PBCommitList;
-@class GTOID;
+@class PBCommitID;
 @class PBHistorySearchController;
 
 @interface PBGitHistoryController : PBViewController {
@@ -49,7 +49,7 @@
 @property (readonly) PBHistorySearchController *searchController;
 @property (readonly) PBCommitList *commitList;
 
-- (void)selectCommit:(GTOID *)commit;
+- (void)selectCommit:(PBCommitID *)commit;
 - (IBAction) refresh:(id)sender;
 
 // Repository Methods

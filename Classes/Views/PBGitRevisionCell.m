@@ -105,10 +105,10 @@ const BOOL SHUFFLE_COLORS = NO;
 
 - (BOOL) isCurrentCommit
 {
-	GTOID *thisSha = [self.objectValue sha];
+	PBCommitID *thisSha = [self.objectValue sha];
 
 	PBGitRepository* repository = [self.objectValue repository];
-	GTOID *currentSha = [repository headSHA];
+	PBCommitID *currentSha = [repository headSHA];
 
 	return [currentSha isEqual:thisSha];
 }

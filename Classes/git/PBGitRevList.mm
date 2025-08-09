@@ -11,7 +11,7 @@
 #import "PBGitCommit.h"
 #import "PBGitGrapher.h"
 #import "PBGitRevSpecifier.h"
-#import "GTObjectiveGitStubs.h"
+#import "PBCommitData.h"
 
 
 // #import <ObjectiveGit/ObjectiveGit.h>
@@ -114,54 +114,23 @@ using namespace std;
 {
 	PBGitRepository *pbRepo = self.repository;
 	
-	NSError *error = nil;
-	GTEnumerator *enu = [[GTEnumerator alloc] initWithRepository:pbRepo error:&error];
-	
-	[self setupEnumerator:enu forRevspec:rev inRepository:pbRepo];
-	
-	[self addCommitsFromEnumerator:enu inPBRepo:pbRepo];
-}
-
-- (void) addGitObject:(GTObject *)obj toCommitSet:(NSMutableSet *)set
-{
-	GTCommit *commit = nil;
-	if ([obj isKindOfClass:[GTCommit class]]) {
-		commit = (GTCommit *)obj;
-	} else {
-		// Inline the objectByPeelingToType logic - just create a new GTCommit
-		commit = [[GTCommit alloc] init];
-	}
-
-	NSAssert(commit, @"Can't add nil commit to set");
-
-	for (GTCommit *item in set) {
-		if ([item.OID isEqual:commit.OID]) {
-			return;
-		}
-	}
-
-	[set addObject:commit];
-}
-
-
-- (void) setupEnumerator:(GTEnumerator*)enumerator
-			  forRevspec:(PBGitRevSpecifier*)rev
-		     inRepository:(PBGitRepository*)pbRepo
-{
-	[enumerator resetWithOptions:GTEnumeratorOptionsTopologicalSort];
+	NSMutableArray *revListArgs = [NSMutableArray arrayWithObjects:@"rev-list", @"--pretty=format:%H%x00%s%x00%B%x00%an%x00%cn%x00%ct%x00%P%x00", @"--topo-order", nil];
 	
 	if (rev.isSimpleRef) {
-		// Simple ref - just push it directly to rev-list
-		[enumerator pushSHA:rev.simpleRef error:nil];
+		[revListArgs addObject:rev.simpleRef];
 	} else {
-		// Complex revspec - pass all parameters to git rev-list
 		for (NSString *param in rev.parameters) {
-			[enumerator pushSHA:param error:nil];
+			[revListArgs addObject:param];
 		}
 	}
+	
+	[self addCommitsFromRevListArgs:revListArgs inPBRepo:pbRepo];
 }
 
-- (void) addCommitsFromEnumerator:(GTEnumerator *)enumerator
+
+
+
+- (void) addCommitsFromRevListArgs:(NSMutableArray *)revListArgs
 						 inPBRepo:(PBGitRepository*)pbRepo;
 {
 	PBGitGrapher *g = [[PBGitGrapher alloc] initWithRepository:pbRepo];
@@ -172,59 +141,125 @@ using namespace std;
 	dispatch_group_t loadGroup = dispatch_group_create();
 	dispatch_group_t decorateGroup = dispatch_group_create();
 	
-	BOOL enumSuccess = FALSE;
-	GTCommit *commit = nil;
 	__block int num = 0;
 	__block NSMutableArray *revisions = [NSMutableArray array];
-	NSError *enumError = nil;
 	
-	while ((commit = [enumerator nextObjectWithSuccess:&enumSuccess error:&enumError]) && enumSuccess) {
-		//GTOID *oid = [[GTOID alloc] initWithSHA:commit.sha];
+	// Execute git rev-list and parse output
+	NSError *error = nil;
+	NSString *output = [pbRepo executeGitCommand:revListArgs inWorkingDir:YES error:&error];
+	
+	if (error) {
+		NSLog(@"Git rev-list command failed with error: %@", error.localizedDescription);
+		return;
+	}
+	
+	if (!output || [output length] == 0) {
+		[self finishedParsing];
+		return;
+	}
+	
+	// Parse the output into commits
+	NSArray *commits = [output componentsSeparatedByString:@"\ncommit "];
+	
+	for (NSString *commitBlock in commits) {
+		if ([commitBlock length] == 0) continue;
+		if ([[NSThread currentThread] isCancelled]) break;
 		
-		dispatch_group_async(loadGroup, loadQueue, ^{
+		// Handle the first commit which might not have the \ncommit prefix
+		NSString *block = commitBlock;
+		if ([block hasPrefix:@"commit "]) {
+			block = [block substringFromIndex:7];
+		}
+		
+		// Find the first newline - skip the commit SHA line, get the NUL-separated data
+		NSRange firstNewline = [block rangeOfString:@"\n"];
+		if (firstNewline.location == NSNotFound) {
+			continue;
+		}
+		
+		NSString *dataSection = [block substringFromIndex:firstNewline.location + 1];
+		
+		// Split the data section by NUL characters
+		NSArray *fields = [dataSection componentsSeparatedByString:@"\0"];
+		
+		if ([fields count] >= 7) {
+			// Parse according to git format: %H%x00%s%x00%B%x00%an%x00%cn%x00%ct%x00%P%x00
+			NSString *shaString = fields[0];
+			NSString *messageSummary = fields[1];
+			NSString *message = fields[2];
+			NSString *authorName = fields[3];
+			NSString *committerName = fields[4];
+			NSString *timestampString = fields[5];
+			NSString *parentSHAsString = fields[6];
 			
-			PBGitCommit *newCommit = nil;
-			PBGitCommit *cachedCommit = [self.commitCache objectForKey:commit.SHA];
-			if (cachedCommit) {
-				newCommit = cachedCommit;
-			} else {
-				@try {
-					newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andGTCommit:commit];
-					[self.commitCache setObject:newCommit forKey:commit.SHA];
-				} @catch (NSException *exception) {
-					return;
-				}
-			}
-			
-			[revisions addObject:newCommit];
-			
-			if (self.isGraphing) {
-				dispatch_group_async(decorateGroup, decorateQueue, ^{
-					if (num % 50 == 0) {
-					}
-					@try {
-						[g decorateCommit:newCommit];
-						if (num % 50 == 0) {
+			if ([shaString length] >= 40) {
+				PBCommitData *commitData = [[PBCommitData alloc] init];
+				commitData.sha = shaString;
+				commitData.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
+				commitData.messageSummary = messageSummary;
+				commitData.message = message;
+				commitData.authorName = authorName;
+				commitData.committerName = committerName;
+				
+				NSTimeInterval timestamp = [timestampString doubleValue];
+				commitData.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
+				
+				// Parse parent commit SHAs
+				NSMutableArray *parentSHAs = [NSMutableArray array];
+				if ([parentSHAsString length] > 0) {
+					NSArray *parentSHAsList = [parentSHAsString componentsSeparatedByString:@" "];
+					for (NSString *parentSHA in parentSHAsList) {
+						NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if ([trimmedSHA length] >= 40) {
+							[parentSHAs addObject:trimmedSHA];
 						}
-					} @catch (NSException *exception) {
-						@throw exception;
+					}
+				}
+				commitData.parentSHAs = parentSHAs;
+				
+				dispatch_group_async(loadGroup, loadQueue, ^{
+					PBGitCommit *newCommit = nil;
+					PBGitCommit *cachedCommit = [self.commitCache objectForKey:commitData.sha];
+					if (cachedCommit) {
+						newCommit = cachedCommit;
+					} else {
+						@try {
+							newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andCommitData:commitData];
+							[self.commitCache setObject:newCommit forKey:commitData.sha];
+						} @catch (NSException *exception) {
+							return;
+						}
+					}
+					
+					[revisions addObject:newCommit];
+					
+					if (self.isGraphing) {
+						dispatch_group_async(decorateGroup, decorateQueue, ^{
+							if (num % 50 == 0) {
+							}
+							@try {
+								[g decorateCommit:newCommit];
+								if (num % 50 == 0) {
+								}
+							} @catch (NSException *exception) {
+								@throw exception;
+							}
+						});
+					}
+					
+					if (++num % 100 == 0) {
+						if ([[NSDate date] timeIntervalSinceDate:lastUpdate] > 0.5 && ![[NSThread currentThread] isCancelled]) {
+							dispatch_group_wait(decorateGroup, DISPATCH_TIME_FOREVER);
+							NSDictionary *update = [NSDictionary dictionaryWithObjectsAndKeys:revisions, kRevListRevisionsKey, nil];
+							[self performSelectorOnMainThread:@selector(updateCommits:) withObject:update waitUntilDone:NO];
+							revisions = [NSMutableArray array];
+							lastUpdate = [NSDate date];
+						}
 					}
 				});
 			}
-			
-			if (++num % 100 == 0) {
-				if ([[NSDate date] timeIntervalSinceDate:lastUpdate] > 0.5 && ![[NSThread currentThread] isCancelled]) {
-					dispatch_group_wait(decorateGroup, DISPATCH_TIME_FOREVER);
-					NSDictionary *update = [NSDictionary dictionaryWithObjectsAndKeys:revisions, kRevListRevisionsKey, nil];
-					[self performSelectorOnMainThread:@selector(updateCommits:) withObject:update waitUntilDone:NO];
-					revisions = [NSMutableArray array];
-					lastUpdate = [NSDate date];
-				}
-			}
-		});
+		}
 	}
-
-	NSAssert(!enumError, @"Error enumerating commits");
 	
 	dispatch_group_wait(loadGroup, DISPATCH_TIME_FOREVER);
 	

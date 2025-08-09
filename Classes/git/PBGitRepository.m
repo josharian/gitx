@@ -10,7 +10,7 @@
 #import "PBGitCommit.h"
 #import "PBGitWindowController.h"
 #import "PBGitBinary.h"
-#import "GTObjectiveGitStubs.h"
+#import "PBCommitID.h"
 
 #import "NSFileHandleExt.h"
 #import "PBEasyPipe.h"
@@ -29,7 +29,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 @interface PBGitRepository ()
 {
-	NSMutableDictionary *refToSHAMapping; // Maps ref strings to GTOID objects
+	NSMutableDictionary *refToSHAMapping; // Maps ref strings to PBCommitID objects
 }
 
 @end
@@ -108,7 +108,6 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
     
     BOOL isValidRepo = (exitCode == 0);
     
-    _gtRepo = [[GTRepository alloc] init];
 	if (!isValidRepo) {
 		if (outError) {
 			NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -335,7 +334,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 						
 						// Add ref to commit SHA mapping for branch tags
 						if (commitSHA && [commitSHA length] >= 40) { // Ensure valid SHA
-							GTOID *sha = [GTOID oidWithSHA:commitSHA];
+							PBCommitID *sha = [PBCommitID commitIDWithSHA:commitSHA];
 							if (sha) {
 								NSMutableArray *refsForCommit = self->refs[sha];
 								if (!refsForCommit) {
@@ -392,7 +391,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return _headRef;
 }
 
-- (GTOID *)headSHA
+- (PBCommitID *)headSHA
 {
 	if (! _headSha)
 		[self headRef];
@@ -405,19 +404,19 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return [self commitForSHA:[self headSHA]];
 }
 
-- (GTOID *)shaForRef:(PBGitRef *)ref
+- (PBCommitID *)shaForRef:(PBGitRef *)ref
 {
 	if (!ref)
 		return nil;
 	
 	// First try the efficient mapping from reloadRefs
-	GTOID *sha = refToSHAMapping[ref.ref];
+	PBCommitID *sha = refToSHAMapping[ref.ref];
 	if (sha) {
 		return sha;
 	}
 	
 	// Fallback: search through the refs dictionary (less efficient but handles edge cases)
-	for (GTOID *existingSha in refs)
+	for (PBCommitID *existingSha in refs)
 	{
 		NSMutableArray *refsForSha = [refs objectForKey:existingSha];
 		for (PBGitRef *existingRef in refsForSha)
@@ -437,7 +436,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		shaString = [shaString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		
 		if (shaString.length > 0) {
-			GTOID *fallbackSha = [GTOID oidWithSHA:shaString];
+			PBCommitID *fallbackSha = [PBCommitID commitIDWithSHA:shaString];
 			// Cache it for future lookups
 			if (fallbackSha) {
 				refToSHAMapping[ref.ref] = fallbackSha;
@@ -459,7 +458,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return [self commitForSHA:[self shaForRef:ref]];
 }
 
-- (PBGitCommit *)commitForSHA:(GTOID *)sha
+- (PBGitCommit *)commitForSHA:(PBCommitID *)sha
 {
 	if (!sha)
 		return nil;
@@ -476,7 +475,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return nil;
 }
 
-- (BOOL)isOnSameBranch:(GTOID *)branchSHA asSHA:(GTOID *)testSHA
+- (BOOL)isOnSameBranch:(PBCommitID *)branchSHA asSHA:(PBCommitID *)testSHA
 {
 	if (!branchSHA || !testSHA)
 		return NO;
@@ -489,7 +488,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	NSMutableSet *searchSHAs = [NSMutableSet setWithObject:branchSHA];
 
 	for (PBGitCommit *commit in revList) {
-		GTOID *commitSHA = [commit sha];
+		PBCommitID *commitSHA = [commit sha];
 		if ([searchSHAs containsObject:commitSHA]) {
 			if ([testSHA isEqual:commitSHA])
 				return YES;
@@ -503,12 +502,12 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return NO;
 }
 
-- (BOOL)isSHAOnHeadBranch:(GTOID *)testSHA
+- (BOOL)isSHAOnHeadBranch:(PBCommitID *)testSHA
 {
 	if (!testSHA)
 		return NO;
 
-	GTOID *headSHA = [self headSHA];
+	PBCommitID *headSHA = [self headSHA];
 
 	if ([testSHA isEqual:headSHA])
 		return YES;

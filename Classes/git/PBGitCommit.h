@@ -8,13 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 #import "PBGitRefish.h" // for @protocol PBGitRefish
-#import "GTOID+JavaScript.h" // for GTOID stub
+#import "PBCommitID.h"
 
 @class PBGitRepository;
 @class PBGitTree;
 @class PBGitRef;
 @class PBGraphCellInfo;
-@class GTCommit;
+@class PBCommitData;
 
 extern NSString * const kGitXCommitType;
 
@@ -23,7 +23,7 @@ extern NSString * const kGitXCommitType;
 
 @property (nonatomic, weak, readonly) PBGitRepository* repository;
 
-@property (nonatomic, strong, readonly) GTOID *sha;
+@property (nonatomic, strong, readonly) PBCommitID *sha;
 
 @property (nonatomic, strong, readonly) NSDate *date;
 @property (nonatomic, strong, readonly) NSString *subject;
@@ -44,7 +44,7 @@ extern NSString * const kGitXCommitType;
 
 
 - (id)initWithRepository:(PBGitRepository *)repo andSHA:(NSString *)sha;
-- (id)initWithRepository:(PBGitRepository *)repo andGTCommit:(GTCommit *)gtCommit;
+- (id)initWithRepository:(PBGitRepository *)repo andCommitData:(PBCommitData *)commitData;
 
 - (void) addRef:(PBGitRef *)ref;
 - (void) removeRef:(id)ref;
