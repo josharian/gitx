@@ -114,7 +114,9 @@ using namespace std;
 {
 	PBGitRepository *pbRepo = self.repository;
 	
-	NSMutableArray *revListArgs = [NSMutableArray arrayWithObjects:@"rev-list", @"--pretty=format:%H%x00%s%x00%B%x00%an%x00%cn%x00%ct%x00%P%x00", @"--topo-order", nil];
+	// Use a unique delimiter that won't appear in commit messages
+	// Using multiple unusual bytes: \x01GITX_COMMIT_DELIMITER\x02
+	NSMutableArray *revListArgs = [NSMutableArray arrayWithObjects:@"rev-list", @"--pretty=format:\x01GITX_COMMIT_DELIMITER\x02%H%x00%s%x00%B%x00%an%x00%cn%x00%ct%x00%P%x00", @"--topo-order", nil];
 	
 	if (rev.isSimpleRef) {
 		[revListArgs addObject:rev.simpleRef];
@@ -158,26 +160,28 @@ using namespace std;
 		return;
 	}
 	
-	// Parse the output into commits
-	NSArray *commits = [output componentsSeparatedByString:@"\ncommit "];
+	// Parse the output into commits using our unique delimiter
+	NSArray *commits = [output componentsSeparatedByString:@"\n\x01GITX_COMMIT_DELIMITER\x02"];
 	
 	for (NSString *commitBlock in commits) {
 		if ([commitBlock length] == 0) continue;
 		if ([[NSThread currentThread] isCancelled]) break;
 		
-		// Handle the first commit which might not have the \ncommit prefix
 		NSString *block = commitBlock;
+		
+		// Handle the first commit which starts with "commit SHA\n"
 		if ([block hasPrefix:@"commit "]) {
-			block = [block substringFromIndex:7];
+			// Skip the "commit SHA\n" line
+			NSRange firstNewline = [block rangeOfString:@"\n"];
+			if (firstNewline.location == NSNotFound) continue;
+			block = [block substringFromIndex:firstNewline.location + 1];
+			// Also skip our delimiter if it's at the start
+			if ([block hasPrefix:@"\x01GITX_COMMIT_DELIMITER\x02"]) {
+				block = [block substringFromIndex:[@"\x01GITX_COMMIT_DELIMITER\x02" length]];
+			}
 		}
 		
-		// Find the first newline - skip the commit SHA line, get the NUL-separated data
-		NSRange firstNewline = [block rangeOfString:@"\n"];
-		if (firstNewline.location == NSNotFound) {
-			continue;
-		}
-		
-		NSString *dataSection = [block substringFromIndex:firstNewline.location + 1];
+		NSString *dataSection = block;
 		
 		// Split the data section by NUL characters
 		NSArray *fields = [dataSection componentsSeparatedByString:@"\0"];
