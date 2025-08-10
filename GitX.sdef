@@ -155,35 +155,4 @@
 
 	</suite>
 
-	<suite name="GitX Suite" code="GitX" description="Classes for GitX.">
-
-		<command name="init repository" code="GitXInit" description="Create a git repository at the given filesystem URL.">
-			<direct-parameter type="file" description="The filesystem location where the repository should be created."/>
-		</command>
-
-		<command name="search" code="GitXSrch" description="Highlight commits that match the given search string.">
-			<direct-parameter type="specifier" description="The repository document to search."/>
-			<parameter name="string" code="SRCH" type="text" optional="yes" description="The string to search for.">
-				<cocoa key="searchString"/>
-			</parameter>
-			<parameter name="in mode" code="Mode" type="integer" optional="yes" description="The type of search (defalts to basic [Subject, Author, SHA]).">
-				<cocoa key="inMode"/>
-			</parameter>
-		</command>
-
-		<class-extension extends="application" description="The GitX application.">
-			<responds-to name="init repository">
-				<cocoa method="initRepositoryScriptCommand:"/>
-			</responds-to>
-		</class-extension>
-
-		<class-extension extends="document" code="docu" description="A document.">
-			<cocoa class="PBGitRepository"/>
-			<responds-to name="search">
-				<cocoa method="findInModeScriptCommand:"/>
-			</responds-to>
-		</class-extension>
-
-	</suite>
-
 </dictionary>

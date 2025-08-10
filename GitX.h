@@ -14,7 +14,6 @@
 - (void) delete;  // Delete an object.
 - (void) duplicateTo:(SBObject *)to withProperties:(NSDictionary *)withProperties;  // Copy an object.
 - (void) moveTo:(SBObject *)to;  // Move an object to a new location.
-- (void) searchString:(NSString *)string inMode:(NSInteger)inMode;  // Highlight commits that match the given search string.
 
 @end
 
@@ -37,7 +36,6 @@
 - (void) open:(NSArray<NSURL *> *)x;  // Open a document.
 - (void) quit;  // Quit the application.
 - (BOOL) exists:(id)x;  // Verify that an object exists.
-- (void) initRepository:(NSURL *)x NS_RETURNS_NOT_RETAINED;  // Create a git repository at the given filesystem URL.
 
 @end
 
@@ -66,22 +64,6 @@
 @property BOOL zoomed;  // Is the window zoomed right now?
 @property (copy, readonly) GitXDocument *document;  // The document whose contents are displayed in the window.
 
-
-@end
-
-
-
-/*
- * GitX Suite
- */
-
-// The GitX application.
-@interface GitXApplication (GitXSuite)
-
-@end
-
-// A document.
-@interface GitXDocument (GitXSuite)
 
 @end
 

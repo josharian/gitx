@@ -7,7 +7,3 @@
 //
 
 #define kGitXBundleIdentifier @"xyz.commaok.GitX"
-
-
-#define kGitXFindSearchStringKey @"searchString"
-#define kGitXFindInModeKey @"inMode"

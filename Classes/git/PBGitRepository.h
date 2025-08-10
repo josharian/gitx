@@ -129,7 +129,5 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 - (void) forceUpdateRevisions;
 - (NSURL*) getIndexURL;
 
-// for the scripting bridge
-- (void)findInModeScriptCommand:(NSScriptCommand *)command;
 
 @end
