@@ -20,7 +20,7 @@
 @class PBCommitList;
 @class PBHistorySearchController;
 
-@interface PBGitHistoryController : PBViewController {
+@interface PBGitHistoryController : PBViewController <NSTableViewDelegate, NSTableViewDataSource> {
 	IBOutlet PBRefController *refController;
 	IBOutlet NSSearchField *searchField;
 	IBOutlet NSArrayController* commitController;

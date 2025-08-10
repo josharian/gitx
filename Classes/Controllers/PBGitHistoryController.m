@@ -16,7 +16,10 @@
 #import "PBWebHistoryController.h"
 #import "PBGitGrapher.h"
 #import "PBGitRevisionCell.h"
+#import "PBGitRevisionCellView.h"
+#import "PBGitTableCellView.h"
 #import "PBCommitList.h"
+#import "PBRefController.h"
 #import "PBCreateBranchSheet.h"
 #import "PBCreateTagSheet.h"
 #import "PBGitSidebarController.h"
@@ -53,6 +56,17 @@
 	NSSize cellSpacing = [commitList intercellSpacing];
 	cellSpacing.height = 0;
 	[commitList setIntercellSpacing:cellSpacing];
+	
+	// Remove bindings from columns to force view-based approach
+	for (NSTableColumn *column in [commitList tableColumns]) {
+		[column unbind:NSValueBinding];
+		[[column dataCell] unbind:NSValueBinding];
+	}
+	
+	// Set up for view-based table view
+	[commitList setDelegate:self];
+	[commitList setDataSource:self];
+	[commitList reloadData];
 
 	if (!repository.currentBranch) {
 		[repository reloadRefs];
@@ -139,6 +153,8 @@
 	NSString* strContext = (__bridge NSString*)context;
     if ([strContext isEqualToString: @"commitChange"]) {
 		[self updateKeys];
+		// Reload table view when selection changes
+		[commitList reloadData];
 		return;
 	}
 
@@ -156,6 +172,8 @@
 
 	if([strContext isEqualToString:@"updateCommitCount"] || [(__bridge NSString *)context isEqualToString:@"revisionListUpdating"]) {
 		[self updateStatus];
+		// Reload table view when commits change
+		[commitList reloadData];
 
 		if ([repository.currentBranch isSimpleRef])
 			[self selectCommit:[repository shaForRef:[repository.currentBranch ref]]];
@@ -460,6 +478,182 @@
 {
 	if (selectedCommit)
 		[repository rebaseBranch:nil onRefish:selectedCommit];
+}
+
+#pragma mark - NSTableViewDelegate (View-Based)
+
+- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+{
+	if (tableView != commitList)
+		return nil;
+	
+	NSArray *commits = [commitController arrangedObjects];
+	if (row >= [commits count])
+		return nil;
+	
+	PBGitCommit *commit = [commits objectAtIndex:row];
+	
+	NSString *identifier = [tableColumn identifier];
+	
+	if ([identifier isEqualToString:@"SubjectColumn"]) {
+		PBGitRevisionCellView *cellView = [tableView makeViewWithIdentifier:@"SubjectCell" owner:self];
+		if (!cellView) {
+			cellView = [[PBGitRevisionCellView alloc] initWithFrame:NSMakeRect(0, 0, 100, 17)];
+			cellView.identifier = @"SubjectCell";
+			cellView.graphView.controller = self;
+			cellView.graphView.contextMenuDelegate = refController;
+		}
+		
+		PBGraphCellInfo *cellInfo = [commit lineInfo];
+		[cellView configureForCommit:commit withCellInfo:cellInfo];
+		
+		return cellView;
+	}
+	else if ([identifier isEqualToString:@"AuthorColumn"]) {
+		PBGitTableCellView *cellView = [tableView makeViewWithIdentifier:@"AuthorCell" owner:self];
+		if (!cellView) {
+			cellView = [[PBGitTableCellView alloc] initWithFrame:NSMakeRect(0, 0, 100, 17)];
+			cellView.identifier = @"AuthorCell";
+			
+			NSTextField *textField = [NSTextField labelWithString:@""];
+			textField.translatesAutoresizingMaskIntoConstraints = NO;
+			textField.font = [NSFont systemFontOfSize:12];
+			textField.lineBreakMode = NSLineBreakByTruncatingTail;
+			[cellView addSubview:textField];
+			cellView.textField = textField;
+			
+			[NSLayoutConstraint activateConstraints:@[
+				[textField.leadingAnchor constraintEqualToAnchor:cellView.leadingAnchor constant:4],
+				[textField.trailingAnchor constraintEqualToAnchor:cellView.trailingAnchor constant:-4],
+				[textField.centerYAnchor constraintEqualToAnchor:cellView.centerYAnchor]
+			]];
+		}
+		cellView.textField.stringValue = [commit author] ?: @"";
+		// Text color will be handled by the table view's background style
+		return cellView;
+	}
+	else if ([identifier isEqualToString:@"DateColumn"]) {
+		PBGitTableCellView *cellView = [tableView makeViewWithIdentifier:@"DateCell" owner:self];
+		if (!cellView) {
+			cellView = [[PBGitTableCellView alloc] initWithFrame:NSMakeRect(0, 0, 100, 17)];
+			cellView.identifier = @"DateCell";
+			
+			NSTextField *textField = [NSTextField labelWithString:@""];
+			textField.translatesAutoresizingMaskIntoConstraints = NO;
+			textField.font = [NSFont systemFontOfSize:12];
+			textField.lineBreakMode = NSLineBreakByTruncatingTail;
+			[cellView addSubview:textField];
+			cellView.textField = textField;
+			
+			[NSLayoutConstraint activateConstraints:@[
+				[textField.leadingAnchor constraintEqualToAnchor:cellView.leadingAnchor constant:4],
+				[textField.trailingAnchor constraintEqualToAnchor:cellView.trailingAnchor constant:-4],
+				[textField.centerYAnchor constraintEqualToAnchor:cellView.centerYAnchor]
+			]];
+		}
+		
+		static NSDateFormatter *dateFormatter = nil;
+		if (!dateFormatter) {
+			dateFormatter = [[NSDateFormatter alloc] init];
+			[dateFormatter setDateStyle:NSDateFormatterShortStyle];
+			[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+		}
+		
+		cellView.textField.stringValue = [dateFormatter stringFromDate:[commit date]] ?: @"";
+		// Text color will be handled by the table view's background style
+		return cellView;
+	}
+	else if ([identifier isEqualToString:@"ShortSHAColumn"]) {
+		PBGitTableCellView *cellView = [tableView makeViewWithIdentifier:@"ShortSHACell" owner:self];
+		if (!cellView) {
+			cellView = [[PBGitTableCellView alloc] initWithFrame:NSMakeRect(0, 0, 100, 17)];
+			cellView.identifier = @"ShortSHACell";
+			
+			NSTextField *textField = [NSTextField labelWithString:@""];
+			textField.translatesAutoresizingMaskIntoConstraints = NO;
+			textField.font = [NSFont userFixedPitchFontOfSize:11];
+			textField.lineBreakMode = NSLineBreakByTruncatingTail;
+			[cellView addSubview:textField];
+			cellView.textField = textField;
+			
+			[NSLayoutConstraint activateConstraints:@[
+				[textField.leadingAnchor constraintEqualToAnchor:cellView.leadingAnchor constant:4],
+				[textField.trailingAnchor constraintEqualToAnchor:cellView.trailingAnchor constant:-4],
+				[textField.centerYAnchor constraintEqualToAnchor:cellView.centerYAnchor]
+			]];
+		}
+		cellView.textField.stringValue = [commit shortName] ?: @"";
+		// Text color will be handled by the table view's background style
+		return cellView;
+	}
+	else if ([identifier isEqualToString:@"SHAColumn"]) {
+		PBGitTableCellView *cellView = [tableView makeViewWithIdentifier:@"SHACell" owner:self];
+		if (!cellView) {
+			cellView = [[PBGitTableCellView alloc] initWithFrame:NSMakeRect(0, 0, 100, 17)];
+			cellView.identifier = @"SHACell";
+			
+			NSTextField *textField = [NSTextField labelWithString:@""];
+			textField.translatesAutoresizingMaskIntoConstraints = NO;
+			textField.font = [NSFont userFixedPitchFontOfSize:11];
+			textField.lineBreakMode = NSLineBreakByTruncatingTail;
+			[cellView addSubview:textField];
+			cellView.textField = textField;
+			
+			[NSLayoutConstraint activateConstraints:@[
+				[textField.leadingAnchor constraintEqualToAnchor:cellView.leadingAnchor constant:4],
+				[textField.trailingAnchor constraintEqualToAnchor:cellView.trailingAnchor constant:-4],
+				[textField.centerYAnchor constraintEqualToAnchor:cellView.centerYAnchor]
+			]];
+		}
+		cellView.textField.stringValue = [commit realSha] ?: @"";
+		// Text color will be handled by the table view's background style
+		return cellView;
+	}
+	
+	return nil;
+}
+
+- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row
+{
+	if (tableView == commitList)
+		return 17.0;
+	return [tableView rowHeight];
+}
+
+#pragma mark - NSTableViewDataSource
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
+{
+	if (tableView == commitList)
+		return [[commitController arrangedObjects] count];
+	return 0;
+}
+
+#pragma mark - Context Menu
+
+- (NSMenu *)menuForEvent:(NSEvent *)event
+{
+	NSPoint locationInWindow = [event locationInWindow];
+	NSPoint locationInTable = [commitList convertPoint:locationInWindow fromView:nil];
+	NSInteger row = [commitList rowAtPoint:locationInTable];
+	
+	if (row >= 0) {
+		NSArray *commits = [commitController arrangedObjects];
+		if (row < [commits count]) {
+			PBGitCommit *commit = [commits objectAtIndex:row];
+			
+			NSArray *items = [refController menuItemsForCommit:commit];
+			if (items) {
+				NSMenu *menu = [[NSMenu alloc] init];
+				[menu setAutoenablesItems:NO];
+				for (NSMenuItem *item in items)
+					[menu addItem:item];
+				return menu;
+			}
+		}
+	}
+	
+	return nil;
 }
 
 

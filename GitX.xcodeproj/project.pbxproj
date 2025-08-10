@@ -97,6 +97,8 @@
 		4A5D772E14A9A9CC00DF6C68 /* PBFileChangesTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76C914A9A9CC00DF6C68 /* PBFileChangesTableView.m */; };
 		4A5D772F14A9A9CC00DF6C68 /* PBGitGradientBarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.m */; };
 		4A5D773014A9A9CC00DF6C68 /* PBGitRevisionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CD14A9A9CC00DF6C68 /* PBGitRevisionCell.m */; };
+		BB0D6B8DEC50B392017C8841 /* PBGitRevisionCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADF25C42DF67F453152F703 /* PBGitRevisionCellView.m */; };
+		3A453AD042958D1A09B654FD /* PBGitTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B27333E60F67679B05F54E5 /* PBGitTableCellView.m */; };
 		4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CF14A9A9CC00DF6C68 /* PBGitXMessageSheet.m */; };
 		4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */; };
 		4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */; };
@@ -322,6 +324,10 @@
 		4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitGradientBarView.m; sourceTree = "<group>"; };
 		4A5D76CC14A9A9CC00DF6C68 /* PBGitRevisionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevisionCell.h; sourceTree = "<group>"; };
 		4A5D76CD14A9A9CC00DF6C68 /* PBGitRevisionCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PBGitRevisionCell.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		68C5B6464803943E1AB88185 /* PBGitRevisionCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevisionCellView.h; sourceTree = "<group>"; };
+		DADF25C42DF67F453152F703 /* PBGitRevisionCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitRevisionCellView.m; sourceTree = "<group>"; };
+		56E55625D71CC1C7D86362C4 /* PBGitTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitTableCellView.h; sourceTree = "<group>"; };
+		2B27333E60F67679B05F54E5 /* PBGitTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitTableCellView.m; sourceTree = "<group>"; };
 		4A5D76CE14A9A9CC00DF6C68 /* PBGitXMessageSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitXMessageSheet.h; sourceTree = "<group>"; };
 		4A5D76CF14A9A9CC00DF6C68 /* PBGitXMessageSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitXMessageSheet.m; sourceTree = "<group>"; };
 		4A5D76D014A9A9CC00DF6C68 /* PBIconAndTextCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBIconAndTextCell.h; sourceTree = "<group>"; };
@@ -726,6 +732,10 @@
 				4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.m */,
 				4A5D76CC14A9A9CC00DF6C68 /* PBGitRevisionCell.h */,
 				4A5D76CD14A9A9CC00DF6C68 /* PBGitRevisionCell.m */,
+				68C5B6464803943E1AB88185 /* PBGitRevisionCellView.h */,
+				DADF25C42DF67F453152F703 /* PBGitRevisionCellView.m */,
+				56E55625D71CC1C7D86362C4 /* PBGitTableCellView.h */,
+				2B27333E60F67679B05F54E5 /* PBGitTableCellView.m */,
 				4A5D76CE14A9A9CC00DF6C68 /* PBGitXMessageSheet.h */,
 				4A5D76CF14A9A9CC00DF6C68 /* PBGitXMessageSheet.m */,
 				4A5D76D014A9A9CC00DF6C68 /* PBIconAndTextCell.h */,
@@ -980,6 +990,8 @@
 				4A5D772E14A9A9CC00DF6C68 /* PBFileChangesTableView.m in Sources */,
 				4A5D772F14A9A9CC00DF6C68 /* PBGitGradientBarView.m in Sources */,
 				4A5D773014A9A9CC00DF6C68 /* PBGitRevisionCell.m in Sources */,
+				BB0D6B8DEC50B392017C8841 /* PBGitRevisionCellView.m in Sources */,
+				3A453AD042958D1A09B654FD /* PBGitTableCellView.m in Sources */,
 				4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */,
 				4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */,
 				4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */,
