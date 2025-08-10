@@ -12,7 +12,6 @@
 #import "PBGitCommitController.h"
 #import "PBRefController.h"
 #import "PBSourceViewCell.h"
-#import "NSOutlineViewExt.h"
 #import "PBGitDefaults.h"
 #import "PBHistorySearchController.h"
 
@@ -99,7 +98,15 @@
 			NSArray *newRevSpecs = [change objectForKey:NSKeyValueChangeNewKey];
 			for (PBGitRevSpecifier *rev in newRevSpecs) {
 				PBSourceViewItem *item = [self addRevSpec:rev];
-				[sourceView PBExpandItem:item expandParents:YES];
+				// Expand all parent items
+				NSMutableArray *parents = [NSMutableArray array];
+				id parentItem = item;
+				while (parentItem) {
+					[parents insertObject:parentItem atIndex:0];
+					parentItem = [parentItem parent];
+				}
+				for (id p in parents)
+					[sourceView expandItem:p];
 			}
 		}
 		else if (changeKind == NSKeyValueChangeRemoval) {
@@ -140,7 +147,15 @@
     if (item) {
         [sourceView reloadData];
 	
-        [sourceView PBExpandItem:item expandParents:YES];
+        // Expand all parent items
+        NSMutableArray *parents = [NSMutableArray array];
+        id parentItem = item;
+        while (parentItem) {
+            [parents insertObject:parentItem atIndex:0];
+            parentItem = [parentItem parent];
+        }
+        for (id p in parents)
+            [sourceView expandItem:p];
         NSIndexSet *index = [NSIndexSet indexSetWithIndex:(NSUInteger)[sourceView rowForItem:item]];
 	
         [sourceView selectRowIndexes:index byExtendingSelection:NO];
