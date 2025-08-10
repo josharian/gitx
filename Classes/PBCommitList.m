@@ -13,13 +13,7 @@
 
 @implementation PBCommitList
 
-@synthesize mouseDownPoint;
 @synthesize useAdjustScroll;
-
-- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL) local
-{
-	return NSDragOperationCopy;
-}
 
 - (void)keyDown:(NSEvent *)event
 {
@@ -85,40 +79,6 @@
     return newRect;
 }
 
-- (void)mouseDown:(NSEvent *)theEvent
-{
-    mouseDownPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-	[super mouseDown:theEvent];
-}
-
-- (NSImage *)dragImageForRowsWithIndexes:(NSIndexSet *)dragRows
-							tableColumns:(NSArray *)tableColumns
-								   event:(NSEvent *)dragEvent
-								  offset:(NSPointPointer)dragImageOffset
-{
-	NSPoint location = mouseDownPoint;
-	NSInteger row = [self rowAtPoint:location];
-	NSInteger column = [self columnAtPoint:location];
-	PBGitRevisionCell *cell = (PBGitRevisionCell *)[self preparedCellAtColumn:column row:row];
-	NSRect cellFrame = [self frameOfCellAtColumn:column row:row];
-
-	int index = [cell indexAtX:(location.x - cellFrame.origin.x)];
-	if (index == -1)
-		return [super dragImageForRowsWithIndexes:dragRows tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
-
-	NSRect rect = [cell rectAtIndex:index];
-
-	NSImage *newImage = [[NSImage alloc] initWithSize:NSMakeSize(rect.size.width + 3, rect.size.height + 3)];
-	rect.origin = NSMakePoint(0.5, 0.5);
-
-	[newImage lockFocus];
-	[cell drawLabelAtIndex:index inRect:rect];
-	[newImage unlockFocus];
-
-	*dragImageOffset = NSMakePoint(rect.size.width / 2 + 10, 0);
-	return newImage;
-
-}
 
 
 #pragma mark Row highlighting

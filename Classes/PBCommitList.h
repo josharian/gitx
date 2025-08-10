@@ -22,10 +22,8 @@ typedef void(^PBFindPanelActionBlock)(id sender);
 	IBOutlet PBHistorySearchController *searchController;
 
     BOOL useAdjustScroll;
-	NSPoint mouseDownPoint;
 }
 
-@property (readonly) NSPoint mouseDownPoint;
 @property (assign) BOOL useAdjustScroll;
 @property (copy) PBFindPanelActionBlock findPanelActionBlock;
 @end

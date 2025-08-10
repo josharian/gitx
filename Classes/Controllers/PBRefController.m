@@ -15,17 +15,11 @@
 #import "PBDiffWindowController.h"
 #import "PBGitRevSpecifier.h"
 
-#define kDialogAcceptDroppedRef @"Accept Dropped Ref"
 #define kDialogDeleteRef @"Delete Ref"
 
 
 
 @implementation PBRefController
-
-- (void)awakeFromNib
-{
-	[commitList registerForDraggedTypes:[NSArray arrayWithObject:@"PBGitRef"]];
-}
 
 
 
@@ -231,132 +225,6 @@
 		return nil;
 
 	return [self menuItemsForCommit:[commits objectAtIndex:(NSUInteger)rowIndex]];
-}
-
-
-# pragma mark Tableview delegate methods
-
-- (BOOL)tableView:(NSTableView *)tv writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard
-{
-    
-	NSPoint location = [(PBCommitList *)tv mouseDownPoint];
-	NSInteger row = [tv rowAtPoint:location];
-	NSInteger column = [tv columnAtPoint:location];
-	NSInteger subjectColumn = [tv columnWithIdentifier:@"SubjectColumn"];
-	if (column != subjectColumn)
-		return NO;
-	
-	PBGitRevisionCell *cell = (PBGitRevisionCell *)[tv preparedCellAtColumn:column row:row];
-	NSRect cellFrame = [tv frameOfCellAtColumn:column row:row];
-	
-	int index = [cell indexAtX:(float)(location.x - cellFrame.origin.x)];
-	
-	if (index == -1)
-		return NO;
-
-	PBGitRef *ref = [[[cell objectValue] refs] objectAtIndex:(NSUInteger)index];
-	if ([ref isTag] || [ref isRemoteBranch])
-		return NO;
-
-	if ([[[historyController.repository headRef] ref] isEqualToRef:ref])
-		return NO;
-	
-	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[NSArray arrayWithObjects:[NSNumber numberWithInteger:row], [NSNumber numberWithInt:index], NULL]];
-	[pboard declareTypes:[NSArray arrayWithObject:@"PBGitRef"] owner:self];
-	[pboard setData:data forType:@"PBGitRef"];
-	
-	return YES;
-}
-
-- (NSDragOperation)tableView:(NSTableView*)tv
-				validateDrop:(id <NSDraggingInfo>)info
-				 proposedRow:(NSInteger)row
-	   proposedDropOperation:(NSTableViewDropOperation)operation
-{
-	if (operation == NSTableViewDropAbove)
-		return NSDragOperationNone;
-	
-	NSPasteboard *pboard = [info draggingPasteboard];
-	if ([pboard dataForType:@"PBGitRef"])
-		return NSDragOperationMove;
-	
-	return NSDragOperationNone;
-}
-
-- (void) dropRef:(NSDictionary *)dropInfo
-{
-	PBGitRef *ref = [dropInfo objectForKey:@"dragRef"];
-	PBGitCommit *oldCommit = [dropInfo objectForKey:@"oldCommit"];
-	PBGitCommit *dropCommit = [dropInfo objectForKey:@"dropCommit"];
-	if (!ref || ! oldCommit || !dropCommit)
-		return;
-
-	NSError *error = nil;
-	[historyController.repository executeGitCommand:[NSArray arrayWithObjects:@"update-ref", @"-mUpdate from GitX", [ref ref], [dropCommit realSha], NULL] error:&error];
-	if (error)
-		return;
-
-	[dropCommit addRef:ref];
-	[oldCommit removeRef:ref];
-	[historyController.commitList reloadData];
-}
-
-- (BOOL)tableView:(NSTableView *)aTableView
-	   acceptDrop:(id <NSDraggingInfo>)info
-			  row:(NSInteger)row
-	dropOperation:(NSTableViewDropOperation)operation
-{
-	if (operation != NSTableViewDropOn)
-		return NO;
-	
-	NSPasteboard *pboard = [info draggingPasteboard];
-	NSData *data = [pboard dataForType:@"PBGitRef"];
-	if (!data)
-		return NO;
-	
-	NSArray *numbers = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-	int oldRow = [[numbers objectAtIndex:0] intValue];
-	if (oldRow == row)
-		return NO;
-
-	int oldRefIndex = [[numbers objectAtIndex:1] intValue];
-	PBGitCommit *oldCommit = [[commitController arrangedObjects] objectAtIndex:(NSUInteger)oldRow];
-	PBGitRef *ref = [[oldCommit refs] objectAtIndex:(NSUInteger)oldRefIndex];
-
-	PBGitCommit *dropCommit = [[commitController arrangedObjects] objectAtIndex:(NSUInteger)row];
-
-	NSDictionary *dropInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-							  ref, @"dragRef",
-							  oldCommit, @"oldCommit",
-							  dropCommit, @"dropCommit",
-							  nil];
-
-	if ([PBGitDefaults isDialogWarningSuppressedForDialog:kDialogAcceptDroppedRef]) {
-		[self dropRef:dropInfo];
-		return YES;
-	}
-
-	NSString *subject = [dropCommit subject];
-	if ([subject length] > 99)
-		subject = [[subject substringToIndex:99] stringByAppendingString:@"…"];
-	NSString *infoText = [NSString stringWithFormat:@"Move the %@ to point to the commit: %@", [ref refishType], subject];
-
-	NSAlert *alert = [[NSAlert alloc] init];
-	alert.messageText = [NSString stringWithFormat:@"Move %@: %@", [ref refishType], [ref shortName]];
-	alert.informativeText = infoText;
-	[alert addButtonWithTitle:@"Move"];
-	[alert addButtonWithTitle:@"Cancel"];
-	alert.showsSuppressionButton = YES;
-
-	[alert beginSheetModalForWindow:[historyController.repository.windowController window] completionHandler:^(NSModalResponse returnCode) {
-		if (returnCode == NSAlertFirstButtonReturn || returnCode == NSModalResponseOK)
-			[self dropRef:dropInfo];
-		
-		if ([alert.suppressionButton state] == NSOnState)
-			[PBGitDefaults suppressDialogWarningForDialog:kDialogAcceptDroppedRef];
-	}];
-
-	return YES;
 }
 
 
