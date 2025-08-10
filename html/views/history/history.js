@@ -184,7 +184,7 @@ var formatRenameDiff = function(d) {
 
 var showDiff = function() {
 
-	$("files").innerHTML = "";
+	document.getElementById("files").innerHTML = "";
 
 	// Callback for the diff highlighter. Used to generate a filelist
 	var newfile = function(name1, name2, id, mode_change, old_mode, new_mode) {

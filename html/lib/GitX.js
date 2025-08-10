@@ -5,10 +5,6 @@
  * It is written only for Safari 3 and higher.
  */
 
-function $(element) {
-	return document.getElementById(element);
-}
-
 String.prototype.escapeHTML = function() {
   return this.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 };
@@ -34,24 +30,24 @@ Array.prototype.indexOf = function(item, i) {
 };
 
 var notify = function(text, state) {
-	var n = $("notification");
+	var n = document.getElementById("notification");
 	n.style.display = "";
-	$("notification_message").innerHTML = text;
+	document.getElementById("notification_message").innerHTML = text;
 	
 	// Change color
 	if (!state) { // Busy
-		$("spinner").style.display = "";
+		document.getElementById("spinner").style.display = "";
 		n.setAttribute("class", "");
 	}
 	else if (state == 1) { // Success
-		$("spinner").style.display = "none";
+		document.getElementById("spinner").style.display = "none";
 		n.setAttribute("class", "success");
 	} else if (state == -1) {// Fail
-		$("spinner").style.display = "none";
+		document.getElementById("spinner").style.display = "none";
 		n.setAttribute("class", "fail");
 	}
 }
 
 var hideNotification = function() {
-	$("notification").style.display = "none";
+	document.getElementById("notification").style.display = "none";
 }
