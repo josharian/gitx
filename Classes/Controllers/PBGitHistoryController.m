@@ -287,6 +287,26 @@
     commitList.useAdjustScroll = NO;
 }
 
+- (void)scrollSelectionToCenter
+{
+	NSInteger selectedRow = [commitList selectedRow];
+	if (selectedRow == NSNotFound)
+		return;
+	
+	NSRect visibleRect = [commitList visibleRect];
+	NSRect rowRect = [commitList rectOfRow:selectedRow];
+	
+	// Calculate the center position
+	CGFloat centerY = rowRect.origin.y + (rowRect.size.height / 2.0) - (visibleRect.size.height / 2.0);
+	
+	// Ensure we don't scroll past bounds
+	if (centerY < 0)
+		centerY = 0;
+	
+	NSPoint scrollPoint = NSMakePoint(0, centerY);
+	[[commitList superview] scrollPoint:scrollPoint];
+}
+
 - (NSArray *) selectedObjectsForSHA:(NSString *)commitSHA
 {
 	NSPredicate *selection = [NSPredicate predicateWithFormat:@"sha == %@", commitSHA];

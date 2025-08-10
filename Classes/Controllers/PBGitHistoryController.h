@@ -49,6 +49,7 @@
 @property (readonly) PBCommitList *commitList;
 
 - (void)selectCommit:(NSString *)commit;
+- (void)scrollSelectionToCenter;
 - (IBAction) refresh:(id)sender;
 
 // Repository Methods

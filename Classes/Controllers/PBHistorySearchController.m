@@ -153,6 +153,8 @@
 	if ([[commitController arrangedObjects] count] > index) {
 		PBGitCommit *commit = [[commitController arrangedObjects] objectAtIndex:index];
 		[historyController selectCommit:[commit sha]];
+		// Center the selected search result
+		[historyController scrollSelectionToCenter];
 	}
 }
 
@@ -387,6 +389,8 @@
 	
 	NSLog(@"GITX_SEARCH: Basic search found %lu results", [results count]);
 
+	// Force reload to show search highlighting immediately
+	[historyController.commitList reloadData];
 	[self updateSelectedResult];
 }
 
