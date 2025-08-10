@@ -11,7 +11,6 @@
 #import "PBGitRepository.h"
 #import "PBGitIndex.h"
 
-#define FileChangesTableViewType @"GitFileChangedType"
 
 @interface PBGitIndexController ()
 - (void)discardChangesForFiles:(NSArray *)files force:(BOOL)force;
@@ -27,8 +26,6 @@
 	[unstagedTable setTarget:self];
 	[stagedTable setTarget:self];
 
-	[unstagedTable registerForDraggedTypes: [NSArray arrayWithObject:FileChangesTableViewType]];
-	[stagedTable registerForDraggedTypes: [NSArray arrayWithObject:FileChangesTableViewType]];
 }
 
 // FIXME: Find a proper place for this method -- this is not it.
@@ -324,60 +321,7 @@
 	[self tableClicked: tableView];
 }
 
-- (BOOL)tableView:(NSTableView *)tv
-writeRowsWithIndexes:(NSIndexSet *)rowIndexes
-	 toPasteboard:(NSPasteboard*)pboard
-{
-    // Copy the row numbers to the pasteboard.
-    [pboard declareTypes:[NSArray arrayWithObjects:FileChangesTableViewType, NSFilenamesPboardType, nil] owner:self];
 
-	// Internal, for dragging from one tableview to the other
-	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
-    [pboard setData:data forType:FileChangesTableViewType];
 
-	// External, to drag them to for example XCode or Textmate
-	NSArrayController *controller = [tv tag] == 0 ? unstagedFilesController : stagedFilesController;
-	NSArray *files = [[controller arrangedObjects] objectsAtIndexes:rowIndexes];
-	NSString *workingDirectory = [commitController.repository workingDirectory];
-
-	NSMutableArray *filenames = [NSMutableArray arrayWithCapacity:[rowIndexes count]];
-	for (PBChangedFile *file in files)
-		[filenames addObject:[workingDirectory stringByAppendingPathComponent:[file path]]];
-
-	[pboard setPropertyList:filenames forType:NSFilenamesPboardType];
-    return YES;
-}
-
-- (NSDragOperation)tableView:(NSTableView*)tableView
-				validateDrop:(id <NSDraggingInfo>)info
-				 proposedRow:(NSInteger)row
-	   proposedDropOperation:(NSTableViewDropOperation)operation
-{
-	if ([info draggingSource] == tableView)
-		return NSDragOperationNone;
-
-	[tableView setDropRow:-1 dropOperation:NSTableViewDropOn];
-    return NSDragOperationCopy;
-}
-
-- (BOOL)tableView:(NSTableView *)aTableView
-	   acceptDrop:(id <NSDraggingInfo>)info
-			  row:(NSInteger)row
-	dropOperation:(NSTableViewDropOperation)operation
-{
-    NSPasteboard* pboard = [info draggingPasteboard];
-    NSData* rowData = [pboard dataForType:FileChangesTableViewType];
-    NSIndexSet* rowIndexes = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
-
-	NSArrayController *controller = [aTableView tag] == 0 ? stagedFilesController : unstagedFilesController;
-	NSArray *files = [[controller arrangedObjects] objectsAtIndexes:rowIndexes];
-
-	if ([aTableView tag] == 0)
-		[commitController.index unstageFiles:files];
-	else
-		[commitController.index stageFiles:files];
-
-	return YES;
-}
 
 @end

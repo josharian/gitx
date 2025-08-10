@@ -114,11 +114,6 @@ decisionListener:(id <WebPolicyDecisionListener>)listener
 	}
 }
 
-- (NSUInteger)webView:(WebView *)webView
-dragDestinationActionMaskForDraggingInfo:(id<NSDraggingInfo>)draggingInfo
-{
-    return NSDragOperationNone;
-}
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector
 {

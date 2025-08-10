@@ -24,10 +24,6 @@
 	return nil;
 }
 
-- (NSDragOperation) draggingSourceOperationMaskForLocal:(BOOL) local
-{
-	return NSDragOperationEvery;
-}
 
 #pragma mark NSView overrides
 - (void)keyDown:(NSEvent *)theEvent
