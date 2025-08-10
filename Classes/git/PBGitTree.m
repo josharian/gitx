@@ -11,7 +11,10 @@
 #import "PBGitCommit.h"
 #import "NSFileHandleExt.h"
 #import "PBEasyPipe.h"
-#import "PBEasyFS.h"
+
+@interface PBGitTree ()
++ (NSString*) tmpDirWithPrefix:(NSString*)prefix;
+@end
 
 @implementation PBGitTree
 
@@ -37,6 +40,14 @@
 	tree.repository = prev.repository;
 	tree.path = path;
 	return tree;
+}
+
++ (NSString*) tmpDirWithPrefix:(NSString*)prefix
+{
+	NSString* newName = [NSString stringWithFormat: @"%@%@.XXXXXX", NSTemporaryDirectory(), prefix];
+	char *template = (char*) [newName fileSystemRepresentation];
+	template = mkdtemp(template);
+	return [NSString stringWithUTF8String:template];
 }
 
 - init
@@ -230,7 +241,7 @@
 		return nil;
 
 	if (!localFileName)
-		localFileName = [PBEasyFS tmpDirWithPrefix: path];
+		localFileName = [PBGitTree tmpDirWithPrefix: path];
 
 	for (PBGitTree* child in [self children]) {
 		[child saveToFolder: localFileName];
@@ -250,7 +261,7 @@
 		return localFileName;
 	
 	if (!localFileName)
-		localFileName = [[PBEasyFS tmpDirWithPrefix: sha] stringByAppendingPathComponent:path];
+		localFileName = [[PBGitTree tmpDirWithPrefix: sha] stringByAppendingPathComponent:path];
 	
 	NSFileHandle* handle = [repository handleForArguments:[NSArray arrayWithObjects:@"show", [self refSpec], nil]];
 	NSData* data = [handle readDataToEndOfFile];
