@@ -70,7 +70,6 @@
 		4A5D770914A9A9CC00DF6C68 /* PBGitSVRemoteItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767A14A9A9CC00DF6C68 /* PBGitSVRemoteItem.m */; };
 		4A5D770A14A9A9CC00DF6C68 /* PBGitSVStageItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767C14A9A9CC00DF6C68 /* PBGitSVStageItem.m */; };
 		4A5D770B14A9A9CC00DF6C68 /* PBGitSVTagItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767E14A9A9CC00DF6C68 /* PBGitSVTagItem.m */; };
-		4A5D770C14A9A9CC00DF6C68 /* PBGitTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768014A9A9CC00DF6C68 /* PBGitTree.m */; };
 		4A5D770D14A9A9CC00DF6C68 /* PBGitXErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */; };
 		4A5D770E14A9A9CC00DF6C68 /* PBGitXProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768414A9A9CC00DF6C68 /* PBGitXProtocol.m */; };
 		4A5D771214A9A9CC00DF6C68 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768B14A9A9CC00DF6C68 /* main.m */; };
@@ -264,8 +263,6 @@
 		4A5D767C14A9A9CC00DF6C68 /* PBGitSVStageItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVStageItem.m; sourceTree = "<group>"; };
 		4A5D767D14A9A9CC00DF6C68 /* PBGitSVTagItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVTagItem.h; sourceTree = "<group>"; };
 		4A5D767E14A9A9CC00DF6C68 /* PBGitSVTagItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVTagItem.m; sourceTree = "<group>"; };
-		4A5D767F14A9A9CC00DF6C68 /* PBGitTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitTree.h; sourceTree = "<group>"; };
-		4A5D768014A9A9CC00DF6C68 /* PBGitTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitTree.m; sourceTree = "<group>"; };
 		4A5D768114A9A9CC00DF6C68 /* PBGitXErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitXErrors.h; sourceTree = "<group>"; };
 		4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitXErrors.m; sourceTree = "<group>"; };
 		4A5D768314A9A9CC00DF6C68 /* PBGitXProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitXProtocol.h; sourceTree = "<group>"; };
@@ -661,8 +658,6 @@
 				4A5D767C14A9A9CC00DF6C68 /* PBGitSVStageItem.m */,
 				4A5D767D14A9A9CC00DF6C68 /* PBGitSVTagItem.h */,
 				4A5D767E14A9A9CC00DF6C68 /* PBGitSVTagItem.m */,
-				4A5D767F14A9A9CC00DF6C68 /* PBGitTree.h */,
-				4A5D768014A9A9CC00DF6C68 /* PBGitTree.m */,
 				4A5D768114A9A9CC00DF6C68 /* PBGitXErrors.h */,
 				4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */,
 				4A5D768314A9A9CC00DF6C68 /* PBGitXProtocol.h */,
@@ -940,7 +935,6 @@
 				4A5D770914A9A9CC00DF6C68 /* PBGitSVRemoteItem.m in Sources */,
 				4A5D770A14A9A9CC00DF6C68 /* PBGitSVStageItem.m in Sources */,
 				4A5D770B14A9A9CC00DF6C68 /* PBGitSVTagItem.m in Sources */,
-				4A5D770C14A9A9CC00DF6C68 /* PBGitTree.m in Sources */,
 				4A5D770D14A9A9CC00DF6C68 /* PBGitXErrors.m in Sources */,
 				4A5D770E14A9A9CC00DF6C68 /* PBGitXProtocol.m in Sources */,
 				4A5D771214A9A9CC00DF6C68 /* main.m in Sources */,

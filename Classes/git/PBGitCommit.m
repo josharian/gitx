@@ -8,7 +8,6 @@
 
 #import "PBGitRepository.h"
 #import "PBGitCommit.h"
-#import "PBGitTree.h"
 #import "PBGitRef.h"
 #import "PBGitDefaults.h"
 #import "PBCommitData.h"
@@ -43,10 +42,6 @@ NSString * const kGitXCommitType = @"commit";
 	return [formatter stringFromDate: self.date];
 }
 
-- (NSArray*) treeContents
-{
-	return self.tree.children;
-}
 
 - (id)initWithRepository:(PBGitRepository *)repo andSHA:(NSString *)sha
 {
@@ -203,10 +198,6 @@ NSString * const kGitXCommitType = @"commit";
 	return self->_patch;
 }
 
-- (PBGitTree*) tree
-{
-	return [PBGitTree rootForCommit: self];
-}
 
 - (void)addRef:(PBGitRef *)ref
 {

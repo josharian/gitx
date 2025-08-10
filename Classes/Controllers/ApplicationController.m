@@ -31,9 +31,6 @@ static OpenRecentController* recentsDialog = nil;
 	if(!(self = [super init]))
 		return nil;
 
-	if(![[NSBundle bundleWithPath:@"/System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework"] load])
-		if(![[NSBundle bundleWithPath:@"/System/Library/PrivateFrameworks/QuickLookUI.framework"] load])
-			NSLog(@"Could not load QuickLook");
 
 	/* Value Transformers */
 	NSValueTransformer *transformer = [[PBNSURLPathUserDefaultsTransfomer alloc] init];

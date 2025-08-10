@@ -10,7 +10,6 @@
 #import "PBGitRefish.h" // for @protocol PBGitRefish
 
 @class PBGitRepository;
-@class PBGitTree;
 @class PBGitRef;
 @class PBGraphCellInfo;
 @class PBCommitData;
@@ -38,8 +37,6 @@ extern NSString * const kGitXCommitType;
 @property (nonatomic, assign)	char sign;
 @property (nonatomic, strong) PBGraphCellInfo *lineInfo;
 
-@property (nonatomic, readonly) PBGitTree* tree;
-@property (readonly) NSArray* treeContents;
 
 
 - (id)initWithRepository:(PBGitRepository *)repo andSHA:(NSString *)sha;
