@@ -9,8 +9,70 @@
 #import "PBGitRepository.h"
 #import "PBGitTree.h"
 #import "PBGitCommit.h"
-#import "NSFileHandleExt.h"
 #import "PBEasyPipe.h"
+#include <errno.h>
+
+#define READLINE_BUFFER_SIZE 256
+
+static NSString* readLineFromHandle(NSFileHandle* handle) {
+	// If the socket is closed, return an empty string
+	if ([handle fileDescriptor] <= 0)
+		return @"";
+	
+	int fd = [handle fileDescriptor];
+	
+	// Allocate READLINE_BUFFER_SIZE bytes to store the line
+	int bufferSize = READLINE_BUFFER_SIZE;
+	char *buffer = (char*)malloc(bufferSize + 1);
+	if (buffer == NULL)
+		[[NSException exceptionWithName:@"No memory left" reason:@"No more memory for allocating buffer" userInfo:nil] raise];
+	buffer[0] = '\0';
+	
+	int bytesReceived = 0, n = 0;
+	
+	while (1) {
+		n = (int)read(fd, buffer + bytesReceived, 1);
+		
+		if (n == 0)
+			break;
+		
+		if (n < 0) {
+			if (errno == EINTR)
+				continue;
+			
+			free(buffer);
+			NSString *reason = [NSString stringWithFormat:@"%s:%d: read() error: %s", __PRETTY_FUNCTION__, __LINE__, strerror(errno)];
+			[[NSException exceptionWithName:@"Socket error" reason:reason userInfo:nil] raise];
+		}
+		
+		bytesReceived++;
+		
+		if (bytesReceived >= bufferSize) {
+			// Make buffer bigger
+			bufferSize += READLINE_BUFFER_SIZE;
+			buffer = (char *)reallocf(buffer, bufferSize + 1);
+			if (buffer == NULL)
+				[[NSException exceptionWithName:@"No memory left" reason:@"No more memory for allocating buffer" userInfo:nil] raise];
+		}       
+		
+		char receivedByte = buffer[bytesReceived-1];
+		if (receivedByte == '\n') {
+			bytesReceived--;
+			break;
+		}
+		
+		if (receivedByte == '\r')
+			bytesReceived--;
+	}       
+	
+	buffer[bytesReceived] = '\0';
+	NSString *retVal = [NSString stringWithCString: buffer  encoding: NSUTF8StringEncoding];
+	if ([retVal length] == 0)
+		retVal = [NSString stringWithCString: buffer encoding: NSISOLatin1StringEncoding];
+	
+	free(buffer);
+	return retVal;
+}
 
 @interface PBGitTree ()
 + (NSString*) tmpDirWithPrefix:(NSString*)prefix;
@@ -281,12 +343,12 @@
 	NSString* ref = [self refSpec];
 
 	NSFileHandle* handle = [repository handleForArguments:[NSArray arrayWithObjects:@"show", ref, nil]];
-	[handle readLine];
-	[handle readLine];
+	readLineFromHandle(handle);
+	readLineFromHandle(handle);
 	
 	NSMutableArray* c = [NSMutableArray array];
 	
-	NSString* p = [handle readLine];
+	NSString* p = readLineFromHandle(handle);
 	while (p.length > 0) {
 		BOOL isLeaf = ([p characterAtIndex:p.length - 1] != '/');
 		if (!isLeaf)
@@ -296,7 +358,7 @@
 		child.leaf = isLeaf;
 		[c addObject: child];
 		
-		p = [handle readLine];
+		p = readLineFromHandle(handle);
 	}
 	[c sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
 		PBGitTree* tree1 = (PBGitTree*)obj1;

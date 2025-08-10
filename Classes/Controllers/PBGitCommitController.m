@@ -7,7 +7,6 @@
 //
 
 #import "PBGitCommitController.h"
-#import "NSFileHandleExt.h"
 #import "PBChangedFile.h"
 #import "PBWebChangesController.h"
 #import "PBGitIndex.h"

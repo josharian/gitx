@@ -11,7 +11,6 @@
 #import "PBGitWindowController.h"
 #import "PBGitBinary.h"
 
-#import "NSFileHandleExt.h"
 #import "PBEasyPipe.h"
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
