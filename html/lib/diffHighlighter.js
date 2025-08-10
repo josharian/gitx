@@ -11,12 +11,11 @@ var toggleDiff = function(id)
   var content = document.getElementById('content_' + id);
   if (content) {
     var collapsed = (content.style.display == 'none');
-	  if (collapsed) {
-		  content.style.display = 'box';
-		  jQuery(content).fadeTo('slow', 1).slideDown();
-	  } else {
-		  jQuery(content).fadeTo('fast', 0).slideUp('fast', function () {content.style.display = 'none'});
-	  }
+    if (collapsed) {
+      content.style.display = 'block';
+    } else {
+      content.style.display = 'none';
+    }
 	
     var title = document.getElementById('title_' + id);
     if (title) {
@@ -266,45 +265,68 @@ var mergeInsDel = function (html) {
 }
 
 var postProcessDiffContents = function(diffContent) {
-	var $ = jQuery;
-	var diffEl = $(diffContent);
-	var dumbEl = $('<div/>');
+	// Parse HTML string to DOM elements
+	var tempDiv = document.createElement('div');
+	tempDiv.innerHTML = diffContent;
+	var diffElements = tempDiv.children;
+	
 	var newContent = "";
 	var oldEls = [];
 	var newEls = [];
+	
+	// Helper to get text content of an element
+	var getElementText = function(el) {
+		return el.textContent || el.innerText || '';
+	};
+	
+	// Helper to set HTML content of an element
+	var setElementHTML = function(el, html) {
+		el.innerHTML = html;
+	};
+	
+	// Helper to get outer HTML of an element
+	var getOuterHTML = function(el) {
+		return el.outerHTML;
+	};
+	
 	var flushBuffer = function () {
 		if (oldEls.length || newEls.length) {
 			var buffer = "";
 			if (!oldEls.length || !newEls.length) {
 				// hunk only contains additions OR deletions, so there is no need
 				// to do any inline-diff. just keep the elements as they are
-				buffer = $.map(oldEls.length ? oldEls : newEls, function (e) {
-					var prefix = e.text().substring(0,1),
-						text = inlinediff.escape(e.text().substring(1)),
-						tag = prefix=='+' ? 'ins' : 'del',
-						html = prefix+'<'+tag+'>'+(prefix == "+" ? highlightTrailingWhitespace(text) : text)+'</'+tag+'>';
-					e.html(html);
-					return dumbEl.html(e).html();
+				var elements = oldEls.length ? oldEls : newEls;
+				buffer = elements.map(function(e) {
+					var text = getElementText(e);
+					var prefix = text.substring(0,1);
+					var content = inlinediff.escape(text.substring(1));
+					var tag = prefix=='+' ? 'ins' : 'del';
+					var html = prefix+'<'+tag+'>'+(prefix == "+" ? highlightTrailingWhitespace(content) : content)+'</'+tag+'>';
+					setElementHTML(e, html);
+					return getOuterHTML(e);
 				}).join("");
 			}
 			else {
 				// hunk contains additions AND deletions. so we create an inline diff
 				// of all the old and new lines together and merge the result back to buffer
-				var mapFn = function (e) { return e.text().substring(1).replace(/\r?\n|\r/g,''); };
-				var oldText = $.map(oldEls, mapFn).join("\n");
-				var newText = $.map(newEls, mapFn).join("\n");
+				var mapFn = function (e) { 
+					var text = getElementText(e);
+					return text.substring(1).replace(/\r?\n|\r/g,''); 
+				};
+				var oldText = oldEls.map(mapFn).join("\n");
+				var newText = newEls.map(mapFn).join("\n");
 				var diffResult = inlinediff.diffString3(oldText,newText);
-					diffLines = (diffResult[1] + "\n" + diffResult[2]).split(/\n/g);
+				var diffLines = (diffResult[1] + "\n" + diffResult[2]).split(/\n/g);
 				
-				buffer = $.map(oldEls, function (e, i) {
+				buffer = oldEls.map(function(e, i) {
 					var di = i;
-					e.html("-"+mergeInsDel(diffLines[di]));
-					return dumbEl.html(e).html();
-				}).join("") + $.map(newEls, function (e, i) {
+					setElementHTML(e, "-"+mergeInsDel(diffLines[di]));
+					return getOuterHTML(e);
+				}).join("") + newEls.map(function(e, i) {
 					var di = i + oldEls.length;
 					var line = mergeInsDel(highlightTrailingWhitespace(diffLines[di]));
-					e.html("+"+line);
-					return dumbEl.html(e).html();
+					setElementHTML(e, "+"+line);
+					return getOuterHTML(e);
 				}).join("");
 			}
 			newContent+= buffer;
@@ -312,12 +334,14 @@ var postProcessDiffContents = function(diffContent) {
 			newEls = [];
 		}
 	};
-	diffEl.each(function (i, e) {
-		e = $(e);
-		var isAdd = e.is(".addline");
-		var isDel = e.is(".delline");
-		var text = e.text();
-		var html = dumbEl.html(e).html();
+	
+	// Process each element
+	for (var i = 0; i < diffElements.length; i++) {
+		var e = diffElements[i];
+		var isAdd = e.classList.contains("addline");
+		var isDel = e.classList.contains("delline");
+		var html = getOuterHTML(e);
+		
 		if (isAdd) {
 			newEls.push(e);
 		}
@@ -328,7 +352,7 @@ var postProcessDiffContents = function(diffContent) {
 			flushBuffer();
 			newContent+= html;
 		}
-	});
+	}
 	flushBuffer();
 	return newContent; 
 }
