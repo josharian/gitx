@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 
 @class PBViewController, PBGitSidebarController, PBGitCommitController, PBGitRepository;
-@class RJModalRepoSheet;
 
 @interface PBGitWindowController : NSWindowController<NSWindowDelegate> {
 	PBViewController *contentController;
@@ -38,8 +37,8 @@
 - (void)showErrorSheet:(NSError *)error;
 - (void)showErrorSheetTitle:(NSString *)title message:(NSString *)message arguments:(NSArray *)arguments output:(NSString *)output;
 
-- (void)showModalSheet:(RJModalRepoSheet*)sheet;
-- (void)hideModalSheet:(RJModalRepoSheet*)sheet;
+- (void)showModalSheet:(NSWindowController*)sheet;
+- (void)hideModalSheet:(NSWindowController*)sheet;
 
 - (IBAction) showCommitView:(id)sender;
 - (IBAction) showHistoryView:(id)sender;

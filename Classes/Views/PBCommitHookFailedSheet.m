@@ -8,6 +8,7 @@
 
 #import "PBCommitHookFailedSheet.h"
 #import "PBGitWindowController.h"
+#import "PBGitRepository.h"
 
 
 @implementation PBCommitHookFailedSheet
@@ -31,10 +32,12 @@
 - (id)initWithWindowNibName:(NSString*)windowNibName
 			  andController:(PBGitCommitController*)controller;
 {
-    self = [self initWithWindowNibName:windowNibName forRepo:controller.repository];
+    self = [super initWithWindowNibName:windowNibName];
 	if (!self)
 		return nil;
 	
+	self.repository = controller.repository;
+	self.repoWindow = controller.repository.windowController;
 	self.commitController = controller;
 
     return self;

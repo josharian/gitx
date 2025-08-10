@@ -23,6 +23,7 @@
 @implementation PBCreateTagSheet
 
 @synthesize repository;
+@synthesize repoWindow;
 @synthesize targetRefish;
 
 @synthesize tagNameField;
@@ -36,7 +37,9 @@
 
 + (void) beginCreateTagSheetAtRefish:(id <PBGitRefish>)refish inRepository:(PBGitRepository *)repo
 {
-	PBCreateTagSheet *sheet = [[self alloc] initWithWindowNibName:@"PBCreateTagSheet" forRepo:repo];
+	PBCreateTagSheet *sheet = [[self alloc] initWithWindowNibName:@"PBCreateTagSheet"];
+	sheet.repository = repo;
+	sheet.repoWindow = repo.windowController;
 	[sheet beginCreateTagSheetAtRefish:refish];
 }
 
@@ -48,7 +51,7 @@
 	[self window];
 	[self.errorMessageField setStringValue:@""];
 
-	[self show];
+	[self.repoWindow showModalSheet:self];
 }
 
 
@@ -86,7 +89,7 @@
 
 - (IBAction) closeCreateTagSheet:(id)sender
 {
-	[self hide];
+	[self.repoWindow hideModalSheet:self];
 }
 
 

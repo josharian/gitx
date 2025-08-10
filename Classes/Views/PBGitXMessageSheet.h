@@ -8,9 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "RJModalRepoSheet.h"
+@class PBGitRepository;
+@class PBGitWindowController;
 
-@interface PBGitXMessageSheet : RJModalRepoSheet
+@interface PBGitXMessageSheet : NSWindowController
 {
 	NSImageView *iconView;
 	NSTextField *messageField;
@@ -30,6 +31,8 @@
 - (IBAction)closeMessageSheet:(id)sender;
 
 
+@property (nonatomic, strong) PBGitRepository *repository;
+@property (nonatomic, strong) PBGitWindowController *repoWindow;
 @property  IBOutlet NSImageView *iconView;
 @property  IBOutlet NSTextField *messageField;
 @property  IBOutlet NSTextView *infoView;

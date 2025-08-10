@@ -8,13 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 #import "PBGitRefish.h"
-#import "RJModalRepoSheet.h"
 
 
 @class PBGitRepository;
+@class PBGitWindowController;
 
 
-@interface PBCreateBranchSheet : RJModalRepoSheet
+@interface PBCreateBranchSheet : NSWindowController
 
 + (void) beginCreateBranchSheetAtRefish:(id <PBGitRefish>)ref inRepository:(PBGitRepository *)repo;
 
@@ -24,6 +24,7 @@
 
 
 @property (nonatomic, strong) PBGitRepository *repository;
+@property (nonatomic, strong) PBGitWindowController *repoWindow;
 @property (nonatomic, strong) id <PBGitRefish> startRefish;
 @property (nonatomic, assign) BOOL shouldCheckoutBranch;
 

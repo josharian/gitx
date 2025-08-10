@@ -9,12 +9,12 @@
 #import <Cocoa/Cocoa.h>
 
 #import "PBGitRefish.h"
-#import "RJModalRepoSheet.h"
 
 @class PBGitRepository;
+@class PBGitWindowController;
 
 
-@interface PBCreateTagSheet : RJModalRepoSheet
+@interface PBCreateTagSheet : NSWindowController
 {
 }
 
@@ -23,6 +23,8 @@
 - (IBAction) createTag:(id)sender;
 - (IBAction) closeCreateTagSheet:(id)sender;
 
+@property (nonatomic, strong) PBGitRepository *repository;
+@property (nonatomic, strong) PBGitWindowController *repoWindow;
 @property (nonatomic, strong) id <PBGitRefish> targetRefish;
 
 @property (nonatomic, weak) IBOutlet NSTextField *tagNameField;

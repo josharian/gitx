@@ -25,6 +25,7 @@
 
 
 @synthesize repository;
+@synthesize repoWindow;
 @synthesize startRefish;
 @synthesize shouldCheckoutBranch;
 
@@ -45,11 +46,12 @@
 
 - (id) initWithRepositoryWindow:(PBGitWindowController *)parent atRefish:(id<PBGitRefish>)ref
 {
-	self = [super initWithWindowNibName:@"PBCreateBranchSheet" forRepo:parent.repository];
+	self = [super initWithWindowNibName:@"PBCreateBranchSheet"];
 	if (!self)
 		return nil;
 	
 	self.repository = parent.repository;
+	self.repoWindow = parent;
 	self.startRefish = ref;
 	
 	return self;
@@ -71,7 +73,7 @@
 		}
 	}
 	
-	[self show];
+	[self.repoWindow showModalSheet:self];
 }
 
 
@@ -108,7 +110,7 @@
 
 - (IBAction) closeCreateBranchSheet:(id)sender
 {
-	[self hide];
+	[self.repoWindow hideModalSheet:self];
 }
 
 @end

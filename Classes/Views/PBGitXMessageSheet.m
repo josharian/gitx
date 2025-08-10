@@ -7,6 +7,8 @@
 //
 
 #import "PBGitXMessageSheet.h"
+#import "PBGitRepository.h"
+#import "PBGitWindowController.h"
 
 
 #define MaxScrollViewHeight 125.0f
@@ -21,6 +23,8 @@
 
 @implementation PBGitXMessageSheet
 
+@synthesize repository;
+@synthesize repoWindow;
 @synthesize iconView;
 @synthesize messageField;
 @synthesize infoView;
@@ -34,8 +38,9 @@
 				 withMessageText:(NSString *)message
 						infoText:(NSString *)info
 {
-	PBGitXMessageSheet *sheet = [[self alloc] initWithWindowNibName:@"PBGitXMessageSheet"
-															forRepo:repo];
+	PBGitXMessageSheet *sheet = [[self alloc] initWithWindowNibName:@"PBGitXMessageSheet"];
+	sheet.repository = repo;
+	sheet.repoWindow = repo.windowController;
 	[sheet beginMessageSheetWithMessageText:message
 								   infoText:info];
 }
@@ -44,26 +49,17 @@
 + (void)beginMessageSheetForRepo:(PBGitRepository *)repo
 					   withError:(NSError *)error
 {
-	PBGitXMessageSheet *sheet = [[self alloc] initWithWindowNibName:@"PBGitXMessageSheet" forRepo:repo];
+	PBGitXMessageSheet *sheet = [[self alloc] initWithWindowNibName:@"PBGitXMessageSheet"];
+	sheet.repository = repo;
+	sheet.repoWindow = repo.windowController;
 	[sheet beginMessageSheetWithMessageText:[error localizedDescription]
 								   infoText:[error localizedRecoverySuggestion]];
 }
 
-- (id)initWithWindowNibName:(NSString *)windowNibName
-					forRepo:(PBGitRepository *)repo
-{
-	self = [super initWithWindowNibName:windowNibName forRepo:repo];
-	if (!self)
-		return nil;
-	
-	
-	
-	return self;
-}
 
 - (IBAction)closeMessageSheet:(id)sender
 {
-	[self hide];
+	[self.repoWindow hideModalSheet:self];
 }
 
 
@@ -78,7 +74,7 @@
 	[self setInfoString:info];
 	[self resizeWindow];
 		
-	[self show];
+	[self.repoWindow showModalSheet:self];
 }
 
 
