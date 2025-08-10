@@ -77,9 +77,14 @@
 		[repository lazyReload];
 
 
-	// Set a sort descriptor for the subject column in the history list, as
-	// It can't be sorted by default (because it's bound to a PBGitCommit)
-	[[commitList tableColumnWithIdentifier:@"SubjectColumn"] setSortDescriptorPrototype:[[NSSortDescriptor alloc] initWithKey:@"subject" ascending:YES]];
+	// Disable sorting for all columns
+	for (NSTableColumn *column in [commitList tableColumns]) {
+		[column setSortDescriptorPrototype:nil];
+	}
+	
+	// Clear any existing sort descriptors
+	[commitController setSortDescriptors:@[]];
+	
 	// Add a menu that allows a user to select which columns to view
 	[[commitList headerView] setMenu:[self tableColumnMenu]];
 
@@ -154,15 +159,11 @@
 	NSString* strContext = (__bridge NSString*)context;
     if ([strContext isEqualToString: @"commitChange"]) {
 		[self updateKeys];
-		// Reload table view when selection changes
-		[commitList reloadData];
+		// Don't reload the entire table on selection change - it loses the selection
 		return;
 	}
 
 	if([strContext isEqualToString:@"branchChange"]) {
-		// Reset the sorting
-		if ([[commitController sortDescriptors] count])
-			[commitController setSortDescriptors:[NSArray array]];
 		return;
 	}
 
@@ -341,7 +342,7 @@
 
 - (BOOL) hasNonlinearPath
 {
-	return [commitController filterPredicate] || [[commitController sortDescriptors] count] > 0;
+	return [commitController filterPredicate] != nil;
 }
 
 - (void)closeView
