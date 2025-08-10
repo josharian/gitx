@@ -10,6 +10,7 @@
 
 #import "PBHistorySearchController.h"
 #import "PBGitHistoryController.h"
+#import "PBCommitListRowView.h"
 #import "PBGitRepository.h"
 #import "PBGitDefaults.h"
 #import "PBCommitList.h"
@@ -150,11 +151,32 @@
 
 - (void)selectIndex:(NSUInteger)index
 {
+	// index is the row index in the table (from the search results NSIndexSet)
 	if ([[commitController arrangedObjects] count] > index) {
+		NSLog(@"GITX_SEARCH: Selecting row index %lu", index);
 		PBGitCommit *commit = [[commitController arrangedObjects] objectAtIndex:index];
 		[historyController selectCommit:[commit sha]];
 		// Center the selected search result
 		[historyController scrollSelectionToCenter];
+		
+		// Verify the selection took
+		NSInteger selectedRow = [historyController.commitList selectedRow];
+		NSLog(@"GITX_SEARCH: After selection, selected row is %ld, is in results: %d", 
+		      selectedRow, 
+		      selectedRow != NSNotFound ? [self isRowInSearchResults:selectedRow] : NO);
+		
+		// Update row views to show the current search result
+		[historyController.commitList enumerateAvailableRowViewsUsingBlock:^(NSTableRowView *rowView, NSInteger row) {
+			if ([rowView isKindOfClass:[PBCommitListRowView class]]) {
+				PBCommitListRowView *commitRowView = (PBCommitListRowView *)rowView;
+				BOOL isSearchResult = [self isRowInSearchResults:row];
+				BOOL isSelected = [historyController.commitList isRowSelected:row];
+				
+				commitRowView.isSearchResult = isSearchResult;
+				commitRowView.isCurrentSearchResult = (isSearchResult && isSelected);
+				[commitRowView setNeedsDisplay:YES];
+			}
+		}];
 	}
 }
 
@@ -164,16 +186,25 @@
 		return;
 
 	NSInteger selectedRow = [historyController.commitList selectedRow];
+	NSLog(@"GITX_SEARCH: selectNextResultInDirection, current selected row: %ld, direction: %ld", selectedRow, (long)direction);
+	
 	if (selectedRow == NSNotFound) {
+		NSLog(@"GITX_SEARCH: No selection, selecting first index");
 		[self selectIndex:[results firstIndex]];
 		return;
 	}
+
+	// Check if current selection is in results
+	BOOL currentInResults = [self isRowInSearchResults:selectedRow];
+	NSLog(@"GITX_SEARCH: Current row %ld is in results: %d", selectedRow, currentInResults);
 
 	NSUInteger currentResult = NSNotFound;
 	if (direction == kGitXSearchDirectionNext)
 		currentResult = [results indexGreaterThanIndex:(NSUInteger)selectedRow];
 	else
 		currentResult = [results indexLessThanIndex:(NSUInteger)selectedRow];
+
+	NSLog(@"GITX_SEARCH: Next result index: %lu", currentResult);
 
 	if (currentResult == NSNotFound) {
 		// Show the rewind panel to indicate we've reached the end
@@ -184,6 +215,8 @@
 			currentResult = [results firstIndex];
 		else
 			currentResult = [results lastIndex];
+		
+		NSLog(@"GITX_SEARCH: Wrapping around to index: %lu", currentResult);
 	}
 
 	[self selectIndex:currentResult];
@@ -230,7 +263,10 @@
 	if (selectedRow == NSNotFound || ![self isRowInSearchResults:selectedRow]) {
 		// If no selection or current selection is not in results, select first result
 		if ([results count] > 0) {
-			[self selectIndex:[results firstIndex]];
+			// Delay slightly to ensure table view has finished reloading
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[self selectIndex:[results firstIndex]];
+			});
 		}
 	}
 
