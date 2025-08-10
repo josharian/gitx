@@ -19,27 +19,27 @@ var showNewFile = function(file)
 }
 
 var hideState = function() {
-	$("state").style.display = "none";
+	document.getElementById("state").style.display = "none";
 }
 
 var setState = function(state) {
 	setTitle(state);
 	hideNotification();
-	$("state").style.display = "";
-	$("diff").style.display = "none";
-	$("state").innerHTML = state.escapeHTML();
+	document.getElementById("state").style.display = "";
+	document.getElementById("diff").style.display = "none";
+	document.getElementById("state").innerHTML = state.escapeHTML();
 }
 
 var setTitle = function(status) {
-	$("status").innerHTML = status;
-	$("contextSize").style.display = "none";
-	$("contextTitle").style.display = "none";
+	document.getElementById("status").innerHTML = status;
+	document.getElementById("contextSize").style.display = "none";
+	document.getElementById("contextTitle").style.display = "none";
 }
 
 var displayContext = function() {
-	$("contextSize").style.display = "";
-	$("contextTitle").style.display = "";
-	contextLines = $("contextSize").value;
+	document.getElementById("contextSize").style.display = "";
+	document.getElementById("contextTitle").style.display = "";
+	contextLines = document.getElementById("contextSize").value;
 }
 
 var showFileChanges = function(file, cached) {
@@ -51,8 +51,8 @@ var showFileChanges = function(file, cached) {
 	hideNotification();
 	hideState();
 
-	$("contextSize").oninput = function(element) {
-		contextLines = $("contextSize").value;
+	document.getElementById("contextSize").oninput = function(element) {
+		contextLines = document.getElementById("contextSize").value;
 		Controller.refresh();
 	}
 
@@ -180,9 +180,9 @@ var displayDiff = function(diff, cached)
 	originalDiff = diff;
 	originalCached = cached;
 
-	$("diff").style.display = "";
-	highlightDiff(diff, $("diff"));
-	hunkHeaders = $("diff").getElementsByClassName("hunkheader");
+	document.getElementById("diff").style.display = "";
+	highlightDiff(diff, document.getElementById("diff"));
+	hunkHeaders = document.getElementById("diff").getElementsByClassName("hunkheader");
 
 	for (i = 0; i < hunkHeaders.length; ++i) {
 		var header = hunkHeaders[i];

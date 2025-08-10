@@ -80,13 +80,13 @@ var selectCommit = function(a) {
 
 // Relead only refs
 var reload = function() {
-	$("notification").style.display = "none";
+	document.getElementById("notification").style.display = "none";
 	commit.reloadRefs();
 	showRefs();
 }
 
 var showRefs = function() {
-	var refs = $("refs");
+	var refs = document.getElementById("refs");
 	if (commit.refs) {
 		refs.parentNode.style.display = "";
 		refs.innerHTML = "";
@@ -110,17 +110,17 @@ var loadCommit = function(commitObject, currentRef) {
 	commit = new Commit(commitObject);
 	commit.currentRef = currentRef;
 
-	$("commitID").innerHTML = commit.sha;
-	$("authorID").innerHTML = commit.author_name;
-	$("subjectID").innerHTML = commit.subject.escapeHTML();
-	$("diff").innerHTML = ""
-	$("message").innerHTML = ""
-	$("files").innerHTML = ""
-	$("date").innerHTML = ""
+	document.getElementById("commitID").innerHTML = commit.sha;
+	document.getElementById("authorID").innerHTML = commit.author_name;
+	document.getElementById("subjectID").innerHTML = commit.subject.escapeHTML();
+	document.getElementById("diff").innerHTML = ""
+	document.getElementById("message").innerHTML = ""
+	document.getElementById("files").innerHTML = ""
+	document.getElementById("date").innerHTML = ""
 	showRefs();
 
-	for (var i = 0; i < $("commit_header").rows.length; ++i) {
-		var row = $("commit_header").rows[i];
+	for (var i = 0; i < document.getElementById("commit_header").rows.length; ++i) {
+		var row = document.getElementById("commit_header").rows[i];
 		if (row.innerHTML.match(/Parent:/)) {
 			row.parentNode.removeChild(row);
 			--i;
@@ -134,7 +134,7 @@ var loadCommit = function(commitObject, currentRef) {
 		return;
 
 	for (var i = 0; i < commit.parents.length; i++) {
-		var newRow = $("commit_header").insertRow(-1);
+		var newRow = document.getElementById("commit_header").insertRow(-1);
 		newRow.innerHTML = "<td class='property_name'>Parent:</td><td>" +
 			"<a class=\"SHA\" href='' onclick='selectCommit(this.innerHTML); return false;'>" +
 			commit.parents[i].SHA() + "</a></td>";
@@ -242,7 +242,7 @@ var showDiff = function() {
 		link.setAttribute("representedFile", finalFile);
 
 		p.insertBefore(img, link);
-		$("files").appendChild(p);
+		document.getElementById("files").appendChild(p);
 	}
 
 	var binaryDiff = function(filename) {
@@ -252,7 +252,7 @@ var showDiff = function() {
 			return "Binary file differs";
 	}
 	
-	highlightDiff(commit.diff, $("diff"), { "newfile" : newfile, "binaryFile" : binaryDiff });
+	highlightDiff(commit.diff, document.getElementById("diff"), { "newfile" : newfile, "binaryFile" : binaryDiff });
 }
 
 var showImage = function(element, filename)
@@ -272,8 +272,8 @@ var enableFeature = function(feature, element)
 
 var enableFeatures = function()
 {
-	enableFeature("gravatar", $("author_gravatar").parentNode)
-	enableFeature("gravatar", $("committer_gravatar").parentNode)
+	enableFeature("gravatar", document.getElementById("author_gravatar").parentNode)
+	enableFeature("gravatar", document.getElementById("committer_gravatar").parentNode)
 }
 
 var loadCommitDetails = function(data)
@@ -283,34 +283,34 @@ var loadCommitDetails = function(data)
 	if (commit.notificationID)
 		clearTimeout(commit.notificationID)
 	else
-		$("notification").style.display = "none";
+		document.getElementById("notification").style.display = "none";
 
 	var formatEmail = function(name, email) {
 		return email ? name + " &lt;<a href='mailto:" + email + "'>" + email + "</a>&gt;" : name;
 	}
 
-	$("authorID").innerHTML = formatEmail(commit.author_name, commit.author_email);
-	$("date").innerHTML = commit.author_date;
-	setGravatar(commit.author_email, $("author_gravatar"));
+	document.getElementById("authorID").innerHTML = formatEmail(commit.author_name, commit.author_email);
+	document.getElementById("date").innerHTML = commit.author_date;
+	setGravatar(commit.author_email, document.getElementById("author_gravatar"));
 
 	if (commit.committer_name != commit.author_name) {
-		$("committerID").parentNode.style.display = "";
-		$("committerID").innerHTML = formatEmail(commit.committer_name, commit.committer_email);
+		document.getElementById("committerID").parentNode.style.display = "";
+		document.getElementById("committerID").innerHTML = formatEmail(commit.committer_name, commit.committer_email);
 
-		$("committerDate").parentNode.style.display = "";
-		$("committerDate").innerHTML = commit.committer_date;
-		setGravatar(commit.committer_email, $("committer_gravatar"));
+		document.getElementById("committerDate").parentNode.style.display = "";
+		document.getElementById("committerDate").innerHTML = commit.committer_date;
+		setGravatar(commit.committer_email, document.getElementById("committer_gravatar"));
 	} else {
-		$("committerID").parentNode.style.display = "none";
-		$("committerDate").parentNode.style.display = "none";
+		document.getElementById("committerID").parentNode.style.display = "none";
+		document.getElementById("committerDate").parentNode.style.display = "none";
 	}
 
-	$("message").innerHTML = commit.message.replace(/\b(https?:\/\/[^\s<]*)/ig, "<a href=\"$1\">$1</a>").replace(/\n/g,"<br>");
+	document.getElementById("message").innerHTML = commit.message.replace(/\b(https?:\/\/[^\s<]*)/ig, "<a href=\"$1\">$1</a>").replace(/\n/g,"<br>");
 
 	if (commit.diff.length < 200000)
 		showDiff();
 	else
-		$("diff").innerHTML = "<a class='showdiff' href='' onclick='showDiff(); return false;'>This is a large commit. Click here or press 'v' to view.</a>";
+		document.getElementById("diff").innerHTML = "<a class='showdiff' href='' onclick='showDiff(); return false;'>This is a large commit. Click here or press 'v' to view.</a>";
 
 	hideNotification();
 	enableFeatures();

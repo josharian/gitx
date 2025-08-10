@@ -3,7 +3,7 @@ var showMultipleFilesSelection = function(files)
 	hideNotification();
 	setTitle("");
 
-	var div = $("diff");
+	var div = document.getElementById("diff");
 
 	var contents = '<div id="multiselect">' +
 		'<div class="title">Multiple Selection</div>';
