@@ -25,7 +25,6 @@
 #import "PBCreateTagSheet.h"
 #import "PBGitSidebarController.h"
 #import "PBGitGradientBarView.h"
-#import "PBDiffWindowController.h"
 #import "PBGitDefaults.h"
 #import "PBGitRevList.h"
 #import "PBHistorySearchController.h"

@@ -23,7 +23,6 @@
 		4A5D75F914A9A90500DF6C68 /* UpdateKey.pem in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75B714A9A90500DF6C68 /* UpdateKey.pem */; };
 		4A5D75FB14A9A90500DF6C68 /* OpenRecentPopup.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BA14A9A90500DF6C68 /* OpenRecentPopup.xib */; };
 		4A5D75FC14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BB14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib */; };
-		4A5D75FD14A9A90500DF6C68 /* PBDiffWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BC14A9A90500DF6C68 /* PBDiffWindow.xib */; };
 		4A5D75FE14A9A90500DF6C68 /* PBGitCommitView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BD14A9A90500DF6C68 /* PBGitCommitView.xib */; };
 		4A5D75FF14A9A90500DF6C68 /* PBGitHistoryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BE14A9A90500DF6C68 /* PBGitHistoryView.xib */; };
 		4A5D760014A9A90500DF6C68 /* PBGitSidebarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BF14A9A90500DF6C68 /* PBGitSidebarView.xib */; };
@@ -37,7 +36,6 @@
 		4A5D76E114A9A9CC00DF6C68 /* ApplicationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762714A9A9CC00DF6C68 /* ApplicationController.m */; };
 		4A5D76E214A9A9CC00DF6C68 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762914A9A9CC00DF6C68 /* DBPrefsWindowController.m */; };
 		4A5D76E314A9A9CC00DF6C68 /* OpenRecentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.m */; };
-		4A5D76E414A9A9CC00DF6C68 /* PBDiffWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762D14A9A9CC00DF6C68 /* PBDiffWindowController.m */; };
 		4A5D76E514A9A9CC00DF6C68 /* PBGitCommitController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762F14A9A9CC00DF6C68 /* PBGitCommitController.m */; };
 		4A5D76E614A9A9CC00DF6C68 /* PBGitHistoryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D763114A9A9CC00DF6C68 /* PBGitHistoryController.m */; };
 		4A5D76E714A9A9CC00DF6C68 /* PBGitIndexController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D763314A9A9CC00DF6C68 /* PBGitIndexController.m */; };
@@ -51,7 +49,6 @@
 		4A5D76EF14A9A9CC00DF6C68 /* PBViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764314A9A9CC00DF6C68 /* PBViewController.m */; };
 		4A5D76F014A9A9CC00DF6C68 /* PBWebChangesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764514A9A9CC00DF6C68 /* PBWebChangesController.m */; };
 		4A5D76F114A9A9CC00DF6C68 /* PBWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764714A9A9CC00DF6C68 /* PBWebController.m */; };
-		4A5D76F214A9A9CC00DF6C68 /* PBWebDiffController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764914A9A9CC00DF6C68 /* PBWebDiffController.m */; };
 		4A5D76F314A9A9CC00DF6C68 /* PBWebHistoryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764B14A9A9CC00DF6C68 /* PBWebHistoryController.m */; };
 		4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */; };
 		4A5D76F514A9A9CC00DF6C68 /* PBGitCommit.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765114A9A9CC00DF6C68 /* PBGitCommit.m */; };
@@ -184,7 +181,6 @@
 		4A5D75B714A9A90500DF6C68 /* UpdateKey.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = UpdateKey.pem; sourceTree = "<group>"; };
 		4A5D75BA14A9A90500DF6C68 /* OpenRecentPopup.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenRecentPopup.xib; sourceTree = "<group>"; };
 		4A5D75BB14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PBCommitHookFailedSheet.xib; sourceTree = "<group>"; };
-		4A5D75BC14A9A90500DF6C68 /* PBDiffWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PBDiffWindow.xib; sourceTree = "<group>"; };
 		4A5D75BD14A9A90500DF6C68 /* PBGitCommitView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PBGitCommitView.xib; sourceTree = "<group>"; };
 		4A5D75BE14A9A90500DF6C68 /* PBGitHistoryView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PBGitHistoryView.xib; sourceTree = "<group>"; };
 		4A5D75BF14A9A90500DF6C68 /* PBGitSidebarView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PBGitSidebarView.xib; sourceTree = "<group>"; };
@@ -201,8 +197,6 @@
 		4A5D762914A9A9CC00DF6C68 /* DBPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBPrefsWindowController.m; sourceTree = "<group>"; };
 		4A5D762A14A9A9CC00DF6C68 /* OpenRecentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenRecentController.h; sourceTree = "<group>"; };
 		4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenRecentController.m; sourceTree = "<group>"; };
-		4A5D762C14A9A9CC00DF6C68 /* PBDiffWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBDiffWindowController.h; sourceTree = "<group>"; };
-		4A5D762D14A9A9CC00DF6C68 /* PBDiffWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBDiffWindowController.m; sourceTree = "<group>"; };
 		4A5D762E14A9A9CC00DF6C68 /* PBGitCommitController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitCommitController.h; sourceTree = "<group>"; };
 		4A5D762F14A9A9CC00DF6C68 /* PBGitCommitController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitCommitController.m; sourceTree = "<group>"; };
 		4A5D763014A9A9CC00DF6C68 /* PBGitHistoryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PBGitHistoryController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -229,8 +223,6 @@
 		4A5D764514A9A9CC00DF6C68 /* PBWebChangesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBWebChangesController.m; sourceTree = "<group>"; };
 		4A5D764614A9A9CC00DF6C68 /* PBWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBWebController.h; sourceTree = "<group>"; };
 		4A5D764714A9A9CC00DF6C68 /* PBWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBWebController.m; sourceTree = "<group>"; };
-		4A5D764814A9A9CC00DF6C68 /* PBWebDiffController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBWebDiffController.h; sourceTree = "<group>"; };
-		4A5D764914A9A9CC00DF6C68 /* PBWebDiffController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBWebDiffController.m; sourceTree = "<group>"; };
 		4A5D764A14A9A9CC00DF6C68 /* PBWebHistoryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PBWebHistoryController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4A5D764B14A9A9CC00DF6C68 /* PBWebHistoryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PBWebHistoryController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4A5D764C14A9A9CC00DF6C68 /* CWQuickLook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWQuickLook.h; sourceTree = "<group>"; };
@@ -542,7 +534,6 @@
 			children = (
 				4A5D75BA14A9A90500DF6C68 /* OpenRecentPopup.xib */,
 				4A5D75BB14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib */,
-				4A5D75BC14A9A90500DF6C68 /* PBDiffWindow.xib */,
 				4A5D75BD14A9A90500DF6C68 /* PBGitCommitView.xib */,
 				4A5D75BE14A9A90500DF6C68 /* PBGitHistoryView.xib */,
 				4A5D75BF14A9A90500DF6C68 /* PBGitSidebarView.xib */,
@@ -603,8 +594,6 @@
 				4A5D762914A9A9CC00DF6C68 /* DBPrefsWindowController.m */,
 				4A5D762A14A9A9CC00DF6C68 /* OpenRecentController.h */,
 				4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.m */,
-				4A5D762C14A9A9CC00DF6C68 /* PBDiffWindowController.h */,
-				4A5D762D14A9A9CC00DF6C68 /* PBDiffWindowController.m */,
 				4A5D762E14A9A9CC00DF6C68 /* PBGitCommitController.h */,
 				4A5D762F14A9A9CC00DF6C68 /* PBGitCommitController.m */,
 				4A5D763014A9A9CC00DF6C68 /* PBGitHistoryController.h */,
@@ -631,8 +620,6 @@
 				4A5D764514A9A9CC00DF6C68 /* PBWebChangesController.m */,
 				4A5D764614A9A9CC00DF6C68 /* PBWebController.h */,
 				4A5D764714A9A9CC00DF6C68 /* PBWebController.m */,
-				4A5D764814A9A9CC00DF6C68 /* PBWebDiffController.h */,
-				4A5D764914A9A9CC00DF6C68 /* PBWebDiffController.m */,
 				4A5D764A14A9A9CC00DF6C68 /* PBWebHistoryController.h */,
 				4A5D764B14A9A9CC00DF6C68 /* PBWebHistoryController.m */,
 			);
@@ -866,7 +853,6 @@
 				4A5D75FB14A9A90500DF6C68 /* OpenRecentPopup.xib in Resources */,
 				4A5D75FC14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib in Resources */,
 				978357AD189C074500ADC689 /* BranchTemplate.pdf in Resources */,
-				4A5D75FD14A9A90500DF6C68 /* PBDiffWindow.xib in Resources */,
 				4A5D75FE14A9A90500DF6C68 /* PBGitCommitView.xib in Resources */,
 				4A5D75FF14A9A90500DF6C68 /* PBGitHistoryView.xib in Resources */,
 				97CF01FB18A6C5BB00E30F2B /* new_file.pdf in Resources */,
@@ -935,7 +921,6 @@
 				4A5D76E114A9A9CC00DF6C68 /* ApplicationController.m in Sources */,
 				4A5D76E214A9A9CC00DF6C68 /* DBPrefsWindowController.m in Sources */,
 				4A5D76E314A9A9CC00DF6C68 /* OpenRecentController.m in Sources */,
-				4A5D76E414A9A9CC00DF6C68 /* PBDiffWindowController.m in Sources */,
 				4A5D76E514A9A9CC00DF6C68 /* PBGitCommitController.m in Sources */,
 				4A5D76E614A9A9CC00DF6C68 /* PBGitHistoryController.m in Sources */,
 				4A5D76E714A9A9CC00DF6C68 /* PBGitIndexController.m in Sources */,
@@ -949,7 +934,6 @@
 				4A5D76EF14A9A9CC00DF6C68 /* PBViewController.m in Sources */,
 				4A5D76F014A9A9CC00DF6C68 /* PBWebChangesController.m in Sources */,
 				4A5D76F114A9A9CC00DF6C68 /* PBWebController.m in Sources */,
-				4A5D76F214A9A9CC00DF6C68 /* PBWebDiffController.m in Sources */,
 				4A5D76F314A9A9CC00DF6C68 /* PBWebHistoryController.m in Sources */,
 				4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */,
 				4A5D76F514A9A9CC00DF6C68 /* PBGitCommit.m in Sources */,

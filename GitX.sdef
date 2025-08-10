@@ -157,9 +157,6 @@
 
 	<suite name="GitX Suite" code="GitX" description="Classes for GitX.">
 
-		<command name="show diff" code="GitXShDf" description="Show the supplied diff output in a GitX window.">
-			<direct-parameter type="text" description="The textual output from a diff tool."/>
-		</command>
 		<command name="init repository" code="GitXInit" description="Create a git repository at the given filesystem URL.">
 			<direct-parameter type="file" description="The filesystem location where the repository should be created."/>
 		</command>
@@ -175,9 +172,6 @@
 		</command>
 
 		<class-extension extends="application" description="The GitX application.">
-			<responds-to name="show diff">
-				<cocoa method="showDiffScriptCommand:"/>
-			</responds-to>
 			<responds-to name="init repository">
 				<cocoa method="initRepositoryScriptCommand:"/>
 			</responds-to>

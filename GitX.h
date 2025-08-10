@@ -37,7 +37,6 @@
 - (void) open:(NSArray<NSURL *> *)x;  // Open a document.
 - (void) quit;  // Quit the application.
 - (BOOL) exists:(id)x;  // Verify that an object exists.
-- (void) showDiff:(NSString *)x;  // Show the supplied diff output in a GitX window.
 - (void) initRepository:(NSURL *)x NS_RETURNS_NOT_RETAINED;  // Create a git repository at the given filesystem URL.
 
 @end

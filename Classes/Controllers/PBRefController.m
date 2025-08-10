@@ -12,7 +12,6 @@
 #import "PBCreateBranchSheet.h"
 #import "PBCreateTagSheet.h"
 #import "PBGitDefaults.h"
-#import "PBDiffWindowController.h"
 #import "PBGitRevSpecifier.h"
 
 #define kDialogDeleteRef @"Delete Ref"
@@ -111,20 +110,6 @@
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
 	[pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
 	[pasteboard setString:[commit patch] forType:NSStringPboardType];
-}
-
-
-#pragma mark Diff
-
-- (void) diffWithHEAD:(PBRefMenuItem *)sender
-{
-	PBGitCommit *commit = nil;
-	if ([[sender refish] refishType] == kGitXCommitType)
-		commit = (PBGitCommit *)[sender refish];
-	else
-		commit = [historyController.repository commitForRef:[sender refish]];
-
-	[PBDiffWindowController showDiffWindowWithFiles:nil fromCommit:commit diffCommit:nil];
 }
 
 #pragma mark Tags

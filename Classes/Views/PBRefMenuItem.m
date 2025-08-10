@@ -66,9 +66,6 @@
 		if ([ref isTag])
 			[items addObject:[PBRefMenuItem itemWithTitle:@"View tag info…" action:@selector(showTagInfoSheet:) enabled:YES]];
 
-		// Diff
-		NSString *diffTitle = [NSString stringWithFormat:@"Diff with %@", headRefName];
-		[items addObject:[PBRefMenuItem itemWithTitle:diffTitle action:@selector(diffWithHEAD:) enabled:!isHead]];
 		[items addObject:[PBRefMenuItem separatorItem]];
 
 		// merge ref
@@ -110,7 +107,6 @@
 
 	NSString *headBranchName = [[[commit.repository headRef] ref] shortName];
 	BOOL isOnHeadBranch = [commit isOnHeadBranch];
-	BOOL isHead = [[commit sha] isEqual:[commit.repository headSHA]];
 
 	[items addObject:[PBRefMenuItem itemWithTitle:@"Checkout Commit" action:@selector(checkout:) enabled:YES]];
 	[items addObject:[PBRefMenuItem separatorItem]];
@@ -122,8 +118,6 @@
 	[items addObject:[PBRefMenuItem itemWithTitle:@"Copy SHA" action:@selector(copySHA:) enabled:YES]];
 	[items addObject:[PBRefMenuItem itemWithTitle:@"Copy short SHA" action:@selector(copyShortSHA:) enabled:YES]];
 	[items addObject:[PBRefMenuItem itemWithTitle:@"Copy Patch" action:@selector(copyPatch:) enabled:YES]];
-	NSString *diffTitle = [NSString stringWithFormat:@"Diff with %@", headBranchName];
-	[items addObject:[PBRefMenuItem itemWithTitle:diffTitle action:@selector(diffWithHEAD:) enabled:!isHead]];
 	[items addObject:[PBRefMenuItem separatorItem]];
 
 	// merge commit
