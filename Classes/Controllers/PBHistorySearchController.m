@@ -176,12 +176,14 @@
 		currentResult = [results indexLessThanIndex:(NSUInteger)selectedRow];
 
 	if (currentResult == NSNotFound) {
+		// Show the rewind panel to indicate we've reached the end
+		[self showSearchRewindPanelReverse:(direction != kGitXSearchDirectionNext)];
+		
+		// Wrap around to continue searching
 		if (direction == kGitXSearchDirectionNext)
 			currentResult = [results firstIndex];
 		else
 			currentResult = [results lastIndex];
-
-		[self showSearchRewindPanelReverse:(direction != kGitXSearchDirectionNext)];
 	}
 
 	[self selectIndex:currentResult];
@@ -224,8 +226,13 @@
 		return;
 	}
 
-	if (![self isRowInSearchResults:[historyController.commitList selectedRow]])
-		[self selectNextResult];
+	NSInteger selectedRow = [historyController.commitList selectedRow];
+	if (selectedRow == NSNotFound || ![self isRowInSearchResults:selectedRow]) {
+		// If no selection or current selection is not in results, select first result
+		if ([results count] > 0) {
+			[self selectIndex:[results firstIndex]];
+		}
+	}
 
 	[self updateUI];
 }
@@ -387,7 +394,10 @@
 
 	results = indexes;
 	
-	NSLog(@"GITX_SEARCH: Basic search found %lu results", [results count]);
+	NSLog(@"GITX_SEARCH: Basic search found %lu results, first: %lu, last: %lu", 
+	      [results count], 
+	      [results count] > 0 ? [results firstIndex] : NSNotFound,
+	      [results count] > 0 ? [results lastIndex] : NSNotFound);
 
 	// Force reload to show search highlighting immediately
 	[historyController.commitList reloadData];
