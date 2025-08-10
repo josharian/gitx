@@ -19,6 +19,7 @@
 #import "PBGitRevisionCellView.h"
 #import "PBGitTableCellView.h"
 #import "PBCommitList.h"
+#import "PBCommitListRowView.h"
 #import "PBRefController.h"
 #import "PBCreateBranchSheet.h"
 #import "PBCreateTagSheet.h"
@@ -306,6 +307,12 @@
 
 	NSArray *selectedCommits = [self selectedObjectsForSHA:commitSHA];
 	[commitController setSelectedObjects:selectedCommits];
+	
+	// Also update the table view selection for view-based table
+	NSIndexSet *selectionIndexes = [commitController selectionIndexes];
+	if (selectionIndexes && [selectionIndexes count] > 0) {
+		[commitList selectRowIndexes:selectionIndexes byExtendingSelection:NO];
+	}
 
 	[self scrollSelectionToTopOfViewFrom:oldIndex];
 
@@ -620,6 +627,44 @@
 	return [tableView rowHeight];
 }
 
+- (NSTableRowView *)tableView:(NSTableView *)tableView rowViewForRow:(NSInteger)row
+{
+	if (tableView != commitList)
+		return nil;
+	
+	PBCommitListRowView *rowView = [tableView makeViewWithIdentifier:@"RowView" owner:self];
+	if (!rowView) {
+		rowView = [[PBCommitListRowView alloc] init];
+		rowView.identifier = @"RowView";
+	}
+	
+	// Update search result status
+	BOOL isSearchResult = [searchController isRowInSearchResults:row];
+	BOOL isSelected = [commitList isRowSelected:row];
+	
+	rowView.isSearchResult = isSearchResult;
+	rowView.isCurrentSearchResult = (isSearchResult && isSelected);
+	
+	return rowView;
+}
+
+- (void)tableView:(NSTableView *)tableView didAddRowView:(NSTableRowView *)rowView forRow:(NSInteger)row
+{
+	if (tableView != commitList)
+		return;
+	
+	if ([rowView isKindOfClass:[PBCommitListRowView class]]) {
+		PBCommitListRowView *commitRowView = (PBCommitListRowView *)rowView;
+		
+		// Update search result status
+		BOOL isSearchResult = [searchController isRowInSearchResults:row];
+		BOOL isSelected = [commitList isRowSelected:row];
+		
+		commitRowView.isSearchResult = isSearchResult;
+		commitRowView.isCurrentSearchResult = (isSearchResult && isSelected);
+	}
+}
+
 #pragma mark - NSTableViewDataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
@@ -627,6 +672,34 @@
 	if (tableView == commitList)
 		return [[commitController arrangedObjects] count];
 	return 0;
+}
+
+#pragma mark - NSTableViewDelegate Selection
+
+- (void)tableViewSelectionDidChange:(NSNotification *)notification
+{
+	if (notification.object == commitList) {
+		NSIndexSet *selectedRows = [commitList selectedRowIndexes];
+		// Only update controller if the selection actually changed
+		if (![selectedRows isEqualToIndexSet:[commitController selectionIndexes]]) {
+			[commitController setSelectionIndexes:selectedRows];
+		}
+		
+		// Update row highlighting for search results
+		if ([searchController hasSearchResults]) {
+			[commitList enumerateAvailableRowViewsUsingBlock:^(NSTableRowView *rowView, NSInteger row) {
+				if ([rowView isKindOfClass:[PBCommitListRowView class]]) {
+					PBCommitListRowView *commitRowView = (PBCommitListRowView *)rowView;
+					BOOL isSearchResult = [searchController isRowInSearchResults:row];
+					BOOL isSelected = [commitList isRowSelected:row];
+					
+					commitRowView.isSearchResult = isSearchResult;
+					commitRowView.isCurrentSearchResult = (isSearchResult && isSelected);
+					[commitRowView setNeedsDisplay:YES];
+				}
+			}];
+		}
+	}
 }
 
 #pragma mark - Context Menu

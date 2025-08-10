@@ -384,6 +384,8 @@
 	}
 
 	results = indexes;
+	
+	NSLog(@"GITX_SEARCH: Basic search found %lu results", [results count]);
 
 	[self updateSelectedResult];
 }

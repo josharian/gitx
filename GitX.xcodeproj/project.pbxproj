@@ -79,6 +79,7 @@
 		4A5D771214A9A9CC00DF6C68 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768B14A9A9CC00DF6C68 /* main.m */; };
 		4A5D771314A9A9CC00DF6C68 /* PBChangedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */; };
 		4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */; };
+		B4A1F9A02D3B0A1200000003 /* PBCommitListRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A1F99F2D3B0A1200000002 /* PBCommitListRowView.m */; };
 		4A5D771614A9A9CC00DF6C68 /* PBGraphCellInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769314A9A9CC00DF6C68 /* PBGraphCellInfo.m */; };
 		4A5D771714A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769514A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m */; };
 		4A5D771B14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769F14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m */; };
@@ -287,6 +288,8 @@
 		4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBChangedFile.m; sourceTree = "<group>"; };
 		4A5D769014A9A9CC00DF6C68 /* PBCommitList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBCommitList.h; sourceTree = "<group>"; };
 		4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBCommitList.m; sourceTree = "<group>"; };
+		B4A1F99E2D3B0A1200000001 /* PBCommitListRowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PBCommitListRowView.h; path = Views/PBCommitListRowView.h; sourceTree = "<group>"; };
+		B4A1F99F2D3B0A1200000002 /* PBCommitListRowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PBCommitListRowView.m; path = Views/PBCommitListRowView.m; sourceTree = "<group>"; };
 		4A5D769214A9A9CC00DF6C68 /* PBGraphCellInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGraphCellInfo.h; sourceTree = "<group>"; };
 		4A5D769314A9A9CC00DF6C68 /* PBGraphCellInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGraphCellInfo.m; sourceTree = "<group>"; };
 		4A5D769414A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBNSURLPathUserDefaultsTransfomer.h; sourceTree = "<group>"; };
@@ -574,6 +577,8 @@
 				4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */,
 				4A5D769014A9A9CC00DF6C68 /* PBCommitList.h */,
 				4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */,
+				B4A1F99E2D3B0A1200000001 /* PBCommitListRowView.h */,
+				B4A1F99F2D3B0A1200000002 /* PBCommitListRowView.m */,
 				4A5D769214A9A9CC00DF6C68 /* PBGraphCellInfo.h */,
 				4A5D769314A9A9CC00DF6C68 /* PBGraphCellInfo.m */,
 				4A5D769414A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.h */,
@@ -972,6 +977,7 @@
 				4A5D771214A9A9CC00DF6C68 /* main.m in Sources */,
 				4A5D771314A9A9CC00DF6C68 /* PBChangedFile.m in Sources */,
 				4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */,
+				B4A1F9A02D3B0A1200000003 /* PBCommitListRowView.m in Sources */,
 				4A5D771614A9A9CC00DF6C68 /* PBGraphCellInfo.m in Sources */,
 				4A5D771714A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m in Sources */,
 				4A5D771B14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m in Sources */,
