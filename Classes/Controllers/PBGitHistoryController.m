@@ -88,8 +88,11 @@
 
 	[historySplitView setTopMin:58.0 andBottomMin:100.0];
 	[historySplitView setHidden:YES];
-	// Restore split view position synchronously after view is properly set up
-	[self restoreSplitViewPosition];
+	
+	// Defer split view setup to next run loop to ensure proper layout
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[self restoreSplitViewPosition];
+	});
 
 	[upperToolbarView setTopShade:237.0f/255.0f bottomShade:216.0f/255.0f];
 	
@@ -463,7 +466,20 @@
 	// Force the split view to recalculate and adjust subview layouts
 	[historySplitView adjustSubviews];
 	
+	// Force layout of all subviews before unhiding
+	[historySplitView setNeedsLayout:YES];
+	[historySplitView layoutSubtreeIfNeeded];
+	
+	// Invalidate the intrinsic content size of subviews
+	for (NSView *subview in [historySplitView subviews]) {
+		[subview setNeedsLayout:YES];
+		[subview setNeedsDisplay:YES];
+	}
+	
 	[historySplitView setHidden:NO];
+	
+	// Force one more layout pass after unhiding
+	[historySplitView setNeedsDisplay:YES];
 }
 
 
