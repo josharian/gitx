@@ -165,7 +165,7 @@
 	}		
 	
 	NSString *commitMessage = [commitMessageView string];
-	if ([commitMessage length] < 3) {
+	if ([commitMessage length] == 0) {
 		[[repository windowController] showMessageSheet:@"Commitmessage missing" infoText:@"Please enter a commit message before committing"];
 		return;
 	}
