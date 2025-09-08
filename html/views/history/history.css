@@ -1,242 +1,248 @@
 body {
-	font-family: 'Lucida Grande';
+  font-family: "Lucida Grande";
 }
 
 /* Main layout container */
 .main-layout {
-	display: flex;
-	width: 100%;
+  display: flex;
+  width: 100%;
 }
 
-.left-column, .right-column {
-	width: 50%;
-	font-size: 12px;
+.left-column,
+.right-column {
+  width: 50%;
+  font-size: 12px;
 }
 
 .right-column {
-	padding-left: 5px;
-	padding-right: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 /* Left column with gravatar and info */
 .left-column {
-	display: flex;
-	align-items: flex-start;
+  display: flex;
+  align-items: flex-start;
 }
 
 .gravatar-column {
-	flex-shrink: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin-right: 8px;
-	margin-bottom: 8px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 8px;
+  margin-bottom: 8px;
 }
 
 .info-column {
-	flex: 1;
+  flex: 1;
 }
 
 /* Consistent row styling for all property rows */
-.subject-row, .author-row, .date-row, .committer-row, .committer-date-row, .sha-row, .refs-row {
-	display: flex;
-	align-items: center;
-	margin-bottom: 0.3em;
-	min-height: 1.2em;
+.subject-row,
+.author-row,
+.date-row,
+.committer-row,
+.committer-date-row,
+.sha-row,
+.refs-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3em;
+  min-height: 1.2em;
 }
 
 .subject-value {
-	font-weight: bold;
-	flex: 1;
-	margin-left: 0.5em;
+  font-weight: bold;
+  flex: 1;
+  margin-left: 0.5em;
 }
 
 /* Author section styling */
 .author-section {
-	margin-left: -4px;
+  margin-left: -4px;
 }
 
-.author-row > div:last-child, 
-.date-row > div:last-child, 
-.committer-row > div:last-child, 
+.author-row > div:last-child,
+.date-row > div:last-child,
+.committer-row > div:last-child,
 .committer-date-row > div:last-child,
-.sha-row > div:last-child, 
+.sha-row > div:last-child,
 .refs-row > div:last-child {
-	flex: 1;
-	margin-left: 0.5em;
+  flex: 1;
+  margin-left: 0.5em;
 }
 
 /* SHA and refs styling */
 #commit_header {
-	width: auto;
+  width: auto;
 }
 
 #rightcontent {
-	position: absolute;
-	right: 5px;
-	top: 5px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
 }
 
 #buttons {
 }
 
 a.servicebutton {
-    display: block;
-    width: 80px;
-    padding: 2px;
-    margin-bottom: 4px;
+  display: block;
+  width: 80px;
+  padding: 2px;
+  margin-bottom: 4px;
 
-    border: 1px solid #3465a4;
-    background-color: #cce5ff;
-    color: #204a87;
+  border: 1px solid #3465a4;
+  background-color: #cce5ff;
+  color: #204a87;
 
-    font-size: 65%;
-    text-decoration: none;
-    text-align: center;
+  font-size: 65%;
+  text-decoration: none;
+  text-align: center;
 
-    -webkit-border-radius: 2px;
+  -webkit-border-radius: 2px;
 }
 
 a.servicebutton:hover {
-	padding: 1px;
-	border: 2px solid #3465a4;
+  padding: 1px;
+  border: 2px solid #3465a4;
 }
 
 .gravatar {
-	margin-left: 5px;
-	padding: 2px;
-	border: solid gray 1px;
-	-webkit-border-radius: 2px;
-	display: inline-block;
+  margin-left: 5px;
+  padding: 2px;
+  border: solid gray 1px;
+  -webkit-border-radius: 2px;
+  display: inline-block;
 }
 
 .gravatar img {
-	width: 60px;
-	height: 60px;
-	display: block;
+  width: 60px;
+  height: 60px;
+  display: block;
 }
 
 .property_name {
-	width: 6em;
-	color:#7F7F7F;
-	text-align: right;
-	font-weight: bold;
+  width: 6em;
+  color: #7f7f7f;
+  text-align: right;
+  font-weight: bold;
 }
 
-
 #message_files {
-	margin: 5px;
-	padding-left: 1em;
-	width: auto;
+  margin: 5px;
+  padding-left: 1em;
+  width: auto;
 }
 
 #message {
-	font-family: Monaco;
-	font-size: 12px;
-	white-space: pre-wrap;
-	padding: 10px;
+  font-family: Monaco;
+  font-size: 12px;
+  white-space: pre-wrap;
+  padding: 10px;
 }
 
 #files {
-	margin-top: 1em;
-	margin-left: 0.5em;
+  margin-top: 1em;
+  margin-left: 0.5em;
 }
 
 #files a {
-	color: #666666;
-	text-decoration: none;
+  color: #666666;
+  text-decoration: none;
 }
 
 #files a:hover {
-	color: #4444ff;
-	border-bottom: 1px solid #4444ff;
+  color: #4444ff;
+  border-bottom: 1px solid #4444ff;
 }
 
 #files img {
-	float: left;
-	margin-right: 0.5em;
-	margin-top: 1px;
+  float: left;
+  margin-right: 0.5em;
+  margin-top: 1px;
   width: 12px;
   height: 12px;
 }
 
 #files p {
-	margin-top: 0.25em;
-	margin-bottom: 0.25em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
 }
 
 #files a .renamed .meta,
 #files a .renamed .old {
-	color: #888888;
-	border-bottom: 1px solid #ffffff;
+  color: #888888;
+  border-bottom: 1px solid #ffffff;
 }
 
 #files a .renamed .meta {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 .clear_both {
-	clear:both;
-	display:block;
-	height:1px;
-	line-height:0;
-	margin:1em;
-	visibility:hidden;
+  clear: both;
+  display: block;
+  height: 1px;
+  line-height: 0;
+  margin: 1em;
+  visibility: hidden;
 }
 
 #details {
-	font-family: Monaco;
-	font-size: 10px;
-	overflow: hidden;
-	width: 600px;
+  font-family: Monaco;
+  font-size: 10px;
+  overflow: hidden;
+  width: 600px;
 }
 hr {
-	border: 0;
-	height: 1px;
-	margin: 0 8px;
-	background-color: #DEDEDE;
-	clear: both;
+  border: 0;
+  height: 1px;
+  margin: 0 8px;
+  background-color: #dedede;
+  clear: both;
 }
 
 a {
-	color: rgb(20, 79, 174);
+  color: rgb(20, 79, 174);
 }
 
 a.showdiff {
-	text-decoration: none;
-	font-size: 1.3em;
+  text-decoration: none;
+  font-size: 1.3em;
 }
 
 .refs {
-	font-size: 9px;
-	font-family: Helvetica;
-	margin-right: 2px;
-	padding: 1px 3px 1px 3px;
-	-webkit-border-radius: 3px;
-	-webkit-box-shadow: 1px 1px 2px #444;
+  font-size: 9px;
+  font-family: Helvetica;
+  margin-right: 2px;
+  padding: 1px 3px 1px 3px;
+  -webkit-border-radius: 3px;
+  -webkit-box-shadow: 1px 1px 2px #444;
 }
 
 .refs.head {
-	background-color: #7ad254;
+  background-color: #7ad254;
 }
 
 .refs.remote {
-	background-color: #82afef;
+  background-color: #82afef;
 }
 
 .refs.tag {
-	background-color: #fced4f;
+  background-color: #fced4f;
 }
 
 .refs.currentBranch {
-	background-color: #fca64f;
+  background-color: #fca64f;
 }
 
 .top-link {
-    text-align: right;
-    margin-right: 20px;
-    padding-bottom: 5px;
-    font-size: 90%;
+  text-align: right;
+  margin-right: 20px;
+  padding-bottom: 5px;
+  font-size: 90%;
 }
 
 /*
