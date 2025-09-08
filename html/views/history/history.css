@@ -2,19 +2,73 @@ body {
 	font-family: 'Lucida Grande';
 }
 
-#commit_header {
-	width: auto;
+/* Main layout container */
+.main-layout {
+	display: flex;
+	width: 100%;
+}
+
+.left-column, .right-column {
+	width: 50%;
 	font-size: 12px;
+}
+
+.right-column {
 	padding-left: 5px;
 	padding-right: 5px;
 }
 
-#commit_header tr {
-        vertical-align: top;
+/* Left column with gravatar and info */
+.left-column {
+	display: flex;
+	align-items: flex-start;
 }
 
-#authorTable {
-	margin: -4px;
+.gravatar-column {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-right: 8px;
+	margin-bottom: 8px;
+}
+
+.info-column {
+	flex: 1;
+}
+
+/* Consistent row styling for all property rows */
+.subject-row, .author-row, .date-row, .committer-row, .committer-date-row, .sha-row, .refs-row {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.3em;
+	min-height: 1.2em;
+}
+
+.subject-value {
+	font-weight: bold;
+	flex: 1;
+	margin-left: 0.5em;
+}
+
+/* Author section styling */
+.author-section {
+	margin-left: -4px;
+}
+
+.author-row > div:last-child, 
+.date-row > div:last-child, 
+.committer-row > div:last-child, 
+.committer-date-row > div:last-child,
+.sha-row > div:last-child, 
+.refs-row > div:last-child {
+	flex: 1;
+	margin-left: 0.5em;
+}
+
+/* SHA and refs styling */
+#commit_header {
+	width: auto;
 }
 
 #rightcontent {
@@ -48,21 +102,18 @@ a.servicebutton:hover {
 	border: 2px solid #3465a4;
 }
 
-#gravatar {
+.gravatar {
 	margin-left: 5px;
 	padding: 2px;
-	width: 60px;
-	height: 60px;
-
 	border: solid gray 1px;
 	-webkit-border-radius: 2px;
+	display: inline-block;
 }
 
 .gravatar img {
-	width: 2.9em;
-	height: 2.9em;
-	max-height: 60px;
-	max-width: 60px;
+	width: 60px;
+	height: 60px;
+	display: block;
 }
 
 .property_name {
