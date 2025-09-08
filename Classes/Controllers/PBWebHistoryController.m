@@ -197,9 +197,5 @@ contextMenuItemsForElement:(NSDictionary *)element
 }
 
 
-- (void) preferencesChanged
-{
-	[[self script] callWebScriptMethod:@"enableFeatures" withArguments:nil];
-}
 
 @end

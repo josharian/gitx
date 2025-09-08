@@ -14,7 +14,6 @@
 #include <SystemConfiguration/SCNetworkReachability.h>
 
 @interface PBWebController()
-- (void)preferencesChangedWithNotification:(NSNotification *)theNotification;
 @end
 
 @implementation PBWebController
@@ -28,11 +27,6 @@
 	NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:file]];
 	callbacks = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory) valueOptions:(NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory)];
 
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	[nc addObserver:self
-	       selector:@selector(preferencesChangedWithNotification:)
-		   name:NSUserDefaultsDidChangeNotification
-		 object:nil];
 
 	finishedLoading = NO;
 	[view setUIDelegate:self];
@@ -150,13 +144,6 @@ decisionListener:(id <WebPolicyDecisionListener>)listener
 	return flags > 0;
 }
 
-- (BOOL) isFeatureEnabled:(NSString *)feature
-{
-	if([feature isEqualToString:@"gravatar"])
-		return [PBGitDefaults isGravatarEnabled];
-	else
-		return YES;
-}
 
 #pragma mark Using async function from JS
 
@@ -198,13 +185,5 @@ decisionListener:(id <WebPolicyDecisionListener>)listener
 	[self returnCallBackForObject:[notification object] withData:data];
 }
 
-- (void) preferencesChanged
-{
-}
-
-- (void)preferencesChangedWithNotification:(NSNotification *)theNotification
-{
-	[self preferencesChanged];
-}
 
 @end

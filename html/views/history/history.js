@@ -66,11 +66,6 @@ var Commit = function (obj) {
 };
 
 var setGravatar = function (email, image) {
-  if (Controller && !Controller.isFeatureEnabled_("gravatar")) {
-    image.src = "";
-    return;
-  }
-
   if (!email) {
     image.src = "http://www.gravatar.com/avatar/?d=wavatar&s=128";
     return;
@@ -283,24 +278,6 @@ var showImage = function (element, filename) {
   return false;
 };
 
-var enableFeature = function (feature, element) {
-  if (!Controller || Controller.isFeatureEnabled_(feature)) {
-    element.style.display = "";
-  } else {
-    element.style.display = "none";
-  }
-};
-
-var enableFeatures = function () {
-  enableFeature(
-    "gravatar",
-    document.getElementById("author_gravatar").parentNode
-  );
-  enableFeature(
-    "gravatar",
-    document.getElementById("committer_gravatar").parentNode
-  );
-};
 
 var loadCommitDetails = function (data) {
   commit.parseDetails(data);
@@ -330,10 +307,6 @@ var loadCommitDetails = function (data) {
 
     document.getElementById("committerDate").parentNode.style.display = "";
     document.getElementById("committerDate").innerHTML = commit.committer_date;
-    setGravatar(
-      commit.committer_email,
-      document.getElementById("committer_gravatar")
-    );
   } else {
     document.getElementById("committerID").parentNode.style.display = "none";
     document.getElementById("committerDate").parentNode.style.display = "none";
@@ -349,7 +322,6 @@ var loadCommitDetails = function (data) {
       "<a class='showdiff' href='' onclick='showDiff(); return false;'>This is a large commit. Click here or press 'v' to view.</a>";
 
   hideNotification();
-  enableFeatures();
 };
 
 var copyShaToClipboard = function () {

@@ -317,17 +317,6 @@
                         <binding destination="28" name="enabled" keyPath="values.PBEnableGist" id="107"/>
                     </connections>
                 </button>
-                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="88">
-                    <rect key="frame" x="18" y="18" width="121" height="18"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="check" title="Enable Gravatar" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="91">
-                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                    <connections>
-                        <binding destination="28" name="value" keyPath="values.PBEnableGravatar" id="96"/>
-                    </connections>
-                </button>
                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="89">
                     <rect key="frame" x="18" y="80" width="111" height="18"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>

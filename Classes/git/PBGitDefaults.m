@@ -14,7 +14,6 @@
 #define kDefaultVerticalBodyLineLength 72
 #define kCommitMessageViewVerticalBodyLineLength @"PBCommitMessageViewVerticalBodyLineLength"
 #define kCommitMessageViewHasVerticalLine @"PBCommitMessageViewHasVerticalLine"
-#define kEnableGravatar @"PBEnableGravatar"
 #define kShowWhitespaceDifferences @"PBShowWhitespaceDifferences"
 #define kOpenCurDirOnLaunch @"PBOpenCurDirOnLaunch"
 #define kShowOpenPanelOnLaunch @"PBShowOpenPanelOnLaunch"
@@ -37,8 +36,6 @@
                       forKey:kCommitMessageViewVerticalBodyLineLength];
     [defaultValues setObject:[NSNumber numberWithBool:YES]
                       forKey:kCommitMessageViewHasVerticalLine];
-	[defaultValues setObject:[NSNumber numberWithBool:YES]
-			  forKey:kEnableGravatar];
 	[defaultValues setObject:[NSNumber numberWithBool:YES]
 			  forKey:kShowWhitespaceDifferences];
 	[defaultValues setObject:[NSNumber numberWithBool:YES]
@@ -71,10 +68,6 @@
 	return (int)[[NSUserDefaults standardUserDefaults] integerForKey:kCommitMessageViewVerticalBodyLineLength];
 }
 
-+ (BOOL) isGravatarEnabled
-{
-	return [[NSUserDefaults standardUserDefaults] boolForKey:kEnableGravatar];
-}
 
 + (BOOL)showWhitespaceDifferences
 {
