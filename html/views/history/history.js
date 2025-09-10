@@ -287,7 +287,7 @@ var loadCommitDetails = function (data) {
 
   var formatEmail = function (name, email) {
     return email
-      ? name + " &lt;<a href='mailto:" + email + "'>" + email + "</a>&gt;"
+      ? name + " &lt;" + email + "&gt;"
       : name;
   };
 
