@@ -80,7 +80,7 @@
 	if (!finishedLoading)
 		return;
 
-	id script = [view windowScriptObject];
+	id script = [self script];
 	[script callWebScriptMethod:@"showFileChanges"
 		      withArguments:[NSArray arrayWithObjects:selectedFile ?: (id)[NSNull null],
 				     [NSNumber numberWithBool:selectedFileIsCached], nil]];
@@ -121,7 +121,7 @@
 
 - (void) setStateMessage:(NSString *)state
 {
-	id script = [view windowScriptObject];
+	id script = [self script];
 	[script callWebScriptMethod:@"setState" withArguments: [NSArray arrayWithObject:state]];
 }
 

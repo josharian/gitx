@@ -9,7 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
 
-@interface PBWebController : NSObject <WebUIDelegate, WebFrameLoadDelegate, WebResourceLoadDelegate> {
+@class PBWebViewBridge;
+
+@interface PBWebController : NSObject {
 	IBOutlet WebView* view;
 	NSString *startFile;
 	BOOL finishedLoading;
@@ -19,6 +21,8 @@
 
 	// For the repository access
 	IBOutlet id repository;
+
+	PBWebViewBridge *_bridge;
 }
 
 @property  NSString *startFile;
@@ -26,4 +30,6 @@
 
 - (WebScriptObject *) script;
 - (void) closeView;
+
+@property (nonatomic, strong, readonly) PBWebViewBridge *bridge;
 @end

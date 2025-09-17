@@ -10,104 +10,106 @@
 #import "PBGitRepository.h"
 #import "PBGitXProtocol.h"
 #import "PBGitDefaults.h"
+#import "PBWebViewBridge.h"
 
 #include <SystemConfiguration/SCNetworkReachability.h>
 
 @interface PBWebController()
+@property (nonatomic, strong) PBWebViewBridge *bridge;
 @end
 
 @implementation PBWebController
 
-@synthesize startFile, repository;
+@synthesize startFile, repository, bridge = _bridge;
 
 - (void) awakeFromNib
 {
-	NSString *path = [NSString stringWithFormat:@"html/views/%@", startFile];
-	NSString* file = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:path];
-	NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:file]];
 	callbacks = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory) valueOptions:(NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory)];
 
-
 	finishedLoading = NO;
-	[view setUIDelegate:self];
-	[view setFrameLoadDelegate:self];
-	[view setResourceLoadDelegate:self];
-	[[view mainFrame] loadRequest:request];
+
+	NSBundle *bundle = [NSBundle mainBundle];
+	self.bridge = [[PBWebViewBridge alloc] initWithWebView:view bundle:bundle];
+
+	__weak typeof(self) weakSelf = self;
+	self.bridge.didClearWindowObjectHandler = ^(PBWebViewBridge *bridge, WebScriptObject *windowObject) {
+		[bridge injectValue:weakSelf forKey:@"Controller"];
+	};
+
+	self.bridge.didFinishLoadHandler = ^(PBWebViewBridge *bridge) {
+		__strong typeof(weakSelf) strongSelf = weakSelf;
+		if (!strongSelf) {
+			return;
+		}
+		strongSelf->finishedLoading = YES;
+		if ([strongSelf respondsToSelector:@selector(didLoad)])
+			[strongSelf performSelector:@selector(didLoad)];
+	};
+
+	self.bridge.requestRewriter = ^NSURLRequest * (PBWebViewBridge *bridge, NSURLRequest *request) {
+		__strong typeof(weakSelf) strongSelf = weakSelf;
+		if (!strongSelf || !strongSelf.repository)
+			return request;
+
+		NSURL *url = request.URL;
+		if (!url)
+			return request;
+
+		NSString *scheme = [[url scheme] lowercaseString];
+		if ([scheme isEqualToString:@"gitx"]) {
+			NSMutableURLRequest *newRequest = [request mutableCopy];
+			[newRequest setRepository:strongSelf.repository];
+			return newRequest;
+		}
+
+		return request;
+	};
+
+	PBWebViewBridgeNavigationHandler navigationBlock = ^BOOL (PBWebViewBridge *bridge, NSURLRequest *request) {
+		NSURL *url = request.URL;
+		if (!url) {
+			return NO;
+		}
+		NSString *scheme = [[url scheme] lowercaseString];
+		if ([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
+			[[NSWorkspace sharedWorkspace] openURL:url];
+			return YES;
+		}
+		return NO;
+	};
+
+	self.bridge.navigationHandler = navigationBlock;
+	self.bridge.newWindowHandler = navigationBlock;
+
+	self.bridge.contextMenuHandler = ^NSArray * (PBWebViewBridge *bridge, NSDictionary *element, NSArray *defaultMenuItems) {
+		__strong typeof(weakSelf) strongSelf = weakSelf;
+		if (!strongSelf) {
+			return defaultMenuItems;
+		}
+		SEL menuSelector = @selector(webView:contextMenuItemsForElement:defaultMenuItems:);
+		if ([strongSelf respondsToSelector:menuSelector]) {
+			return [(id)strongSelf webView:bridge.webView contextMenuItemsForElement:element defaultMenuItems:defaultMenuItems];
+		}
+		return defaultMenuItems;
+	};
+
+	[self.bridge loadStartFileNamed:startFile];
 }
 
 - (WebScriptObject *) script
 {
-	return [view windowScriptObject];
+	return [self.bridge windowScriptObject];
 }
 
 - (void)closeView
 {
 	if (view) {
-		[[self script] setValue:nil forKey:@"Controller"];
+		[self.bridge removeValueForKey:@"Controller"];
 		[view close];
 	}
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
-
-# pragma mark Delegate methods
-
-- (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame
-{
-	id script = [view windowScriptObject];
-	[script setValue: self forKey:@"Controller"];
-}
-
-- (void) webView:(id) v didFinishLoadForFrame:(id) frame
-{
-	finishedLoading = YES;
-	if ([self respondsToSelector:@selector(didLoad)])
-		[self performSelector:@selector(didLoad)];
-}
-
-- (void)webView:(WebView *)webView addMessageToConsole:(NSDictionary *)dictionary
-{
-	NSLog(@"Error from webkit: %@", dictionary);
-}
-
-- (NSURLRequest *)webView:(WebView *)sender
-                 resource:(id)identifier
-          willSendRequest:(NSURLRequest *)request
-         redirectResponse:(NSURLResponse *)redirectResponse
-           fromDataSource:(WebDataSource *)dataSource
-{
-	if (!self.repository)
-		return request;
-
-	// TODO: Change this to canInitWithRequest
-	if ([[[[request URL] scheme] lowercaseString] isEqualToString:@"gitx"]) {
-		NSMutableURLRequest *newRequest = [request mutableCopy];
-		[newRequest setRepository:self.repository];
-		return newRequest;
-	}
-
-	return request;
-}
-
-- (void)webView:(WebView *)sender
-decidePolicyForNavigationAction:(NSDictionary *)actionInformation
-        request:(NSURLRequest *)request
-		  frame:(WebFrame *)frame
-decisionListener:(id <WebPolicyDecisionListener>)listener
-{
-	NSString* scheme = [[request URL] scheme];
-	if ([scheme compare:@"http"] == NSOrderedSame ||
-		[scheme compare:@"https"] == NSOrderedSame)
-	{
-		[listener ignore];
-		[[NSWorkspace sharedWorkspace] openURL:[request URL]];
-	}
-	else
-	{
-		[listener use];
-	}
-}
-
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector
 {

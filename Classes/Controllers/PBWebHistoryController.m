@@ -11,6 +11,7 @@
 // #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
+#import "PBWebViewBridge.h"
 
 @implementation PBWebHistoryController
 
@@ -21,6 +22,15 @@
 	startFile = @"history";
 	repository = historyController.repository;
 	[super awakeFromNib];
+
+	self.bridge.newWindowHandler = ^BOOL (PBWebViewBridge *bridge, NSURLRequest *request) {
+		NSURL *url = request.URL;
+		if (!url) {
+			return NO;
+		}
+		[[NSWorkspace sharedWorkspace] openURL:url];
+		return YES;
+	};
 	[historyController addObserver:self forKeyPath:@"webCommit" options:0 context:@"ChangedCommit"];
 }
 
@@ -98,7 +108,7 @@
 	if (!details)
 		return;
 
-	[[view windowScriptObject] callWebScriptMethod:@"loadCommitDetails" withArguments:[NSArray arrayWithObject:details]];
+	[[self script] callWebScriptMethod:@"loadCommitDetails" withArguments:[NSArray arrayWithObject:details]];
 }
 
 - (void)selectCommit:(NSString *)sha
@@ -126,7 +136,7 @@
 
 - (void) sendKey: (NSString*) key
 {
-	id script = [view windowScriptObject];
+	id script = [self script];
 	[script callWebScriptMethod:@"handleKeyFromCocoa" withArguments: [NSArray arrayWithObject:key]];
 }
 
@@ -173,17 +183,6 @@ contextMenuItemsForElement:(NSDictionary *)element
 
 	return defaultMenuItems;
 }
-
-
-// Open external links in the default browser
--   (void)webView:(WebView *)sender decidePolicyForNewWindowAction:(NSDictionary *)actionInformation
-   		  request:(NSURLRequest *)request
-     newFrameName:(NSString *)frameName
- decisionListener:(id < WebPolicyDecisionListener >)listener
-{
-	[[NSWorkspace sharedWorkspace] openURL:[request URL]];
-}
-
 - getConfig:(NSString *)key
 {
 	NSError *error = nil;
