@@ -14,6 +14,7 @@
 
 @interface PBGitIndexController ()
 - (void)discardChangesForFiles:(NSArray *)files force:(BOOL)force;
+- (BOOL)trashFiles:(NSArray *)files;
 @end
 
 @implementation PBGitIndexController
@@ -128,58 +129,63 @@
 		[menu addItem:showInFinderItem];
     }
 
-	BOOL addDiscardMenu = NO;
+	BOOL hasTrackedChanges = NO;
+	BOOL hasNewFiles = NO;
 	for (PBChangedFile *file in selectedFiles)
 	{
-		if (file.hasUnstagedChanges)
+		if (file.status == NEW)
 		{
-			addDiscardMenu = YES;
-			break;
+			hasNewFiles = YES;
+		}
+		else if (file.hasUnstagedChanges)
+		{
+			hasTrackedChanges = YES;
 		}
 	}
-	if (!addDiscardMenu)
+
+	if (!hasTrackedChanges && !hasNewFiles)
 	{
 		return menu;
 	}
 
-	NSMenuItem *discardItem = [[NSMenuItem alloc] initWithTitle:@"Discard changes…" action:@selector(discardFilesAction:) keyEquivalent:@""];
-	[discardItem setTarget:self];
-	[discardItem setAlternate:NO];
-	[discardItem setRepresentedObject:selectedFiles];
-
-	[menu addItem:discardItem];
-
-	NSMenuItem *discardForceItem = [[NSMenuItem alloc] initWithTitle:@"Discard changes" action:@selector(forceDiscardFilesAction:) keyEquivalent:@""];
-	[discardForceItem setTarget:self];
-	[discardForceItem setAlternate:YES];
-	[discardForceItem setRepresentedObject:selectedFiles];
-	[discardForceItem setKeyEquivalentModifierMask:NSEventModifierFlagOption];
-	[menu addItem:discardForceItem];
-	
-	BOOL trashInsteadOfDiscard = floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_7;
-	if (trashInsteadOfDiscard)
+	if (hasTrackedChanges && hasNewFiles)
 	{
-		for (PBChangedFile* file in selectedFiles)
-		{
-			if (file.status != NEW)
-			{
-				trashInsteadOfDiscard = NO;
-				break;
-			}
-		}
+		NSMenuItem *combinedItem = [[NSMenuItem alloc] initWithTitle:@"Discard/Delete…" action:@selector(discardFilesAction:) keyEquivalent:@""];
+		[combinedItem setTarget:self];
+		[combinedItem setAlternate:NO];
+		[combinedItem setRepresentedObject:selectedFiles];
+		[menu addItem:combinedItem];
+
+		NSMenuItem *combinedForceItem = [[NSMenuItem alloc] initWithTitle:@"Discard/Delete" action:@selector(forceDiscardFilesAction:) keyEquivalent:@""];
+		[combinedForceItem setTarget:self];
+		[combinedForceItem setAlternate:YES];
+		[combinedForceItem setRepresentedObject:selectedFiles];
+		[combinedForceItem setKeyEquivalentModifierMask:NSEventModifierFlagOption];
+		[menu addItem:combinedForceItem];
 	}
-		
-	if (trashInsteadOfDiscard && [selectedFiles count] > 0)
+	else if (hasTrackedChanges)
 	{
-		NSMenuItem* moveToTrashItem = [[NSMenuItem alloc] initWithTitle:@"Move to Trash" action:@selector(moveToTrashAction:) keyEquivalent:@""];
+		NSMenuItem *discardItem = [[NSMenuItem alloc] initWithTitle:@"Discard changes…" action:@selector(discardFilesAction:) keyEquivalent:@""];
+		[discardItem setTarget:self];
+		[discardItem setAlternate:NO];
+		[discardItem setRepresentedObject:selectedFiles];
+		[menu addItem:discardItem];
+
+		NSMenuItem *discardForceItem = [[NSMenuItem alloc] initWithTitle:@"Discard changes" action:@selector(forceDiscardFilesAction:) keyEquivalent:@""];
+		[discardForceItem setTarget:self];
+		[discardForceItem setAlternate:YES];
+		[discardForceItem setRepresentedObject:selectedFiles];
+		[discardForceItem setKeyEquivalentModifierMask:NSEventModifierFlagOption];
+		[menu addItem:discardForceItem];
+	}
+	else if (hasNewFiles)
+	{
+		NSMenuItem *moveToTrashItem = [[NSMenuItem alloc] initWithTitle:@"Move to Trash" action:@selector(moveToTrashAction:) keyEquivalent:@""];
 		[moveToTrashItem setTarget:self];
 		[moveToTrashItem setRepresentedObject:selectedFiles];
 		[menu addItem:moveToTrashItem];
-		
-		[menu removeItem:discardItem];
-		[menu removeItem:discardForceItem];
 	}
-	
+
 	return menu;
 }
 
@@ -247,28 +253,37 @@
 	[ws selectFile: path inFileViewerRootedAtPath:@""];
 }
 
-- (void)moveToTrashAction:(id)sender
+- (BOOL)trashFiles:(NSArray *)files
 {
-	NSArray *selectedFiles = [sender representedObject];
+	if ([files count] == 0)
+		return NO;
 
 	NSString *workingDirectory = [commitController.repository workingDirectory];
-	NSURL* workDirURL = [NSURL fileURLWithPath:workingDirectory isDirectory:YES];
-	
+	NSURL *workDirURL = [NSURL fileURLWithPath:workingDirectory isDirectory:YES];
+
 	BOOL anyTrashed = NO;
-	for (PBChangedFile* file in selectedFiles)
+	for (PBChangedFile *file in files)
 	{
-		NSURL* fileURL = [workDirURL URLByAppendingPathComponent:[file path]];
-		
-		NSError* error = nil;
-		NSURL* resultURL = nil;
+		NSURL *fileURL = [workDirURL URLByAppendingPathComponent:[file path]];
+		NSError *error = nil;
 		if ([[NSFileManager defaultManager] trashItemAtURL:fileURL
-										  resultingItemURL:&resultURL
-													 error:&error])
+									  resultingItemURL:nil
+										   error:&error])
 		{
 			anyTrashed = YES;
 		}
 	}
-	if (anyTrashed)
+
+	return anyTrashed;
+}
+
+- (void)moveToTrashAction:(id)sender
+{
+	NSArray *selectedFiles = [sender representedObject];
+	if ([selectedFiles count] == 0)
+		return;
+
+	if ([self trashFiles:selectedFiles])
 	{
 		[commitController.index refresh];
 	}
@@ -277,21 +292,79 @@
 
 - (void) discardChangesForFiles:(NSArray *)files force:(BOOL)force
 {
-	if (!force) {
+	NSMutableArray *filesToDiscard = [NSMutableArray array];
+	NSMutableArray *filesToTrash = [NSMutableArray array];
+
+	for (PBChangedFile *file in files)
+	{
+		if (file.status == NEW)
+		{
+			[filesToTrash addObject:file];
+		}
+		else
+		{
+			[filesToDiscard addObject:file];
+		}
+	}
+
+	if ([filesToDiscard count] == 0 && [filesToTrash count] == 0)
+		return;
+
+	void (^performDiscardOrDelete)(void) = ^{
+		if ([filesToDiscard count] > 0)
+		{
+			[commitController.index discardChangesForFiles:filesToDiscard];
+		}
+
+		if ([filesToTrash count] > 0 && [self trashFiles:filesToTrash])
+		{
+			[commitController.index refresh];
+		}
+	};
+
+	BOOL requiresConfirmation = (!force && ([filesToDiscard count] > 0 || [filesToTrash count] > 0));
+	if (requiresConfirmation)
+	{
 		NSAlert *alert = [[NSAlert alloc] init];
-		alert.messageText = @"Discard changes";
-		alert.informativeText = @"Are you sure you wish to discard the changes to this file?\n\nYou cannot undo this operation.";
-		[alert addButtonWithTitle:@"Discard"];
+		NSString *messageText = nil;
+		NSString *informativeText = nil;
+		NSString *primaryButtonTitle = nil;
+
+		if ([filesToDiscard count] > 0 && [filesToTrash count] > 0)
+		{
+			messageText = @"Discard tracked changes and delete new files";
+			informativeText = @"Are you sure you wish to discard the changes to tracked files and delete the selected new files?\n\nYou cannot undo this operation.";
+			primaryButtonTitle = @"Discard & Delete";
+		}
+		else if ([filesToDiscard count] > 0)
+		{
+			messageText = @"Discard changes";
+			informativeText = @"Are you sure you wish to discard the changes to the selected files?\n\nYou cannot undo this operation.";
+			primaryButtonTitle = @"Discard";
+		}
+		else
+		{
+			messageText = @"Delete files";
+			informativeText = @"Are you sure you wish to delete the selected files?\n\nYou cannot undo this operation.";
+			primaryButtonTitle = @"Delete";
+		}
+
+		alert.messageText = messageText;
+		alert.informativeText = informativeText;
+		[alert addButtonWithTitle:primaryButtonTitle];
 		[alert addButtonWithTitle:@"Cancel"];
 		
 		[alert beginSheetModalForWindow:[[commitController view] window] completionHandler:^(NSModalResponse returnCode) {
-			if (returnCode == NSAlertFirstButtonReturn || returnCode == NSModalResponseOK) {
-				[commitController.index discardChangesForFiles:files];
+			if (returnCode == NSAlertFirstButtonReturn || returnCode == NSModalResponseOK)
+			{
+				performDiscardOrDelete();
 			}
 		}];
-	} else {
-        [commitController.index discardChangesForFiles:files];
-    }
+	}
+	else
+	{
+		performDiscardOrDelete();
+	}
 }
 
 # pragma mark TableView icon delegate
