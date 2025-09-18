@@ -171,6 +171,50 @@
 
 - (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload
 {
+	if ([type isEqualToString:@"commitApplyPatch"]) {
+		NSString *patch = nil;
+		id patchValue = payload[@"patch"];
+		if ([patchValue isKindOfClass:[NSString class]])
+			patch = patchValue;
+		else if ([patchValue respondsToSelector:@selector(description)])
+			patch = [patchValue description];
+		if (patch.length == 0)
+			return;
+
+		BOOL reverse = NO;
+		id reverseValue = payload[@"reverse"];
+		if ([reverseValue respondsToSelector:@selector(boolValue)])
+			reverse = [reverseValue boolValue];
+
+		BOOL stage = YES;
+		id stageValue = payload[@"stage"];
+		if ([stageValue respondsToSelector:@selector(boolValue)])
+			stage = [stageValue boolValue];
+
+		[controller.index applyPatch:patch stage:stage reverse:reverse];
+		[self refresh];
+		return;
+	}
+
+	if ([type isEqualToString:@"commitDiscardHunk"]) {
+		NSString *patch = nil;
+		id patchValue = payload[@"patch"];
+		if ([patchValue isKindOfClass:[NSString class]])
+			patch = patchValue;
+		else if ([patchValue respondsToSelector:@selector(description)])
+			patch = [patchValue description];
+		if (patch.length == 0)
+			return;
+
+		BOOL altKey = NO;
+		id altValue = payload[@"altKey"];
+		if ([altValue respondsToSelector:@selector(boolValue)])
+			altKey = [altValue boolValue];
+
+		[self discardHunk:patch altKey:altKey];
+		return;
+	}
+
 	if ([type isEqualToString:@"requestCommitDiff"]) {
 		if (!selectedFile)
 			return;

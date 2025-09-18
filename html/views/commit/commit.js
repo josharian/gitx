@@ -4,6 +4,29 @@
 var contextLines = 0;
 var currentCommitSelection = null;
 
+var postCommitMessage = function (message, fallback) {
+  if (window.gitx && typeof window.gitx.postMessage === "function") {
+    try {
+      window.gitx.postMessage(message);
+      return;
+    } catch (error) {
+      if (window.console && console.error) {
+        console.error("commit bridge message failed", error, message);
+      }
+    }
+  }
+
+  if (typeof fallback === "function") {
+    try {
+      fallback();
+    } catch (error) {
+      if (window.console && console.error) {
+        console.error("commit bridge fallback failed", error);
+      }
+    }
+  }
+};
+
 var showNewFile = function(file, diffContents)
 {
 	var path = "";
@@ -314,11 +337,23 @@ var getFullHunk = function(hunk)
 
 var addHunkText = function(hunkText, reverse)
 {
-	//window.console.log((reverse?"Removing":"Adding")+" hunk: \n\t"+hunkText);
-	if (Controller.stageHunk_reverse_)
-		Controller.stageHunk_reverse_(hunkText, reverse);
-	else
-		alert(hunkText);
+	if (!hunkText)
+		return;
+
+	postCommitMessage(
+		{
+			type: "commitApplyPatch",
+			patch: hunkText,
+			reverse: !!reverse,
+			stage: true
+		},
+		function () {
+			if (Controller.stageHunk_reverse_)
+				Controller.stageHunk_reverse_(hunkText, reverse);
+			else
+				alert(hunkText);
+		}
+	);
 }
 
 /* Add the hunk located below the current element */
@@ -330,12 +365,23 @@ var addHunk = function(hunk, reverse)
 var discardHunk = function(hunk, event)
 {
 	var hunkText = getFullHunk(hunk);
+	var altPressed = event && event.altKey === true;
 
-	if (Controller.discardHunk_altKey_) {
-		Controller.discardHunk_altKey_(hunkText, event.altKey == true);
-	} else {
-		alert(hunkText);
-	}
+	postCommitMessage(
+		{
+			type: "commitDiscardHunk",
+			patch: hunkText,
+			altKey: altPressed
+		},
+		function () {
+			if (Controller.discardHunk_altKey_)
+				Controller.discardHunk_altKey_(hunkText, altPressed);
+			else if (Controller.discardHunk_)
+				Controller.discardHunk_(hunkText);
+			else
+				alert(hunkText);
+		}
+	);
 }
 
 /* Split a hunk at the selected unchanged line */
