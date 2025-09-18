@@ -32,6 +32,7 @@
 - (void) closeView;
 
 - (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload NS_REQUIRES_SUPER;
+- (void)sendBridgeEventWithType:(NSString *)type payload:(NSDictionary *)payload;
 
 @property (nonatomic, strong, readonly) PBWebViewBridge *bridge;
 @end

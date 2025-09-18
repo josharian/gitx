@@ -112,16 +112,82 @@
 	static NSString *const kBridgeBootstrap =
 	@"(function(){\n"
 	 "  var gitx = window.gitx = window.gitx || {};\n"
-	 "  gitx.postMessage = function(payload){\n"
+	 "  gitx._nativeSubscribers = gitx._nativeSubscribers || [];\n"
+	 "  gitx.postMessage = gitx.postMessage || function(payload){\n"
 	 "    try {\n"
 	 "      Controller.postJSONMessage_(JSON.stringify(payload || {}));\n"
 	 "    } catch (error) {\n"
 	 "      if (window.console && console.error) { console.error('gitx.postMessage failed', error); }\n"
 	 "    }\n"
 	 "  };\n"
+	 "  gitx.subscribeToNativeMessages = gitx.subscribeToNativeMessages || function(handler){\n"
+	 "    if (typeof handler !== 'function') { return function(){}; }\n"
+	 "    gitx._nativeSubscribers.push(handler);\n"
+	 "    return function(){\n"
+	 "      var index = gitx._nativeSubscribers.indexOf(handler);\n"
+	 "      if (index >= 0) { gitx._nativeSubscribers.splice(index, 1); }\n"
+	 "    };\n"
+	 "  };\n"
+	 "  gitx._dispatchNativeMessage = function(message){\n"
+	 "    var payload = message;\n"
+	 "    if (typeof message === 'string') {\n"
+	 "      try { payload = JSON.parse(message); }\n"
+	 "      catch (error) {\n"
+	 "        if (window.console && console.error) { console.error('gitx._dispatchNativeMessage parse failure', error, message); }\n"
+	 "        return;\n"
+	 "      }\n"
+	 "    }\n"
+	 "    if (!payload || typeof payload !== 'object') {\n"
+	 "      return;\n"
+	 "    }\n"
+	 "    if (typeof gitx.onNativeMessage === 'function') {\n"
+	 "      try { gitx.onNativeMessage(payload); } catch (error) { if (window.console && console.error) { console.error('gitx.onNativeMessage failure', error); } }\n"
+	 "    }\n"
+	 "    gitx._nativeSubscribers.slice().forEach(function(handler){\n"
+	 "      try { handler(payload); }\n"
+	 "      catch (error) {\n"
+	 "        if (window.console && console.error) { console.error('gitx native subscriber failure', error); }\n"
+	 "      }\n"
+	 "    });\n"
+	 "  };\n"
+	 "  window.gitxReceiveNativeMessage = gitx._dispatchNativeMessage;\n"
 	 "})();";
 
 	[self.bridge evaluateJavaScript:kBridgeBootstrap completion:nil];
+}
+
+- (void)sendBridgeEventWithType:(NSString *)type payload:(NSDictionary *)payload
+{
+	if (type.length == 0)
+		return;
+
+	NSMutableDictionary *message = [NSMutableDictionary dictionary];
+	message[@"type"] = type;
+	if (payload.count)
+		[message addEntriesFromDictionary:payload];
+
+	NSError *jsonError = nil;
+	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message options:0 error:&jsonError];
+	if (!jsonData) {
+		NSLog(@"PBWebController: Failed to encode bridge message %@: %@", type, jsonError);
+		return;
+	}
+
+	NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+	if (!jsonString) {
+		NSLog(@"PBWebController: Failed to build JSON string for message %@", type);
+		return;
+	}
+
+	WebScriptObject *scriptObject = [self script];
+	if (!scriptObject)
+		return;
+
+	@try {
+		[scriptObject callWebScriptMethod:@"gitxReceiveNativeMessage" withArguments:@[jsonString]];
+	} @catch (NSException *exception) {
+		NSLog(@"PBWebController: Exception dispatching message %@: %@", type, exception);
+	}
 }
 
 - (void)closeView

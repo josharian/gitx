@@ -13,6 +13,11 @@
 #import "PBGitRevSpecifier.h"
 #import "PBWebViewBridge.h"
 
+@interface PBWebHistoryController ()
+- (NSDictionary *)bridgeDictionaryForCommit:(PBGitCommit *)commit currentRef:(NSString *)currentRef;
+- (NSArray *)bridgeRefsForCommit:(PBGitCommit *)commit;
+@end
+
 @implementation PBWebHistoryController
 
 @synthesize diff;
@@ -61,21 +66,20 @@
 	if (content == nil || !finishedLoading)
 		return;
 
-	// The sha is the same, but refs may have changed.. reload it lazy
-	if ([currentSha isEqual:[content sha]])
-	{
-		[[self script] callWebScriptMethod:@"reload" withArguments: nil];
+	NSString *headRef = [[[historyController repository] headRef] simpleRef];
+	NSDictionary *commitPayload = [self bridgeDictionaryForCommit:content currentRef:headRef];
+	NSString *sha = commitPayload[@"sha"] ?: @"";
+
+	if ([currentSha isEqualToString:sha]) {
+		[self sendBridgeEventWithType:@"commitRefsUpdated" payload:@{ @"commit": commitPayload ?: @{}, @"sha": sha ?: @"" }];
 		return;
 	}
 
-	NSArray *arguments = [NSArray arrayWithObjects:content, [[[historyController repository] headRef] simpleRef], nil];
-	id scriptResult = [[self script] callWebScriptMethod:@"loadCommit" withArguments: arguments];
-	if (!scriptResult) {
-		// the web view is not really ready for scripting???
-		[self performSelector:_cmd withObject:content afterDelay:0.05];
-		return;
-	}
-	currentSha = [content sha];
+	[self sendBridgeEventWithType:@"commitSelected"
+					 payload:@{ @"commit": commitPayload ?: @{},
+							@"currentRef": headRef ?: @"",
+							@"sha": sha ?: @"" }];
+	currentSha = sha;
 
 	// Now we load the extended details. We used to do this in a separate thread,
 	// but this caused some funny behaviour because NSTask's and NSThread's don't really
@@ -108,7 +112,8 @@
 	if (!details)
 		return;
 
-	[[self script] callWebScriptMethod:@"loadCommitDetails" withArguments:[NSArray arrayWithObject:details]];
+	[self sendBridgeEventWithType:@"commitDetails" payload:@{ @"sha": currentSha ?: @"", @"details": details ?: @"" }];
+	[[self script] callWebScriptMethod:@"loadCommitDetails" withArguments:@[details ?: @""]];
 }
 
 - (void)selectCommit:(NSString *)sha
@@ -198,6 +203,61 @@ contextMenuItemsForElement:(NSDictionary *)element
 
 	return defaultMenuItems;
 }
+
+- (NSDictionary *)bridgeDictionaryForCommit:(PBGitCommit *)commit currentRef:(NSString *)currentRef
+{
+	if (!commit)
+		return @{};
+
+	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+	NSString *sha = [commit realSha] ?: [commit sha] ?: @"";
+	dictionary[@"sha"] = sha;
+	if (sha.length >= 1) {
+		NSUInteger shortLength = MIN((NSUInteger)7, sha.length);
+		dictionary[@"shortSha"] = [sha substringToIndex:shortLength];
+	} else {
+		dictionary[@"shortSha"] = @"";
+	}
+
+	dictionary[@"subject"] = [commit subject] ?: @"";
+	dictionary[@"authorName"] = [commit author] ?: @"";
+	dictionary[@"committerName"] = [commit committer] ?: @"";
+	NSArray *parents = [commit parents];
+	dictionary[@"parents"] = parents ? [parents copy] : @[];
+	dictionary[@"refs"] = [self bridgeRefsForCommit:commit];
+	dictionary[@"currentRef"] = currentRef ?: @"";
+
+	return dictionary;
+}
+
+- (NSArray *)bridgeRefsForCommit:(PBGitCommit *)commit
+{
+	NSArray *refs = [commit refs];
+	if (![refs count])
+		return @[];
+
+	NSMutableArray *result = [NSMutableArray arrayWithCapacity:[refs count]];
+	for (PBGitRef *ref in refs) {
+		if (![ref isKindOfClass:[PBGitRef class]])
+			continue;
+
+		NSString *refName = [ref refishName] ?: @"";
+		NSString *shortName = [ref shortName];
+		if (!shortName || shortName.length == 0)
+			shortName = refName;
+
+		NSMutableDictionary *serializedRef = [NSMutableDictionary dictionary];
+		serializedRef[@"ref"] = refName;
+		serializedRef[@"shortName"] = shortName ?: @"";
+		serializedRef[@"type"] = [ref type] ?: @"";
+		serializedRef[@"refType"] = [ref refishType] ?: @"";
+
+		[result addObject:serializedRef];
+	}
+
+	return result;
+}
+
 - getConfig:(NSString *)key
 {
 	NSError *error = nil;

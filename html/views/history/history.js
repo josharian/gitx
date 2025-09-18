@@ -1,20 +1,22 @@
 var commit;
 
+var isArray = function (value) {
+  return Object.prototype.toString.call(value) === "[object Array]";
+};
+
 // Create a new Commit object
-// obj: PBGitCommit object
-var Commit = function (obj) {
-  this.object = obj;
-
-  this.refs = obj.refs();
-  this.author_name = obj.author();
-  this.committer_name = obj.committer();
-  this.sha = obj.realSha();
-  this.parents = obj.parents();
-  this.subject = obj.subject();
+// data: plain object provided by the native bridge
+var Commit = function (data) {
+  data = data || {};
+  this.refs = isArray(data.refs) ? data.refs : [];
+  this.author_name = data.authorName || data.author || "";
+  this.committer_name = data.committerName || data.committer || "";
+  this.sha = data.sha || data.realSha || "";
+  this.parents = isArray(data.parents) ? data.parents : [];
+  this.subject = data.subject || "";
+  this.currentRef = typeof data.currentRef !== "undefined" ? data.currentRef : null;
   this.notificationID = null;
-
-  // TODO:
-  // this.author_date instant
+  this.fullyLoaded = !!data.fullyLoaded;
 
   // This can be called later with the output of
   // 'git show' to fill in missing commit details (such as a diff)
@@ -50,18 +52,24 @@ var Commit = function (obj) {
           this.author_email = match[2];
 
         if (typeof match[3] !== "undefined")
-          this.author_date = new Date(parseInt(match[3]) * 1000);
+          this.author_date = new Date(parseInt(match[3], 10) * 1000);
 
         match = this.header.match(/\ncommitter (.*) <(.*@.*|.*)> ([0-9].*)/);
         if (typeof match[2] !== "undefined") this.committer_email = match[2];
         if (typeof match[3] !== "undefined")
-          this.committer_date = new Date(parseInt(match[3]) * 1000);
+          this.committer_date = new Date(parseInt(match[3], 10) * 1000);
       }
     }
   };
 
-  this.reloadRefs = function () {
-    this.refs = this.object.refs();
+  this.updateFromData = function (update) {
+    if (!update) return;
+    if (isArray(update.refs)) {
+      this.refs = update.refs;
+    }
+    if (typeof update.currentRef !== "undefined") {
+      this.currentRef = update.currentRef;
+    }
   };
 };
 
@@ -85,26 +93,40 @@ var selectCommit = function (a) {
   }
 };
 
-// Relead only refs
-var reload = function () {
-  document.getElementById("notification").style.display = "none";
-  commit.reloadRefs();
+var updateCommitRefs = function (commitData) {
+  if (!commit) return;
+  if (commitData && commitData.sha && commitData.sha !== commit.sha) return;
+  commit.updateFromData(commitData || {});
   showRefs();
+};
+
+// Relead only refs
+var reload = function (payload) {
+  document.getElementById("notification").style.display = "none";
+  if (payload) updateCommitRefs(payload);
+  else if (commit) showRefs();
 };
 
 var showRefs = function () {
   var refs = document.getElementById("refs");
-  if (commit.refs) {
+  if (commit && commit.refs && commit.refs.length) {
     refs.parentNode.style.display = "";
     refs.innerHTML = "";
     for (var i = 0; i < commit.refs.length; i++) {
-      var ref = commit.refs[i];
+      var ref = commit.refs[i] || {};
+      var refName = (ref.ref || "").toString();
+      var shortName =
+        ref.shortName != null && ref.shortName !== ""
+          ? ref.shortName
+          : refName;
+      shortName = shortName.toString();
+      var cssType = (ref.type || "").toString();
       refs.innerHTML +=
         '<span class="refs ' +
-        ref.type() +
-        (commit.currentRef == ref.ref ? " currentBranch" : "") +
+        cssType +
+        (commit.currentRef === refName && refName !== "" ? " currentBranch" : "") +
         '">' +
-        ref.shortName() +
+        shortName.escapeHTML() +
         "</span> ";
     }
   } else refs.parentNode.style.display = "none";
@@ -119,11 +141,13 @@ var loadCommit = function (commitObject, currentRef) {
   if (commit && commit.notificationID) clearTimeout(commit.notificationID);
 
   commit = new Commit(commitObject);
-  commit.currentRef = currentRef;
+  commit.fullyLoaded = false;
+  if (typeof currentRef !== "undefined" && currentRef !== null)
+    commit.currentRef = currentRef;
 
-  document.getElementById("commitID").innerHTML = commit.sha;
-  document.getElementById("authorID").innerHTML = commit.author_name;
-  document.getElementById("subjectID").innerHTML = commit.subject.escapeHTML();
+  document.getElementById("commitID").textContent = commit.sha;
+  document.getElementById("authorID").textContent = commit.author_name;
+  document.getElementById("subjectID").innerHTML = commit.subject.toString().escapeHTML();
   document.getElementById("diff").innerHTML = "";
   document.getElementById("message").innerHTML = "";
   document.getElementById("files").innerHTML = "";
@@ -145,14 +169,15 @@ var loadCommit = function (commitObject, currentRef) {
   // Scroll to top
   scroll(0, 0);
 
-  if (!commit.parents) return;
+  if (!commit.parents || !commit.parents.length) return;
 
   for (var i = 0; i < commit.parents.length; i++) {
+    var parentSha = (commit.parents[i] || "").toString();
     var newRow = document.getElementById("commit_header").insertRow(-1);
     newRow.innerHTML =
       "<td class='property_name'>Parent:</td><td>" +
       "<a class=\"SHA\" href='' onclick='selectCommit(this.innerHTML); return false;'>" +
-      commit.parents[i].SHA() +
+      parentSha.escapeHTML() +
       "</a></td>";
   }
 
@@ -284,6 +309,7 @@ var showImage = function (element, filename) {
 
 
 var loadCommitDetails = function (data) {
+  if (!commit) return;
   commit.parseDetails(data);
 
   if (commit.notificationID) clearTimeout(commit.notificationID);
@@ -326,7 +352,46 @@ var loadCommitDetails = function (data) {
       "<a class='showdiff' href='' onclick='showDiff(); return false;'>This is a large commit. Click here or press 'v' to view.</a>";
 
   hideNotification();
+  commit.fullyLoaded = true;
 };
+
+var handleNativeMessage = function (message) {
+  if (!message || typeof message.type !== "string") return;
+  switch (message.type) {
+    case "commitSelected":
+      loadCommit(message.commit || {}, message.currentRef);
+      break;
+    case "commitRefsUpdated":
+      updateCommitRefs(message.commit || {});
+      break;
+    case "commitDetails":
+      if (!commit) return;
+      if (message.sha && message.sha !== commit.sha) return;
+      if (typeof message.details === "string") {
+        loadCommitDetails(message.details);
+      }
+      break;
+  }
+};
+
+if (window.gitx && typeof window.gitx.subscribeToNativeMessages === "function") {
+  window.gitx.subscribeToNativeMessages(handleNativeMessage);
+} else {
+  window.gitx = window.gitx || {};
+  var previousNativeHandler = window.gitx.onNativeMessage;
+  window.gitx.onNativeMessage = function (message) {
+    if (typeof previousNativeHandler === "function") {
+      try {
+        previousNativeHandler(message);
+      } catch (error) {
+        if (window.console && console.error) {
+          console.error("gitx.onNativeMessage error", error);
+        }
+      }
+    }
+    handleNativeMessage(message);
+  };
+}
 
 var copyShaToClipboard = function () {
   var sha = document.getElementById("commitID").textContent;
