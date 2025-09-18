@@ -6,6 +6,40 @@ var scrollToTop = function(element) {
 	element.scrollIntoView(true);
 }
 
+var postNavigationMessage = function(type, payload, fallback) {
+	payload = payload || {};
+	if (window.gitx && typeof window.gitx.postMessage === "function") {
+		try {
+			var message = { type: type };
+			for (var key in payload) {
+				if (Object.prototype.hasOwnProperty.call(payload, key))
+					message[key] = payload[key];
+			}
+			window.gitx.postMessage(message);
+			return;
+		} catch (error) {
+			if (window.console && console.error)
+				console.error("keyboardNavigation bridge message failed", error, type, payload);
+		}
+	}
+
+	if (typeof fallback === "function") {
+		try {
+			fallback();
+		} catch (error) {
+			if (window.console && console.error)
+				console.error("keyboardNavigation fallback failed", error);
+		}
+	}
+};
+
+var triggerCopySource = function() {
+	postNavigationMessage("copySource", {}, function() {
+		if (Controller && typeof Controller.copySource === "function")
+			Controller.copySource();
+	});
+};
+
 var handleKeys = function(event) {
 	if (event.altKey || event.metaKey || event.shiftKey)
 		return;
@@ -20,7 +54,7 @@ var handleKeys = function(event) {
 	else if (event.keyCode == 86) // 'v'
 		showDiff();
 	else if (event.keyCode == 67) // 'c'
-		Controller.copySource();
+		triggerCopySource();
 	return true;
 }
 
@@ -32,7 +66,7 @@ var handleKeyFromCocoa = function(key) {
 	else if (key == 'v')
 		showDiff();
 	else if (key == 'c')
-		Controller.copySource();
+		triggerCopySource();
 }
 
 var changeHunk = function(next) {

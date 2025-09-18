@@ -160,6 +160,11 @@
 		return;
 	}
 
+	if ([type isEqualToString:@"copySource"]) {
+		[self copySource];
+		return;
+	}
+
 	[super handleBridgeMessage:type payload:payload];
 }
 
