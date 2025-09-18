@@ -371,6 +371,17 @@ var handleNativeMessage = function (message) {
         loadCommitDetails(message.details);
       }
       break;
+    case "historyKeyCommand":
+      if (typeof handleKeyFromCocoa === "function") {
+        try {
+          handleKeyFromCocoa(message.key);
+        } catch (error) {
+          if (window.console && console.error) {
+            console.error("historyKeyCommand handler failed", error);
+          }
+        }
+      }
+      break;
   }
 };
 

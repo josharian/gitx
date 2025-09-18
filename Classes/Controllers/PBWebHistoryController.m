@@ -112,8 +112,8 @@
 	if (!details)
 		return;
 
-	[self sendBridgeEventWithType:@"commitDetails" payload:@{ @"sha": currentSha ?: @"", @"details": details ?: @"" }];
-	[[self script] callWebScriptMethod:@"loadCommitDetails" withArguments:@[details ?: @""]];
+	NSDictionary *payload = @{ @"sha": currentSha ?: @"", @"details": details ?: @"" };
+	[self sendBridgeEventWithType:@"commitDetails" payload:payload];
 }
 
 - (void)selectCommit:(NSString *)sha
@@ -141,8 +141,11 @@
 
 - (void) sendKey: (NSString*) key
 {
-	id script = [self script];
-	[script callWebScriptMethod:@"handleKeyFromCocoa" withArguments: [NSArray arrayWithObject:key]];
+	if (key.length == 0 || !finishedLoading)
+		return;
+
+	NSDictionary *payload = @{ @"key": key ?: @"" };
+	[self sendBridgeEventWithType:@"historyKeyCommand" payload:payload];
 }
 
 - (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload

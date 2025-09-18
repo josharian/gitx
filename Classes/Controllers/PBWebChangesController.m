@@ -10,6 +10,10 @@
 #import "PBGitIndexController.h"
 #import "PBGitIndex.h"
 
+@interface PBWebChangesController ()
+- (NSDictionary *)bridgeDictionaryForChangedFile:(PBChangedFile *)file;
+@end
+
 @implementation PBWebChangesController
 
 - (void) awakeFromNib
@@ -72,7 +76,25 @@
 
 - (void) showMultiple: (NSArray *)objects
 {
-	[[self script] callWebScriptMethod:@"showMultipleFilesSelection" withArguments:[NSArray arrayWithObject:objects]];
+	if (!finishedLoading)
+		return;
+
+	NSMutableArray *filesPayload = [NSMutableArray arrayWithCapacity:[objects count]];
+	for (id file in objects) {
+		NSString *path = nil;
+		if ([file isKindOfClass:[PBChangedFile class]])
+			path = [(PBChangedFile *)file path];
+		else if ([file respondsToSelector:@selector(path)])
+			path = [file valueForKey:@"path"];
+
+		if (!path)
+			path = @"";
+
+		[filesPayload addObject:@{ @"path": path }];
+	}
+
+	NSDictionary *payload = @{ @"files": filesPayload };
+	[self sendBridgeEventWithType:@"commitMultipleSelection" payload:payload];
 }
 
 - (void) refresh
@@ -80,10 +102,12 @@
 	if (!finishedLoading)
 		return;
 
-	id script = [self script];
-	[script callWebScriptMethod:@"showFileChanges"
-		      withArguments:[NSArray arrayWithObjects:selectedFile ?: (id)[NSNull null],
-				     [NSNumber numberWithBool:selectedFileIsCached], nil]];
+	NSMutableDictionary *payload = [NSMutableDictionary dictionary];
+	payload[@"cached"] = @(selectedFileIsCached);
+	if (selectedFile)
+		payload[@"file"] = [self bridgeDictionaryForChangedFile:selectedFile];
+
+	[self sendBridgeEventWithType:@"commitSelectionChanged" payload:payload];
 }
 
 - (void)stageHunk:(NSString *)hunk reverse:(BOOL)reverse
@@ -121,8 +145,72 @@
 
 - (void) setStateMessage:(NSString *)state
 {
-	id script = [self script];
-	[script callWebScriptMethod:@"setState" withArguments: [NSArray arrayWithObject:state]];
+	if (!finishedLoading)
+		return;
+
+	NSDictionary *payload = @{ @"state": state ?: @"" };
+	[self sendBridgeEventWithType:@"commitState" payload:payload];
+}
+
+- (NSDictionary *)bridgeDictionaryForChangedFile:(PBChangedFile *)file
+{
+	if (!file)
+		return @{};
+
+	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+	NSString *path = file.path ?: @"";
+	dictionary[@"path"] = path;
+	dictionary[@"status"] = @(file.status);
+	dictionary[@"hasStagedChanges"] = @(file.hasStagedChanges);
+	dictionary[@"hasUnstagedChanges"] = @(file.hasUnstagedChanges);
+	dictionary[@"commitBlobSHA"] = file.commitBlobSHA ?: @"";
+	dictionary[@"commitBlobMode"] = file.commitBlobMode ?: @"";
+
+	return dictionary;
+}
+
+- (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload
+{
+	if ([type isEqualToString:@"requestCommitDiff"]) {
+		if (!selectedFile)
+			return;
+
+		NSString *requestedPath = nil;
+		id pathValue = payload[@"path"];
+		if ([pathValue isKindOfClass:[NSString class]])
+			requestedPath = pathValue;
+		else if ([pathValue respondsToSelector:@selector(description)])
+			requestedPath = [pathValue description];
+
+		NSString *currentPath = selectedFile.path ?: @"";
+		if (requestedPath && ![requestedPath isEqualToString:currentPath])
+			return;
+
+		NSUInteger contextLines = 0;
+		id contextValue = payload[@"contextLines"];
+		if ([contextValue respondsToSelector:@selector(unsignedIntegerValue)])
+			contextLines = [contextValue unsignedIntegerValue];
+		else if ([contextValue respondsToSelector:@selector(integerValue)])
+			contextLines = (NSUInteger)MAX(0, [contextValue integerValue]);
+
+		NSString *diff = [controller.index diffForFile:selectedFile staged:selectedFileIsCached contextLines:contextLines];
+		BOOL isBinary = (diff == nil);
+		if (!diff)
+			diff = @"";
+
+		NSMutableDictionary *response = [NSMutableDictionary dictionary];
+		response[@"path"] = currentPath ?: @"";
+		response[@"cached"] = @(selectedFileIsCached);
+		response[@"contextLines"] = @(contextLines);
+		response[@"diff"] = diff;
+		response[@"isBinary"] = @(isBinary);
+		response[@"isNewFile"] = @((selectedFile.status == NEW));
+
+		[self sendBridgeEventWithType:@"commitDiff" payload:response];
+		return;
+	}
+
+	[super handleBridgeMessage:type payload:payload];
 }
 
 @end

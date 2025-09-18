@@ -2,18 +2,22 @@
    hunks, individual lines, or ranges of lines.  */
 
 var contextLines = 0;
+var currentCommitSelection = null;
 
-var showNewFile = function(file)
+var showNewFile = function(file, diffContents)
 {
-	setTitle("New file: " + file.path.escapeHTML());
+	var path = "";
+	if (file && file.path)
+		path = file.path.toString();
+	setTitle("New file: " + path.escapeHTML());
 
-	var contents = Index.diffForFile_staged_contextLines_(file, false, contextLines);
-	if (!contents) {
+	if (diffContents == null) {
 		notify("Can not display changes (Binary file?)", -1);
 		diff.innerHTML = "";
 		return;
 	}
 
+	var contents = diffContents.toString();
 	diff.innerHTML = "<pre>" + contents.escapeHTML() + "</pre>";
 	diff.style.display = '';
 }
@@ -42,8 +46,9 @@ var displayContext = function() {
 	contextLines = document.getElementById("contextSize").value;
 }
 
-var showFileChanges = function(file, cached) {
-	if (!file) {
+var showFileChanges = function(file, cached, options) {
+	options = options || {};
+	if (!file || !file.path) {
 		setState("No file selected");
 		return;
 	}
@@ -51,26 +56,102 @@ var showFileChanges = function(file, cached) {
 	hideNotification();
 	hideState();
 
-	document.getElementById("contextSize").oninput = function(element) {
-		contextLines = document.getElementById("contextSize").value;
-		Controller.refresh();
+	var diffData = typeof options.diff === "string" ? options.diff : "";
+	var isBinary = options.isBinary === true;
+	if (typeof options.contextLines !== "undefined") {
+		contextLines = parseInt(options.contextLines, 10) || 0;
 	}
 
-	if (file.status == 0) // New file?
-		return showNewFile(file);
+	var slider = document.getElementById("contextSize");
+	if (slider) {
+		slider.oninput = function() {
+			contextLines = parseInt(slider.value, 10) || 0;
+			requestCommitDiff();
+		};
+		if (typeof options.contextLines !== "undefined")
+			slider.value = options.contextLines;
+		else
+			contextLines = parseInt(slider.value, 10) || 0;
+	}
 
-	setTitle((cached ? "Staged": "Unstaged") + " changes for " + file.path.escapeHTML());
+	if (file.status == 0) {
+		if (options.isBinary)
+			return showNewFile(file, null);
+		return showNewFile(file, diffData);
+	}
+
+	var path = file.path.toString();
+	setTitle((cached ? "Staged": "Unstaged") + " changes for " + path.escapeHTML());
 	displayContext();
-	var changes = Index.diffForFile_staged_contextLines_(file, cached, contextLines);
-	
 
-	if (changes == "") {
+	if (isBinary) {
+		notify("Can not display changes (Binary file?)", -1);
+		document.getElementById("diff").innerHTML = "";
+		return;
+	}
+
+	if (!diffData.length) {
 		notify("This file has no more changes", 1);
 		return;
 	}
 
-	displayDiff(changes, cached);
+	displayDiff(diffData, cached);
 }
+
+var requestCommitDiff = function () {
+	if (!currentCommitSelection || !currentCommitSelection.file)
+		return;
+
+	if (window.gitx && typeof window.gitx.postMessage === "function") {
+		window.gitx.postMessage({
+			type: "requestCommitDiff",
+			path: currentCommitSelection.path || "",
+			cached: !!currentCommitSelection.cached,
+			contextLines: contextLines
+		});
+	} else if (Controller && typeof Controller.refresh === "function") {
+		Controller.refresh();
+	}
+};
+
+var handleCommitSelectionChanged = function (message) {
+	var fileData = null;
+	if (message && typeof message.file === "object")
+		fileData = message.file;
+
+	var pathString = "";
+	if (fileData && typeof fileData.path !== "undefined" && fileData.path !== null)
+		pathString = fileData.path.toString();
+
+	var cached = !!(message && message.cached);
+	currentCommitSelection = null;
+
+	var diffElement = document.getElementById("diff");
+	if (diffElement) {
+		diffElement.innerHTML = "";
+	}
+
+	hideNotification();
+	hideState();
+
+	if (!fileData || typeof fileData.path === "undefined") {
+		setState("No file selected");
+		return;
+	}
+
+	currentCommitSelection = {
+		file: fileData,
+		cached: cached,
+		path: pathString
+	};
+
+	var slider = document.getElementById("contextSize");
+	if (slider)
+		contextLines = parseInt(slider.value, 10) || 0;
+
+	notify("Loading changes...", 0);
+	requestCommitDiff();
+};
 
 var findParentElementByTag = function (el, tagName)
 {
@@ -596,3 +677,76 @@ var showSelection = function(file, from, to, trust)
 }
 
 
+var handleCommitNativeMessage = function (message) {
+  if (!message || typeof message.type !== "string") return;
+  switch (message.type) {
+    case "commitState":
+      if (typeof setState === "function") {
+        var stateText = typeof message.state === "undefined" ? "" : String(message.state);
+        setState(stateText);
+      }
+      break;
+    case "commitSelectionChanged":
+      handleCommitSelectionChanged(message);
+      break;
+    case "commitDiff":
+      if (!currentCommitSelection || !currentCommitSelection.file) {
+        return;
+      }
+      var responsePath = "";
+      if (typeof message.path !== "undefined" && message.path !== null)
+        responsePath = message.path.toString();
+      if (
+        currentCommitSelection.path &&
+        responsePath &&
+        responsePath !== currentCommitSelection.path
+      ) {
+        return;
+      }
+      showFileChanges(
+        currentCommitSelection.file,
+        !!currentCommitSelection.cached,
+        message
+      );
+      break;
+    case "commitMultipleSelection":
+      currentCommitSelection = null;
+      if (typeof showMultipleFilesSelection === "function") {
+        try {
+          var files = [];
+          if (
+            message &&
+            message.files &&
+            Object.prototype.toString.call(message.files) === "[object Array]"
+          ) {
+            files = message.files;
+          }
+          showMultipleFilesSelection(files);
+        } catch (error) {
+          if (window.console && console.error) {
+            console.error("commitMultipleSelection handler failed", error);
+          }
+        }
+      }
+      break;
+  }
+};
+
+if (window.gitx && typeof window.gitx.subscribeToNativeMessages === "function") {
+  window.gitx.subscribeToNativeMessages(handleCommitNativeMessage);
+} else {
+  window.gitx = window.gitx || {};
+  var legacyCommitNativeHandler = window.gitx.onNativeMessage;
+  window.gitx.onNativeMessage = function (message) {
+    if (typeof legacyCommitNativeHandler === "function") {
+      try {
+        legacyCommitNativeHandler(message);
+      } catch (error) {
+        if (window.console && console.error) {
+          console.error("gitx.onNativeMessage legacy handler error", error);
+        }
+      }
+    }
+    handleCommitNativeMessage(message);
+  };
+}
