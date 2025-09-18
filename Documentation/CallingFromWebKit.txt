@@ -30,55 +30,21 @@ subclass has implemented the didLoad method, that method will be called.
 After the document has successfully loaded, the controller inserts itself into
 the Javascript environment under the "Controller" variable.
 
-Useful PBWebController functions
-================================
+Communicating with native code
+==============================
 
-There are some functions that might be useful in any context. These are put in
-the PBWebController class for easy access. To access these, replace the colons
-with underscores in the JS call. for example,
+Views communicate with Objective-C by sending JSON messages through the shared
+`gitxBridge` helper that is injected during bootstrap. Posting back to the
+native controller looks like this:
 
-	- (void) log:(NSString) logMessage
+	gitxBridge.post("requestCommitDiff", { path: "HEAD", contextLines: 3 });
 
-would be called in JS by:
-
-	Controller.log_("Hello from javascript!");
-
-## - (void) log:(NSString) logMessage
-
-This method simply relays a JS message to the program, which outputs it using
-NSLog. Handy for debugging.
-
-## - (BOOL) isReachable:(NSString *)hostname
-
-Will return true if the hostname is reachable from Javascript without creating
-an internet connection (for example, dialup). This is useful for optional
-features that depend on a working internet connection.
-
-** NOTE ** The GitX JS environment is _NOT_ secure, which means that external
-HTTP calls should only be made to trusted sites. For example, DON'T open any
-link in a commit message, as this could potentially allow any site to run any
-command on your mac.
-
-## - (void) runCommand:(WebScriptObject *)arguments
-          inRepository:(PBGitRepository *)repository
-              callBack:(WebScriptObject *)callBack
-
-This somewhat specific function allows you to call any git command and have
-its output returned to a callback function. For example, the following:
-
-Controller.runCommand_inRepository_callBack_(["--version"], obj.repository, 
-             function(v) { notify("Git Version: " + v, 1); });
-
-will show a notification displaying the current git version. This method is
-async, which means that it doesn't matter if it takes a long time to run.
-
-## - (void) callSelector:(NSString *)selectorString
-                onObject:(id)object
-                callBack:(WebScriptObject *)callBack
-
-While you can have direct access to most objects, sometimes it is useful to
-have an async task, for example if the operation can take a long time. Use
-this function to keep the UI responsive.
+Messages are delivered to the relevant `PBWebController` subclass via
+`-handleBridgeMessage:payload:`. The helper automatically queues messages until
+the native side is ready, so it is safe to post during page initialisation. If
+your view needs to receive events from Objective-C, call
+`gitxBridge.subscribe(handler)` and the handler will be invoked for every JSON
+payload dispatched from the native side.
 
 Loading files from WebKit
 =========================

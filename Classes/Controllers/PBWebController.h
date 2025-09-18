@@ -16,9 +16,6 @@
 	NSString *startFile;
 	BOOL finishedLoading;
 
-	// For async git reading
-	NSMapTable *callbacks;
-
 	// For the repository access
 	IBOutlet id repository;
 

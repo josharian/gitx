@@ -12,8 +12,6 @@
 #import "PBGitDefaults.h"
 #import "PBWebViewBridge.h"
 
-#include <SystemConfiguration/SCNetworkReachability.h>
-
 @interface PBWebController()
 @property (nonatomic, strong) PBWebViewBridge *bridge;
 - (void)installJavaScriptBridgeHelpers;
@@ -25,8 +23,6 @@
 
 - (void) awakeFromNib
 {
-	callbacks = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory) valueOptions:(NSPointerFunctionsObjectPointerPersonality|NSPointerFunctionsStrongMemory)];
-
 	finishedLoading = NO;
 
 	NSBundle *bundle = [NSBundle mainBundle];
@@ -240,79 +236,7 @@
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector
 {
-	return NO;
+	return aSelector != @selector(postJSONMessage:);
 }
-
-+ (BOOL)isKeyExcludedFromWebScript:(const char *)name {
-	return NO;
-}
-
-#pragma mark Functions to be used from JavaScript
-
-- (void) log: (NSString*) logMessage
-{
-	NSLog(@"%@", logMessage);
-}
-
-- (BOOL) isReachable:(NSString *)hostname
-{
-    SCNetworkReachabilityRef target;
-    SCNetworkConnectionFlags flags = 0;
-    Boolean reachable;
-    target = SCNetworkReachabilityCreateWithName(NULL, [hostname cStringUsingEncoding:NSASCIIStringEncoding]);
-    reachable = SCNetworkReachabilityGetFlags(target, &flags);
-	CFRelease(target);
-
-	if (!reachable)
-		return FALSE;
-
-	// If a connection is required, then it's not reachable
-	if (flags & (kSCNetworkFlagsConnectionRequired | kSCNetworkFlagsConnectionAutomatic | kSCNetworkFlagsInterventionRequired))
-		return FALSE;
-
-	return flags > 0;
-}
-
-
-#pragma mark Using async function from JS
-
-- (void) runCommand:(WebScriptObject *)arguments inRepository:(PBGitRepository *)repo callBack:(WebScriptObject *)callBack
-{
-	// The JS bridge does not handle JS Arrays, even though the docs say it does. So, we convert it ourselves.
-	NSInteger length = [[arguments valueForKey:@"length"] integerValue];
-	NSMutableArray *realArguments = [NSMutableArray arrayWithCapacity:(NSUInteger)length];
-	NSInteger i = 0;
-	for (i = 0; i < length; i++)
-		[realArguments addObject:[arguments webScriptValueAtIndex:(unsigned int)i]];
-
-	NSFileHandle *handle = [repo handleInWorkDirForArguments:realArguments];
-	[callbacks setObject:callBack forKey:handle];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(JSRunCommandDone:) name:NSFileHandleReadToEndOfFileCompletionNotification object:handle]; 
-	[handle readToEndOfFileInBackgroundAndNotify];
-}
-
-- (void) returnCallBackForObject:(id)object withData:(id)data
-{
-	WebScriptObject *a = [callbacks objectForKey: object];
-	if (!a) {
-		NSLog(@"Could not find a callback for object: %@", object);
-		return;
-	}
-
-	[callbacks removeObjectForKey:object];
-	[a callWebScriptMethod:@"call" withArguments:[NSArray arrayWithObjects:@"", data, nil]];
-}
-
-- (void) threadFinished:(NSArray *)arguments
-{
-	[self returnCallBackForObject:[arguments objectAtIndex:0] withData:[arguments objectAtIndex:1]];
-}
-
-- (void) JSRunCommandDone:(NSNotification *)notification
-{
-	NSString *data = [[NSString alloc] initWithData:[[notification userInfo] valueForKey:NSFileHandleNotificationDataItem] encoding:NSUTF8StringEncoding];
-	[self returnCallBackForObject:[notification object] withData:data];
-}
-
 
 @end
