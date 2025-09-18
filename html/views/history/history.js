@@ -78,7 +78,11 @@ var setGravatar = function (email, image) {
 };
 
 var selectCommit = function (a) {
-  Controller.selectCommit_(a);
+  if (window.gitx && typeof window.gitx.postMessage === "function") {
+    window.gitx.postMessage({ type: "selectCommit", sha: a });
+  } else {
+    Controller.selectCommit_(a);
+  }
 };
 
 // Relead only refs

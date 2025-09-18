@@ -16,6 +16,7 @@
 
 @interface PBWebController()
 @property (nonatomic, strong) PBWebViewBridge *bridge;
+- (void)installJavaScriptBridgeHelpers;
 @end
 
 @implementation PBWebController
@@ -33,7 +34,12 @@
 
 	__weak typeof(self) weakSelf = self;
 	self.bridge.didClearWindowObjectHandler = ^(PBWebViewBridge *bridge, WebScriptObject *windowObject) {
-		[bridge injectValue:weakSelf forKey:@"Controller"];
+		__strong typeof(weakSelf) strongSelf = weakSelf;
+		if (!strongSelf) {
+			return;
+		}
+		[bridge injectValue:strongSelf forKey:@"Controller"];
+		[strongSelf installJavaScriptBridgeHelpers];
 	};
 
 	self.bridge.didFinishLoadHandler = ^(PBWebViewBridge *bridge) {
@@ -101,6 +107,23 @@
 	return [self.bridge windowScriptObject];
 }
 
+- (void)installJavaScriptBridgeHelpers
+{
+	static NSString *const kBridgeBootstrap =
+	@"(function(){\n"
+	 "  var gitx = window.gitx = window.gitx || {};\n"
+	 "  gitx.postMessage = function(payload){\n"
+	 "    try {\n"
+	 "      Controller.postJSONMessage_(JSON.stringify(payload || {}));\n"
+	 "    } catch (error) {\n"
+	 "      if (window.console && console.error) { console.error('gitx.postMessage failed', error); }\n"
+	 "    }\n"
+	 "  };\n"
+	 "})();";
+
+	[self.bridge evaluateJavaScript:kBridgeBootstrap completion:nil];
+}
+
 - (void)closeView
 {
 	if (view) {
@@ -109,6 +132,41 @@
 	}
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)postJSONMessage:(NSString *)jsonMessage
+{
+	if (![jsonMessage isKindOfClass:[NSString class]]) {
+		return;
+	}
+
+	NSData *data = [jsonMessage dataUsingEncoding:NSUTF8StringEncoding];
+	if (!data) {
+		return;
+	}
+
+	NSError *error = nil;
+	id payloadObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+	if (!payloadObject || ![payloadObject isKindOfClass:[NSDictionary class]]) {
+		if (error) {
+			NSLog(@"PBWebController: Failed to decode bridge payload: %@", error);
+		}
+		return;
+	}
+
+	NSDictionary *payload = (NSDictionary *)payloadObject;
+	NSString *type = payload[@"type"];
+	if (![type isKindOfClass:[NSString class]]) {
+		NSLog(@"PBWebController: Ignoring bridge payload without string type: %@", payload);
+		return;
+	}
+
+	[self handleBridgeMessage:type payload:payload];
+}
+
+- (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload
+{
+	NSLog(@"PBWebController: Unhandled bridge message %@ with payload %@", type, payload);
 }
 
 + (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector

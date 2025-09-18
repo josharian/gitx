@@ -140,6 +140,21 @@
 	[script callWebScriptMethod:@"handleKeyFromCocoa" withArguments: [NSArray arrayWithObject:key]];
 }
 
+- (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload
+{
+	if ([type isEqualToString:@"selectCommit"]) {
+		NSString *sha = payload[@"sha"];
+		if ([sha isKindOfClass:[NSString class]] && sha.length > 0) {
+			[self selectCommit:sha];
+		} else {
+			NSLog(@"PBWebHistoryController: selectCommit payload missing sha: %@", payload);
+		}
+		return;
+	}
+
+	[super handleBridgeMessage:type payload:payload];
+}
+
 - (void) copySource
 {
 	NSString *source = [(DOMHTMLElement *)[[[view mainFrame] DOMDocument] documentElement] outerHTML];

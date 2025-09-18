@@ -31,5 +31,7 @@
 - (WebScriptObject *) script;
 - (void) closeView;
 
+- (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload NS_REQUIRES_SUPER;
+
 @property (nonatomic, strong, readonly) PBWebViewBridge *bridge;
 @end
