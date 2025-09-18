@@ -102,18 +102,11 @@ var requestCommitDiff = function () {
 	if (!currentCommitSelection || !currentCommitSelection.file)
 		return;
 
-	gitxBridge.post(
-		"requestCommitDiff",
-		{
-			path: currentCommitSelection.path || "",
-			cached: !!currentCommitSelection.cached,
-			contextLines: contextLines
-		},
-		function () {
-			if (Controller && typeof Controller.refresh === "function")
-				Controller.refresh();
-		}
-	);
+	gitxBridge.post("requestCommitDiff", {
+		path: currentCommitSelection.path || "",
+		cached: !!currentCommitSelection.cached,
+		contextLines: contextLines
+	});
 };
 
 var handleCommitSelectionChanged = function (message) {
@@ -319,20 +312,11 @@ var addHunkText = function(hunkText, reverse)
 	if (!hunkText)
 		return;
 
-	gitxBridge.post(
-		"commitApplyPatch",
-		{
-			patch: hunkText,
-			reverse: !!reverse,
-			stage: true
-		},
-		function () {
-			if (Controller.stageHunk_reverse_)
-				Controller.stageHunk_reverse_(hunkText, reverse);
-			else
-				alert(hunkText);
-		}
-	);
+	gitxBridge.post("commitApplyPatch", {
+		patch: hunkText,
+		reverse: !!reverse,
+		stage: true
+	});
 }
 
 /* Add the hunk located below the current element */
@@ -346,21 +330,10 @@ var discardHunk = function(hunk, event)
 	var hunkText = getFullHunk(hunk);
 	var altPressed = event && event.altKey === true;
 
-	gitxBridge.post(
-		"commitDiscardHunk",
-		{
-			patch: hunkText,
-			altKey: altPressed
-		},
-		function () {
-			if (Controller.discardHunk_altKey_)
-				Controller.discardHunk_altKey_(hunkText, altPressed);
-			else if (Controller.discardHunk_)
-				Controller.discardHunk_(hunkText);
-			else
-				alert(hunkText);
-		}
-	);
+	gitxBridge.post("commitDiscardHunk", {
+		patch: hunkText,
+		altKey: altPressed
+	});
 }
 
 /* Split a hunk at the selected unchanged line */

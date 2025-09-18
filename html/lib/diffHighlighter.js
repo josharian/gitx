@@ -1,10 +1,7 @@
-// If we run from a Safari instance, we don't
-// have a Controller object. Instead, we fake it by
-// using the console
-if (typeof Controller == 'undefined') {
-	Controller = console;
-	Controller.log_ = console.log;
-}
+var gitxDiffLog = function() {
+	if (window.console && console.log)
+		console.log.apply(console, arguments);
+};
 
 var toggleDiff = function(id)
 {
@@ -249,7 +246,7 @@ var highlightDiff = function(diff, element, callbacks) {
 
 	// TODO: Replace this with a performance pref call
 	if (false)
-		Controller.log_("Total time:" + (new Date().getTime() - start));
+	gitxDiffLog("Total time:" + (new Date().getTime() - start));
 }
 
 var highlightTrailingWhitespace = function (l) {
@@ -533,4 +530,3 @@ var inlinediff = (function () {
     return { o: o, n: n };
   }
 })();
-

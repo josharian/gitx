@@ -7,10 +7,7 @@ var scrollToTop = function(element) {
 }
 
 var triggerCopySource = function() {
-	gitxBridge.post("copySource", {}, function() {
-		if (Controller && typeof Controller.copySource === "function")
-			Controller.copySource();
-	});
+	gitxBridge.post("copySource");
 };
 
 var handleKeys = function(event) {

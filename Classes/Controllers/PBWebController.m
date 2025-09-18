@@ -151,6 +151,9 @@
 	 "    });\n"
 	 "  };\n"
 	 "  window.gitxReceiveNativeMessage = gitx._dispatchNativeMessage;\n"
+	 "  if (window.gitxBridge && typeof window.gitxBridge.flush === 'function') {\n"
+	 "    try { window.gitxBridge.flush(); } catch (error) { if (window.console && console.error) { console.error('gitxBridge.flush failed', error); } }\n"
+	 "  }\n"
 	 "})();";
 
 	[self.bridge evaluateJavaScript:kBridgeBootstrap completion:nil];

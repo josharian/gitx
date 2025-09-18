@@ -4,6 +4,8 @@
   var consoleRef = global.console || {};
   var noop = function() {};
   var errorLogger = typeof consoleRef.error === 'function' ? consoleRef.error.bind(consoleRef) : noop;
+  var pending = [];
+  var flushScheduled = false;
 
   function clonePayload(payload) {
     var message = {};
@@ -36,17 +38,69 @@
         return true;
       } catch (error) {
         errorLogger('gitxBridge post failed', error, message);
+        if (typeof fallback === 'function') {
+          try {
+            fallback();
+          } catch (fallbackError) {
+            errorLogger('gitxBridge fallback failed', fallbackError);
+          }
+        }
+        return false;
       }
     }
 
-    if (typeof fallback === 'function') {
+    pending.push({ message: message, fallback: fallback });
+    scheduleFlush();
+    return false;
+  }
+
+  function scheduleFlush() {
+    if (flushScheduled) {
+      return;
+    }
+    flushScheduled = true;
+    setTimeout(function() {
+      flushScheduled = false;
+      flushPending();
+    }, 0);
+  }
+
+  function flushPending() {
+    var gitx = global.gitx;
+    if (!gitx || typeof gitx.postMessage !== 'function') {
+      return false;
+    }
+
+    for (var i = 0; i < pending.length; i++) {
+      var entry = pending[i];
       try {
-        fallback();
-      } catch (fallbackError) {
-        errorLogger('gitxBridge fallback failed', fallbackError);
+        gitx.postMessage(entry.message);
+      } catch (error) {
+        errorLogger('gitxBridge post failed', error, entry.message);
+        if (entry.fallback) {
+          try {
+            entry.fallback();
+          } catch (fallbackError) {
+            errorLogger('gitxBridge fallback failed', fallbackError);
+          }
+        }
       }
     }
-    return false;
+
+    pending = [];
+    return true;
+  }
+
+  function flush() {
+    if (!pending.length) {
+      return true;
+    }
+
+    var success = flushPending();
+    if (pending.length && !flushScheduled) {
+      scheduleFlush();
+    }
+    return success;
   }
 
   function subscribe(handler) {
@@ -57,7 +111,9 @@
     var gitx = global.gitx = global.gitx || {};
 
     if (typeof gitx.subscribeToNativeMessages === 'function') {
-      return gitx.subscribeToNativeMessages(handler);
+      var unsubscribe = gitx.subscribeToNativeMessages(handler);
+      flush();
+      return unsubscribe;
     }
 
     if (!gitx._bridgeLegacySubscribers) {
@@ -84,6 +140,7 @@
     }
 
     gitx._bridgeLegacySubscribers.push(handler);
+    flush();
     return function unsubscribe() {
       if (!gitx._bridgeLegacySubscribers) {
         return;
@@ -98,6 +155,7 @@
 
   global.gitxBridge = {
     post: post,
-    subscribe: subscribe
+    subscribe: subscribe,
+    flush: flush
   };
 })(window);

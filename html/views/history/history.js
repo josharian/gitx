@@ -86,15 +86,7 @@ var setGravatar = function (email, image) {
 };
 
 var selectCommit = function (a) {
-  gitxBridge.post(
-    "selectCommit",
-    { sha: a },
-    function () {
-      if (Controller && typeof Controller.selectCommit_ === "function") {
-        Controller.selectCommit_(a);
-      }
-    }
-  );
+  gitxBridge.post("selectCommit", { sha: a });
 };
 
 var updateCommitRefs = function (commitData) {
