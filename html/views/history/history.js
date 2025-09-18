@@ -86,11 +86,15 @@ var setGravatar = function (email, image) {
 };
 
 var selectCommit = function (a) {
-  if (window.gitx && typeof window.gitx.postMessage === "function") {
-    window.gitx.postMessage({ type: "selectCommit", sha: a });
-  } else {
-    Controller.selectCommit_(a);
-  }
+  gitxBridge.post(
+    "selectCommit",
+    { sha: a },
+    function () {
+      if (Controller && typeof Controller.selectCommit_ === "function") {
+        Controller.selectCommit_(a);
+      }
+    }
+  );
 };
 
 var updateCommitRefs = function (commitData) {
@@ -385,24 +389,7 @@ var handleNativeMessage = function (message) {
   }
 };
 
-if (window.gitx && typeof window.gitx.subscribeToNativeMessages === "function") {
-  window.gitx.subscribeToNativeMessages(handleNativeMessage);
-} else {
-  window.gitx = window.gitx || {};
-  var previousNativeHandler = window.gitx.onNativeMessage;
-  window.gitx.onNativeMessage = function (message) {
-    if (typeof previousNativeHandler === "function") {
-      try {
-        previousNativeHandler(message);
-      } catch (error) {
-        if (window.console && console.error) {
-          console.error("gitx.onNativeMessage error", error);
-        }
-      }
-    }
-    handleNativeMessage(message);
-  };
-}
+gitxBridge.subscribe(handleNativeMessage);
 
 var copyShaToClipboard = function () {
   var sha = document.getElementById("commitID").textContent;

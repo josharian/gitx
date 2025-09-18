@@ -4,29 +4,6 @@
 var contextLines = 0;
 var currentCommitSelection = null;
 
-var postCommitMessage = function (message, fallback) {
-  if (window.gitx && typeof window.gitx.postMessage === "function") {
-    try {
-      window.gitx.postMessage(message);
-      return;
-    } catch (error) {
-      if (window.console && console.error) {
-        console.error("commit bridge message failed", error, message);
-      }
-    }
-  }
-
-  if (typeof fallback === "function") {
-    try {
-      fallback();
-    } catch (error) {
-      if (window.console && console.error) {
-        console.error("commit bridge fallback failed", error);
-      }
-    }
-  }
-};
-
 var showNewFile = function(file, diffContents)
 {
 	var path = "";
@@ -125,16 +102,18 @@ var requestCommitDiff = function () {
 	if (!currentCommitSelection || !currentCommitSelection.file)
 		return;
 
-	if (window.gitx && typeof window.gitx.postMessage === "function") {
-		window.gitx.postMessage({
-			type: "requestCommitDiff",
+	gitxBridge.post(
+		"requestCommitDiff",
+		{
 			path: currentCommitSelection.path || "",
 			cached: !!currentCommitSelection.cached,
 			contextLines: contextLines
-		});
-	} else if (Controller && typeof Controller.refresh === "function") {
-		Controller.refresh();
-	}
+		},
+		function () {
+			if (Controller && typeof Controller.refresh === "function")
+				Controller.refresh();
+		}
+	);
 };
 
 var handleCommitSelectionChanged = function (message) {
@@ -340,9 +319,9 @@ var addHunkText = function(hunkText, reverse)
 	if (!hunkText)
 		return;
 
-	postCommitMessage(
+	gitxBridge.post(
+		"commitApplyPatch",
 		{
-			type: "commitApplyPatch",
 			patch: hunkText,
 			reverse: !!reverse,
 			stage: true
@@ -367,9 +346,9 @@ var discardHunk = function(hunk, event)
 	var hunkText = getFullHunk(hunk);
 	var altPressed = event && event.altKey === true;
 
-	postCommitMessage(
+	gitxBridge.post(
+		"commitDiscardHunk",
 		{
-			type: "commitDiscardHunk",
 			patch: hunkText,
 			altKey: altPressed
 		},
@@ -778,21 +757,4 @@ var handleCommitNativeMessage = function (message) {
   }
 };
 
-if (window.gitx && typeof window.gitx.subscribeToNativeMessages === "function") {
-  window.gitx.subscribeToNativeMessages(handleCommitNativeMessage);
-} else {
-  window.gitx = window.gitx || {};
-  var legacyCommitNativeHandler = window.gitx.onNativeMessage;
-  window.gitx.onNativeMessage = function (message) {
-    if (typeof legacyCommitNativeHandler === "function") {
-      try {
-        legacyCommitNativeHandler(message);
-      } catch (error) {
-        if (window.console && console.error) {
-          console.error("gitx.onNativeMessage legacy handler error", error);
-        }
-      }
-    }
-    handleCommitNativeMessage(message);
-  };
-}
+gitxBridge.subscribe(handleCommitNativeMessage);

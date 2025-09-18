@@ -6,35 +6,8 @@ var scrollToTop = function(element) {
 	element.scrollIntoView(true);
 }
 
-var postNavigationMessage = function(type, payload, fallback) {
-	payload = payload || {};
-	if (window.gitx && typeof window.gitx.postMessage === "function") {
-		try {
-			var message = { type: type };
-			for (var key in payload) {
-				if (Object.prototype.hasOwnProperty.call(payload, key))
-					message[key] = payload[key];
-			}
-			window.gitx.postMessage(message);
-			return;
-		} catch (error) {
-			if (window.console && console.error)
-				console.error("keyboardNavigation bridge message failed", error, type, payload);
-		}
-	}
-
-	if (typeof fallback === "function") {
-		try {
-			fallback();
-		} catch (error) {
-			if (window.console && console.error)
-				console.error("keyboardNavigation fallback failed", error);
-		}
-	}
-};
-
 var triggerCopySource = function() {
-	postNavigationMessage("copySource", {}, function() {
+	gitxBridge.post("copySource", {}, function() {
 		if (Controller && typeof Controller.copySource === "function")
 			Controller.copySource();
 	});
