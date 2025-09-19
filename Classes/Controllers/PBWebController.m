@@ -8,30 +8,18 @@
 
 #import "PBWebController.h"
 #import "PBGitRepository.h"
-#import "PBGitXProtocol.h"
 #import "PBWebBridge.h"
-#import "PBWebViewBridge.h"
 #import "PBWKWebViewBridge.h"
 #import "PBWKGitXSchemeHandler.h"
 
 @interface PBWebController ()
 @property (nonatomic, strong) id<PBWebBridge> bridge;
-@property (nonatomic, strong) NSView *webContentView;
+@property (nonatomic, strong) WKWebView *webView;
 @property (nonatomic, strong) PBWKGitXSchemeHandler *gitxSchemeHandler;
 @property (nonatomic, strong) NSDictionary *lastContextMenuPayload;
-- (void)installJavaScriptBridgeHelpersForBridge:(id<PBWebBridge>)bridge;
-- (void)injectLegacyControllerIfNeededForBridge:(id<PBWebBridge>)bridge;
+- (void)installJavaScriptBridgeHelpers;
 - (void)handleDecodedBridgePayload:(NSDictionary *)payload;
 @end
-
-static NSString * const PBWebControllerWebViewNativePostScript =
-@"window.gitxNativePost = window.gitxNativePost || function(payload){\n"
- "  try {\n"
- "    Controller.postJSONMessage_(JSON.stringify(payload || {}));\n"
- "  } catch (error) {\n"
- "    if (window.console && console.error) { console.error('gitxNativePost failed', error); }\n"
- "  }\n"
- "};";
 
 static NSString * const PBWebControllerWKNativePostScript =
 @"window.gitxNativePost = window.gitxNativePost || function(payload){\n"
@@ -133,66 +121,78 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 
 @implementation PBWebController
 
-@synthesize startFile, repository, bridge = _bridge, webContentView = _webContentView;
+@synthesize startFile, repository, bridge = _bridge, webView = _webView;
+
 
 - (void)awakeFromNib
 {
 	finishedLoading = NO;
 
 	NSBundle *bundle = [NSBundle mainBundle];
-	NSView *resolvedView = view;
-	id<PBWebBridge> bridge = nil;
+	NSView *containerView = view;
 	__weak typeof(self) weakSelf = self;
-	PBWKGitXSchemeHandler *schemeHandler = nil;
 
-	if ([resolvedView isKindOfClass:[WKWebView class]]) {
-		WKWebView *existingWebView = (WKWebView *)resolvedView;
-		schemeHandler = [[PBWKGitXSchemeHandler alloc] initWithRepositoryProvider:^PBGitRepository * _Nullable{
-			__strong typeof(weakSelf) strongSelf = weakSelf;
-			return (PBGitRepository *)strongSelf.repository;
-		}];
-		@try {
-			[existingWebView.configuration setURLSchemeHandler:schemeHandler forURLScheme:@"gitx"];
-		} @catch (__unused NSException *exception) {
-		}
-		bridge = [[PBWKWebViewBridge alloc] initWithWebView:existingWebView bundle:bundle];
-	} else if ([resolvedView isKindOfClass:[WebView class]]) {
-		bridge = (id<PBWebBridge>)[[PBWebViewBridge alloc] initWithWebView:(WebView *)resolvedView bundle:bundle];
+	WKWebView *resolvedWebView = nil;
+	WKWebViewConfiguration *configuration = nil;
+	if ([containerView isKindOfClass:[WKWebView class]]) {
+		resolvedWebView = (WKWebView *)containerView;
+		configuration = resolvedWebView.configuration;
 	} else {
-		WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-		schemeHandler = [[PBWKGitXSchemeHandler alloc] initWithRepositoryProvider:^PBGitRepository * _Nullable{
-			__strong typeof(weakSelf) strongSelf = weakSelf;
-			return (PBGitRepository *)strongSelf.repository;
-		}];
-		[configuration setURLSchemeHandler:schemeHandler forURLScheme:@"gitx"];
-		WKWebView *wkWebView = [[WKWebView alloc] initWithFrame:resolvedView.bounds configuration:configuration];
-		wkWebView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-		[resolvedView addSubview:wkWebView];
-		resolvedView = wkWebView;
-		bridge = [[PBWKWebViewBridge alloc] initWithWebView:wkWebView bundle:bundle];
+		configuration = [[WKWebViewConfiguration alloc] init];
+		configuration.processPool = [[WKProcessPool alloc] init];
+		resolvedWebView = [[WKWebView alloc] initWithFrame:containerView.bounds configuration:configuration];
+		resolvedWebView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+		[containerView addSubview:resolvedWebView];
 	}
 
+	self.webView = resolvedWebView;
+
+	id existingHandler = nil;
+	if ([configuration respondsToSelector:@selector(urlSchemeHandlerForURLScheme:)]) {
+		existingHandler = [configuration urlSchemeHandlerForURLScheme:@"gitx"];
+	}
+
+	PBWKGitXSchemeHandler *schemeHandler = nil;
+	if ([existingHandler isKindOfClass:[PBWKGitXSchemeHandler class]]) {
+		schemeHandler = (PBWKGitXSchemeHandler *)existingHandler;
+		[schemeHandler updateRepositoryProvider:^PBGitRepository * _Nullable{
+			__strong typeof(weakSelf) strongSelf = weakSelf;
+			return (PBGitRepository *)strongSelf.repository;
+		}];
+	} else {
+		schemeHandler = [[PBWKGitXSchemeHandler alloc] initWithRepositoryProvider:^PBGitRepository * _Nullable{
+			__strong typeof(weakSelf) strongSelf = weakSelf;
+			return (PBGitRepository *)strongSelf.repository;
+		}];
+		if ([configuration respondsToSelector:@selector(setURLSchemeHandler:forURLScheme:)]) {
+			@try {
+				[configuration setURLSchemeHandler:schemeHandler forURLScheme:@"gitx"];
+			} @catch (NSException *exception) {
+				NSLog(@"PBWebController: Failed to register gitx scheme handler: %@", exception);
+			}
+		}
+	}
 	self.gitxSchemeHandler = schemeHandler;
 
-	self.webContentView = resolvedView;
-	view = resolvedView;
+	id<PBWebBridge> bridge = [[PBWKWebViewBridge alloc] initWithWebView:resolvedWebView bundle:bundle];
 	self.bridge = bridge;
 	if (!self.bridge) {
-		NSLog(@"PBWebController: Unable to initialize web bridge for view %@", resolvedView);
+		NSLog(@"PBWebController: Unable to initialize web bridge for view %@", resolvedWebView);
 		return;
 	}
 
-	bridge.didClearWindowObjectHandler = ^(id<PBWebBridge> activeBridge, id windowObject) {
+	bridge.didClearWindowObjectHandler = ^(id<PBWebBridge> activeBridge, id  _Nullable windowObject) {
+		#pragma unused(activeBridge, windowObject)
 		__strong typeof(weakSelf) strongSelf = weakSelf;
 		if (!strongSelf) {
 			return;
 		}
 		strongSelf.lastContextMenuPayload = nil;
-		[strongSelf injectLegacyControllerIfNeededForBridge:activeBridge];
-		[strongSelf installJavaScriptBridgeHelpersForBridge:activeBridge];
+		[strongSelf installJavaScriptBridgeHelpers];
 	};
 
 	bridge.didFinishLoadHandler = ^(id<PBWebBridge> activeBridge) {
+		#pragma unused(activeBridge)
 		__strong typeof(weakSelf) strongSelf = weakSelf;
 		if (!strongSelf) {
 			return;
@@ -201,42 +201,6 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 		if ([strongSelf respondsToSelector:@selector(didLoad)]) {
 			[strongSelf performSelector:@selector(didLoad)];
 		}
-	};
-
-	bridge.requestRewriter = ^NSURLRequest * (id<PBWebBridge> activeBridge, NSURLRequest *request) {
-		__strong typeof(weakSelf) strongSelf = weakSelf;
-		if (!strongSelf || !strongSelf.repository) {
-			return request;
-		}
-
-		if ([activeBridge isKindOfClass:[PBWKWebViewBridge class]]) {
-			return request;
-		}
-
-		NSURL *url = request.URL;
-		if (!url) {
-			return request;
-		}
-
-		NSString *scheme = [[url scheme] lowercaseString];
-		if ([scheme isEqualToString:@"gitx"]) {
-			PBGitRepository *requestRepository = nil;
-			@try {
-				requestRepository = [request repository];
-			} @catch (__unused NSException *exception) {
-				requestRepository = nil;
-			}
-
-			if (requestRepository == strongSelf.repository) {
-				return request;
-			}
-
-			NSMutableURLRequest *newRequest = [request mutableCopy];
-			[newRequest setRepository:strongSelf.repository];
-			return newRequest;
-		}
-
-		return request;
 	};
 
 	PBWebBridgeNavigationHandler navigationBlock = ^BOOL (id<PBWebBridge> activeBridge, NSURLRequest *request) {
@@ -262,13 +226,11 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 		}
 
 		NSDictionary *elementInfo = element ?: @{};
-		if ([activeBridge isKindOfClass:[PBWKWebViewBridge class]]) {
-			NSDictionary *stored = strongSelf.lastContextMenuPayload;
-			if ([stored isKindOfClass:[NSDictionary class]]) {
-				elementInfo = stored;
-			}
-			strongSelf.lastContextMenuPayload = nil;
+		NSDictionary *stored = strongSelf.lastContextMenuPayload;
+		if ([stored isKindOfClass:[NSDictionary class]]) {
+			elementInfo = stored;
 		}
+		strongSelf.lastContextMenuPayload = nil;
 
 		NSArray *items = [strongSelf contextMenuItemsForBridge:activeBridge elementInfo:elementInfo defaultMenuItems:defaultMenuItems];
 		return items ?: defaultMenuItems;
@@ -285,35 +247,16 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 	[bridge loadStartFileNamed:startFile];
 }
 
-- (WebScriptObject *)script
+- (void)installJavaScriptBridgeHelpers
 {
-	if ([self.bridge isKindOfClass:[PBWebViewBridge class]]) {
-		return [(PBWebViewBridge *)self.bridge windowScriptObject];
-	}
-	return nil;
-}
-
-- (void)installJavaScriptBridgeHelpersForBridge:(id<PBWebBridge>)bridge
-{
-	if (!bridge) {
+	if (!self.bridge) {
 		return;
 	}
 
-	NSString *nativePostScript = [bridge isKindOfClass:[PBWebViewBridge class]] ? PBWebControllerWebViewNativePostScript : PBWebControllerWKNativePostScript;
 	void (^ignoreResult)(id, NSError *) = ^(id __unused result, NSError *__unused error) {};
-	[bridge evaluateJavaScript:nativePostScript completion:ignoreResult];
-	[bridge evaluateJavaScript:PBWebControllerBridgeBootstrapScript completion:ignoreResult];
-	[bridge evaluateJavaScript:PBWebControllerContextMenuTrackingScript completion:ignoreResult];
-}
-
-- (void)injectLegacyControllerIfNeededForBridge:(id<PBWebBridge>)bridge
-{
-	if (![bridge isKindOfClass:[PBWebViewBridge class]]) {
-		return;
-	}
-
-	PBWebViewBridge *webBridge = (PBWebViewBridge *)bridge;
-	[webBridge injectValue:self forKey:@"Controller"];
+	[self.bridge evaluateJavaScript:PBWebControllerWKNativePostScript completion:ignoreResult];
+	[self.bridge evaluateJavaScript:PBWebControllerBridgeBootstrapScript completion:ignoreResult];
+	[self.bridge evaluateJavaScript:PBWebControllerContextMenuTrackingScript completion:ignoreResult];
 }
 
 - (void)handleDecodedBridgePayload:(NSDictionary *)payload
@@ -383,52 +326,16 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 
 - (void)closeView
 {
-	if ([self.bridge isKindOfClass:[PBWebViewBridge class]]) {
-		PBWebViewBridge *webBridge = (PBWebViewBridge *)self.bridge;
-		[webBridge removeValueForKey:@"Controller"];
-	}
-
-	NSView *contentView = self.webContentView ?: view;
-	if ([contentView respondsToSelector:@selector(close)]) {
-		[(id)contentView close];
-	} else if ([contentView isKindOfClass:[WKWebView class]]) {
-		[(WKWebView *)contentView stopLoading];
-	}
-
+	[self.webView stopLoading];
+	self.bridge = nil;
+	self.gitxSchemeHandler = nil;
+	self.lastContextMenuPayload = nil;
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)postJSONMessage:(NSString *)jsonMessage
-{
-	if (![jsonMessage isKindOfClass:[NSString class]]) {
-		return;
-	}
-
-	NSData *data = [jsonMessage dataUsingEncoding:NSUTF8StringEncoding];
-	if (!data) {
-		return;
-	}
-
-	NSError *error = nil;
-	id payloadObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-	if (!payloadObject || ![payloadObject isKindOfClass:[NSDictionary class]]) {
-		if (error) {
-			NSLog(@"PBWebController: Failed to decode bridge payload: %@", error);
-		}
-		return;
-	}
-
-	[self handleDecodedBridgePayload:(NSDictionary *)payloadObject];
 }
 
 - (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload
 {
 	NSLog(@"PBWebController: Unhandled bridge message %@ with payload %@", type, payload);
-}
-
-+ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector
-{
-	return aSelector != @selector(postJSONMessage:);
 }
 
 @end

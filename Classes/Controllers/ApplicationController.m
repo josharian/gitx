@@ -10,7 +10,6 @@
 #import "PBGitRevisionCell.h"
 #import "PBGitWindowController.h"
 #import "PBServicesController.h"
-#import "PBGitXProtocol.h"
 #import "PBPrefsWindowController.h"
 #import "PBNSURLPathUserDefaultsTransfomer.h"
 #import "PBGitDefaults.h"
@@ -45,9 +44,6 @@ static OpenRecentController* recentsDialog = nil;
 
 - (void)registerServices
 {
-	// Register URL
-	[NSURLProtocol registerClass:[PBGitXProtocol class]];
-
 	// Register the service class
 	PBServicesController *services = [[PBServicesController alloc] init];
 	[NSApp setServicesProvider:services];

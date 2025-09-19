@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <WebKit/WebView.h>
 
 @class PBGitHistoryController;
 @class PBWebHistoryController;
@@ -16,7 +15,6 @@
 typedef void(^PBFindPanelActionBlock)(id sender);
 
 @interface PBCommitList : NSTableView {
-	IBOutlet WebView* webView;
 	IBOutlet PBWebHistoryController *webController;
 	IBOutlet PBGitHistoryController *controller;
 	IBOutlet PBHistorySearchController *searchController;

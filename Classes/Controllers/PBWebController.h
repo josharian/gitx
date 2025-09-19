@@ -10,7 +10,6 @@
 #import <WebKit/WebKit.h>
 
 @protocol PBWebBridge;
-@class PBWebViewBridge;
 @class PBWKWebViewBridge;
 @class PBWKGitXSchemeHandler;
 
@@ -34,6 +33,7 @@
 - (void)sendBridgeEventWithType:(NSString *)type payload:(NSDictionary *)payload;
 
 @property (nonatomic, strong, readonly) id<PBWebBridge> bridge;
+@property (nonatomic, strong, readonly) WKWebView *webView;
 
 - (NSArray *)contextMenuItemsForBridge:(id<PBWebBridge>)bridge
                             elementInfo:(NSDictionary *)elementInfo

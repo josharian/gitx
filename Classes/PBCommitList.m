@@ -10,6 +10,7 @@
 #import "PBGitRevisionCell.h"
 #import "PBWebHistoryController.h"
 #import "PBHistorySearchController.h"
+#import <WebKit/WebKit.h>
 
 @implementation PBCommitList
 
@@ -26,10 +27,14 @@
 	}
 
 	if ([character isEqualToString:@" "]) {
-		if ([event modifierFlags] & NSEventModifierFlagShift)
-			[webView scrollPageUp:self];
-		else
-			[webView scrollPageDown:self];
+		WKWebView *historyWebView = [webController webView];
+		if (historyWebView) {
+			NSString *script = ([event modifierFlags] & NSEventModifierFlagShift)
+				? @"window.scrollBy(0, -window.innerHeight);"
+				: @"window.scrollBy(0, window.innerHeight);";
+			[historyWebView evaluateJavaScript:script completionHandler:nil];
+			return;
+		}
 	}
 	else if ([character rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"jkcv"]].location == 0)
 		[webController sendKey: character];

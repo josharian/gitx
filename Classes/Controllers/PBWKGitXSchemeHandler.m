@@ -12,7 +12,7 @@
 static NSString * const PBWKGitXSchemeHandlerErrorDomain = @"PBWKGitXSchemeHandlerErrorDomain";
 
 @interface PBWKGitXSchemeHandler ()
-@property (nonatomic, copy, readonly) PBWKGitXRepositoryProvider repositoryProvider;
+@property (nonatomic, copy) PBWKGitXRepositoryProvider repositoryProvider;
 @property (nonatomic, strong) dispatch_queue_t workQueue;
 @end
 
@@ -29,6 +29,13 @@ static NSString * const PBWKGitXSchemeHandlerErrorDomain = @"PBWKGitXSchemeHandl
     _repositoryProvider = [provider copy];
     _workQueue = dispatch_queue_create("com.gitx.wkwebview.gitx-scheme", DISPATCH_QUEUE_SERIAL);
     return self;
+}
+
+- (void)updateRepositoryProvider:(PBWKGitXRepositoryProvider)provider
+{
+    @synchronized (self) {
+        _repositoryProvider = [provider copy];
+    }
 }
 
 - (void)webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask

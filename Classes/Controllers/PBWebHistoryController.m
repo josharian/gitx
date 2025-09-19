@@ -12,8 +12,6 @@
 // #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
-#import "PBWebViewBridge.h"
-#import <WebKit/WebKit.h>
 
 @interface PBWebHistoryController ()
 - (NSDictionary *)bridgeDictionaryForCommit:(PBGitCommit *)commit currentRef:(NSString *)currentRef;
@@ -203,36 +201,7 @@
 
 - (NSArray *)contextMenuItemsForBridge:(id<PBWebBridge>)bridge elementInfo:(NSDictionary *)elementInfo defaultMenuItems:(NSArray *)defaultMenuItems
 {
-	if ([bridge isKindOfClass:[PBWebViewBridge class]]) {
-		DOMNode *node = elementInfo[@"WebElementDOMNode"];
-		while (node) {
-			if ([[node className] hasPrefix:@"refs "]) {
-				NSString *selectedRefString = [[[node childNodes] item:0] textContent];
-				for (PBGitRef *ref in historyController.webCommit.refs) {
-					if ([[ref shortName] isEqualToString:selectedRefString])
-						return [contextMenuDelegate menuItemsForRef:ref];
-				}
-				NSLog(@"Could not find selected ref!");
-				return defaultMenuItems;
-			}
-			if ([node hasAttributes] && [[node attributes] getNamedItem:@"representedFile"])
-				return nil;
-			if ([[node class] isEqual:[DOMHTMLImageElement class]]) {
-				NSMutableArray *filtered = [NSMutableArray array];
-				for (NSMenuItem *item in defaultMenuItems) {
-					if ([item tag] == WebMenuItemTagCopyImageToClipboard) {
-						[filtered addObject:item];
-					}
-				}
-				return filtered.count ? [filtered copy] : nil;
-			}
-
-			node = [node parentNode];
-		}
-
-		return defaultMenuItems;
-	}
-
+	#pragma unused(bridge)
 	NSString *type = [[elementInfo[@"type"] description] lowercaseString];
 	if ([type isEqualToString:@"refs"]) {
 		NSString *selectedRefString = [elementInfo[@"refText"] description];
