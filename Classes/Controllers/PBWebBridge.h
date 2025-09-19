@@ -31,7 +31,7 @@ typedef void (^PBWebBridgeJSONMessageHandler)(id<PBWebBridge> bridge, NSDictiona
 
 - (void)loadStartFileNamed:(NSString *)startFile;
 - (void)evaluateJavaScript:(NSString *)javascript completion:(void (^)(id _Nullable result, NSError * _Nullable error))completion;
-- (void)sendJSONMessageString:(NSString *)jsonString completion:(void (^)(NSError * _Nullable error))completion;
+- (void)sendJSONMessage:(NSDictionary *)message completion:(void (^)(NSError * _Nullable error))completion;
 
 @end
 

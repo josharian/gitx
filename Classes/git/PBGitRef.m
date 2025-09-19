@@ -122,16 +122,6 @@ NSString * const kGitXRemoteRefPrefix = @"refs/remotes/";
 	return self;
 }
 
-+ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector
-{
-	return NO;
-}
-
-+ (BOOL)isKeyExcludedFromWebScript:(const char *)name {
-	return NO;
-}
-
-
 #pragma mark <PBGitRefish>
 
 - (NSString *) refishName

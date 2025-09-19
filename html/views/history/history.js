@@ -384,28 +384,54 @@ var handleNativeMessage = function (message) {
 gitxBridge.subscribe(handleNativeMessage);
 
 var copyShaToClipboard = function () {
-  var sha = document.getElementById("commitID").textContent;
-  if (sha) {
+  var shaElement = document.getElementById("commitID");
+  if (!shaElement) return;
+
+  var sha = shaElement.textContent;
+  if (!sha) return;
+
+  var button = document.getElementById("copyShaButton");
+  var originalText = button ? button.textContent : null;
+
+  var showCopied = function () {
+    if (!button) return;
+    button.textContent = "copied!";
+    setTimeout(function () {
+      button.textContent = originalText;
+    }, 1000);
+  };
+
+  var fallbackCopy = function () {
     try {
-      // Create a temporary input element to copy the SHA
-      var tempInput = document.createElement("input");
-      tempInput.style.position = "absolute";
-      tempInput.style.left = "-1000px";
+      var tempInput = document.createElement("textarea");
       tempInput.value = sha;
+      tempInput.setAttribute("readonly", "");
+      tempInput.style.position = "fixed";
+      tempInput.style.top = "0";
+      tempInput.style.left = "-9999px";
+      tempInput.style.opacity = "0";
       document.body.appendChild(tempInput);
       tempInput.select();
-      document.execCommand("copy");
+      tempInput.setSelectionRange(0, tempInput.value.length);
+      var copied = document.execCommand("copy");
       document.body.removeChild(tempInput);
-
-      // Provide visual feedback
-      var button = document.getElementById("copyShaButton");
-      var originalText = button.textContent;
-      button.textContent = "copied!";
-      setTimeout(function () {
-        button.textContent = originalText;
-      }, 1000);
-    } catch (e) {
-      console.error("Failed to copy SHA to clipboard:", e);
+      if (copied) {
+        showCopied();
+      }
+    } catch (error) {
+      console.error("Failed to copy SHA to clipboard:", error);
     }
+  };
+
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    navigator.clipboard
+      .writeText(sha)
+      .then(showCopied)
+      .catch(function (error) {
+        console.error("navigator.clipboard.writeText failed:", error);
+        fallbackCopy();
+      });
+  } else {
+    fallbackCopy();
   }
 };

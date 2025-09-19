@@ -95,9 +95,9 @@ static NSString * const PBWKWebViewBridgeMessageHandlerName = @"gitxBridge";
                     }];
 }
 
-- (void)sendJSONMessageString:(NSString *)jsonString completion:(void (^)(NSError * _Nullable))completion
+- (void)sendJSONMessage:(NSDictionary *)message completion:(void (^)(NSError * _Nullable))completion
 {
-    if (jsonString.length == 0) {
+    if (!message) {
         if (completion) {
             NSError *error = [NSError errorWithDomain:PBWKWebViewBridgeErrorDomain
                                                  code:2
@@ -107,30 +107,37 @@ static NSString * const PBWKWebViewBridgeMessageHandlerName = @"gitxBridge";
         return;
     }
 
+    if (![NSJSONSerialization isValidJSONObject:message]) {
+        if (completion) {
+            NSError *error = [NSError errorWithDomain:PBWKWebViewBridgeErrorDomain
+                                                 code:3
+                                             userInfo:@{ NSLocalizedDescriptionKey: @"Bridge message is not valid JSON" }];
+            completion(error);
+        }
+        return;
+    }
+
     NSError *encodingError = nil;
-    NSData *encoded = [NSJSONSerialization dataWithJSONObject:@[jsonString]
-                                                      options:0
-                                                        error:&encodingError];
-    if (!encoded) {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message options:0 error:&encodingError];
+    if (!jsonData) {
         if (completion) {
             completion(encodingError);
         }
         return;
     }
 
-    NSString *arrayLiteral = [[NSString alloc] initWithData:encoded encoding:NSUTF8StringEncoding];
-    if (arrayLiteral.length < 2) {
+    NSString *jsonLiteral = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    if (!jsonLiteral) {
         if (completion) {
             NSError *error = [NSError errorWithDomain:PBWKWebViewBridgeErrorDomain
-                                                 code:3
+                                                 code:4
                                              userInfo:@{ NSLocalizedDescriptionKey: @"Failed to encode bridge message" }];
             completion(error);
         }
         return;
     }
 
-    NSString *stringLiteral = [arrayLiteral substringWithRange:NSMakeRange(1, arrayLiteral.length - 2)];
-    NSString *script = [NSString stringWithFormat:@"window.gitxReceiveNativeMessage(%@);", stringLiteral];
+    NSString *script = [NSString stringWithFormat:@"window.gitxReceiveNativeMessage(%@);", jsonLiteral];
 
     [self evaluateJavaScript:script
                    completion:^(id  _Nullable __unused result, NSError * _Nullable error) {

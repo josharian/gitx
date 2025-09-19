@@ -25,21 +25,6 @@ NSString *PBGitIndexFinishedCommit = @"PBGitIndexFinishedCommit";
 NSString *PBGitIndexAmendMessageAvailable = @"PBGitIndexAmendMessageAvailable";
 NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 
-@interface PBGitIndex (IndexRefreshMethods)
-
-- (NSArray *)linesFromNotification:(NSNotification *)notification;
-- (NSMutableDictionary *)dictionaryForLines:(NSArray *)lines;
-- (void)addFilesFromDictionary:(NSMutableDictionary *)dictionary staged:(BOOL)staged tracked:(BOOL)tracked;
-
-- (void)indexStepComplete;
-
-- (void)indexRefreshFinished:(NSNotification *)notification;
-- (void)readOtherFiles:(NSNotification *)notification;
-- (void)readUnstagedFiles:(NSNotification *)notification;
-- (void)readStagedFiles:(NSNotification *)notification;
-
-@end
-
 @interface PBGitIndex ()
 
 // Returns the tree to compare the index to, based
@@ -476,17 +461,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	[[NSNotificationCenter defaultCenter] postNotificationName:PBGitIndexIndexUpdated
 														object:self];
 }
-
-# pragma mark WebKit Accessibility
-
-+ (BOOL)isSelectorExcludedFromWebScript:(SEL)aSelector
-{
-	return NO;
-}
-
-@end
-
-@implementation PBGitIndex (IndexRefreshMethods)
+#pragma mark Index Refresh
 
 - (void)indexRefreshFinished:(NSNotification *)notification
 {

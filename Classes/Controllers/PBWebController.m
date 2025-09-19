@@ -17,7 +17,8 @@
 @property (nonatomic, strong) WKWebView *webView;
 @property (nonatomic, strong) PBWKGitXSchemeHandler *gitxSchemeHandler;
 @property (nonatomic, strong) NSDictionary *lastContextMenuPayload;
-- (void)installJavaScriptBridgeHelpers;
+@property (nonatomic, assign) BOOL bridgeUserScriptsInstalled;
+- (void)configureBridgeUserScriptsIfNeeded;
 - (void)handleDecodedBridgePayload:(NSDictionary *)payload;
 @end
 
@@ -132,6 +133,7 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 	NSView *containerView = view;
 	__weak typeof(self) weakSelf = self;
 
+	WKWebView *previousWebView = self.webView;
 	WKWebView *resolvedWebView = nil;
 	WKWebViewConfiguration *configuration = nil;
 	if ([containerView isKindOfClass:[WKWebView class]]) {
@@ -146,6 +148,10 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 	}
 
 	self.webView = resolvedWebView;
+	if (previousWebView != resolvedWebView) {
+		self.bridgeUserScriptsInstalled = NO;
+	}
+	[self configureBridgeUserScriptsIfNeeded];
 
 	id existingHandler = nil;
 	if ([configuration respondsToSelector:@selector(urlSchemeHandlerForURLScheme:)]) {
@@ -188,7 +194,6 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 			return;
 		}
 		strongSelf.lastContextMenuPayload = nil;
-		[strongSelf installJavaScriptBridgeHelpers];
 	};
 
 	bridge.didFinishLoadHandler = ^(id<PBWebBridge> activeBridge) {
@@ -247,16 +252,36 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 	[bridge loadStartFileNamed:startFile];
 }
 
-- (void)installJavaScriptBridgeHelpers
+- (void)configureBridgeUserScriptsIfNeeded
 {
-	if (!self.bridge) {
+	if (self.bridgeUserScriptsInstalled) {
 		return;
 	}
 
-	void (^ignoreResult)(id, NSError *) = ^(id __unused result, NSError *__unused error) {};
-	[self.bridge evaluateJavaScript:PBWebControllerWKNativePostScript completion:ignoreResult];
-	[self.bridge evaluateJavaScript:PBWebControllerBridgeBootstrapScript completion:ignoreResult];
-	[self.bridge evaluateJavaScript:PBWebControllerContextMenuTrackingScript completion:ignoreResult];
+	WKWebView *activeWebView = self.webView;
+	if (!activeWebView) {
+		return;
+	}
+
+	WKUserContentController *contentController = activeWebView.configuration.userContentController;
+	if (!contentController) {
+		return;
+	}
+
+	NSArray<NSString *> *scriptSources = @[ PBWebControllerWKNativePostScript,
+		PBWebControllerBridgeBootstrapScript,
+		PBWebControllerContextMenuTrackingScript ];
+	for (NSString *source in scriptSources) {
+		if (source.length == 0) {
+			continue;
+		}
+		WKUserScript *script = [[WKUserScript alloc] initWithSource:source
+						injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+				 forMainFrameOnly:NO];
+		[contentController addUserScript:script];
+	}
+
+	self.bridgeUserScriptsInstalled = YES;
 }
 
 - (void)handleDecodedBridgePayload:(NSDictionary *)payload
@@ -298,21 +323,13 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 	if (payload.count)
 		[message addEntriesFromDictionary:payload];
 
-	NSError *jsonError = nil;
-	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:message options:0 error:&jsonError];
-	if (!jsonData) {
-		NSLog(@"PBWebController: Failed to encode bridge message %@: %@", type, jsonError);
-		return;
-	}
-
-	NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-	if (!jsonString) {
-		NSLog(@"PBWebController: Failed to build JSON string for message %@", type);
+	if (![NSJSONSerialization isValidJSONObject:message]) {
+		NSLog(@"PBWebController: Bridge message for type %@ is not JSON serializable: %@", type, message);
 		return;
 	}
 
 	__weak typeof(self) weakSelf = self;
-	[self.bridge sendJSONMessageString:jsonString completion:^(NSError * _Nullable error) {
+	[self.bridge sendJSONMessage:message completion:^(NSError * _Nullable error) {
 		if (!error) {
 			return;
 		}
