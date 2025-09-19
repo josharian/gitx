@@ -1,5 +1,5 @@
 //
-//  PBWebViewBridge.h
+//  PBWKWebViewBridge.h
 //  GitX
 //
 //  Created by ChatGPT on 2024-XX-XX.
@@ -11,10 +11,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface PBWebViewBridge : NSObject <PBWebBridge, WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate, WebResourceLoadDelegate>
+@interface PBWKWebViewBridge : NSObject <PBWebBridge, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler>
 
-@property (nonatomic, weak, readonly) WebView *webView;
-@property (nonatomic, strong, readonly) NSView *view;
+@property (nonatomic, strong, readonly) WKWebView *webView;
 @property (nonatomic, strong, readonly) NSBundle *bundle;
 @property (nonatomic, copy, nullable) PBWebBridgeLoadHandler didFinishLoadHandler;
 @property (nonatomic, copy, nullable) PBWebBridgeWindowObjectHandler didClearWindowObjectHandler;
@@ -24,14 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) PBWebBridgeContextMenuHandler contextMenuHandler;
 @property (nonatomic, copy, nullable) PBWebBridgeJSONMessageHandler jsonMessageHandler;
 
-- (instancetype)initWithWebView:(WebView *)webView bundle:(NSBundle *)bundle;
-
-- (void)loadStartFileNamed:(NSString *)startFile;
-- (WebScriptObject *)windowScriptObject;
-- (void)injectValue:(id)value forKey:(NSString *)key;
-- (void)removeValueForKey:(NSString *)key;
-- (id)callWebScriptMethod:(NSString *)method withArguments:(NSArray *)arguments;
-- (void)evaluateJavaScript:(NSString *)javascript completion:(void (^)(id _Nullable result, NSError * _Nullable error))completion;
+- (instancetype)initWithWebView:(WKWebView *)webView bundle:(NSBundle *)bundle NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

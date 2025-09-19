@@ -7,11 +7,13 @@
 //
 
 #import "PBWebHistoryController.h"
+#import "PBWebBridge.h"
 #import "PBGitDefaults.h"
 // #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
 #import "PBWebViewBridge.h"
+#import <WebKit/WebKit.h>
 
 @interface PBWebHistoryController ()
 - (NSDictionary *)bridgeDictionaryForCommit:(PBGitCommit *)commit currentRef:(NSString *)currentRef;
@@ -28,7 +30,7 @@
 	repository = historyController.repository;
 	[super awakeFromNib];
 
-	self.bridge.newWindowHandler = ^BOOL (PBWebViewBridge *bridge, NSURLRequest *request) {
+	self.bridge.newWindowHandler = ^BOOL (id<PBWebBridge> bridge, NSURLRequest *request) {
 		NSURL *url = request.URL;
 		if (!url) {
 			return NO;
@@ -41,7 +43,6 @@
 
 - (void)closeView
 {
-	[[self script] setValue:nil forKey:@"commit"];
 	[historyController removeObserver:self forKeyPath:@"webCommit"];
 
 	[super closeView];
@@ -170,43 +171,94 @@
 
 - (void) copySource
 {
-	NSString *source = [(DOMHTMLElement *)[[[view mainFrame] DOMDocument] documentElement] outerHTML];
-	NSPasteboard *a =[NSPasteboard generalPasteboard];
-	[a declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
-	[a setString:source forType: NSStringPboardType];
+	static NSString *const kCopySourceScript = @"(function(){\n"
+		"  if (!document || !document.documentElement) { return ''; }\n"
+		"  return document.documentElement.outerHTML;\n"
+		"})();";
+
+	[self.bridge evaluateJavaScript:kCopySourceScript completion:^(id result, NSError *error) {
+		if (error) {
+			NSLog(@"PBWebHistoryController: Failed to copy source: %@", error);
+			return;
+		}
+
+		NSString *source = nil;
+		if ([result isKindOfClass:[NSString class]]) {
+			source = result;
+		} else if ([result respondsToSelector:@selector(description)]) {
+			source = [result description];
+		}
+
+		if (source.length == 0) {
+			return;
+		}
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+			NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+			[pasteboard declareTypes:@[NSStringPboardType] owner:self];
+			[pasteboard setString:source forType:NSStringPboardType];
+		});
+	}];
 }
 
-- (NSArray *)	   webView:(WebView *)sender
-contextMenuItemsForElement:(NSDictionary *)element
-		  defaultMenuItems:(NSArray *)defaultMenuItems
+- (NSArray *)contextMenuItemsForBridge:(id<PBWebBridge>)bridge elementInfo:(NSDictionary *)elementInfo defaultMenuItems:(NSArray *)defaultMenuItems
 {
-	DOMNode *node = [element valueForKey:@"WebElementDOMNode"];
-
-	while (node) {
-		// Every ref has a class name of 'refs' and some other class. We check on that to see if we pressed on a ref.
-		if ([[node className] hasPrefix:@"refs "]) {
-			NSString *selectedRefString = [[[node childNodes] item:0] textContent];
-			for (PBGitRef *ref in historyController.webCommit.refs)
-			{
-				if ([[ref shortName] isEqualToString:selectedRefString])
-					return [contextMenuDelegate menuItemsForRef:ref];
+	if ([bridge isKindOfClass:[PBWebViewBridge class]]) {
+		DOMNode *node = elementInfo[@"WebElementDOMNode"];
+		while (node) {
+			if ([[node className] hasPrefix:@"refs "]) {
+				NSString *selectedRefString = [[[node childNodes] item:0] textContent];
+				for (PBGitRef *ref in historyController.webCommit.refs) {
+					if ([[ref shortName] isEqualToString:selectedRefString])
+						return [contextMenuDelegate menuItemsForRef:ref];
+				}
+				NSLog(@"Could not find selected ref!");
+				return defaultMenuItems;
 			}
-			NSLog(@"Could not find selected ref!");
-			return defaultMenuItems;
-		}
-		if ([node hasAttributes] && [[node attributes] getNamedItem:@"representedFile"])
-			return nil;
-        else if ([[node class] isEqual:[DOMHTMLImageElement class]]) {
-            // Copy Image is the only menu item that makes sense here since we don't need
-			// to download the image or open it in a new window (besides with the
-			// current implementation these two entries can crash GitX anyway)
-			for (NSMenuItem *item in defaultMenuItems)
-				if ([item tag] == WebMenuItemTagCopyImageToClipboard)
-					return [NSArray arrayWithObject:item];
-			return nil;
-        }
+			if ([node hasAttributes] && [[node attributes] getNamedItem:@"representedFile"])
+				return nil;
+			if ([[node class] isEqual:[DOMHTMLImageElement class]]) {
+				NSMutableArray *filtered = [NSMutableArray array];
+				for (NSMenuItem *item in defaultMenuItems) {
+					if ([item tag] == WebMenuItemTagCopyImageToClipboard) {
+						[filtered addObject:item];
+					}
+				}
+				return filtered.count ? [filtered copy] : nil;
+			}
 
-		node = [node parentNode];
+			node = [node parentNode];
+		}
+
+		return defaultMenuItems;
+	}
+
+	NSString *type = [[elementInfo[@"type"] description] lowercaseString];
+	if ([type isEqualToString:@"refs"]) {
+		NSString *selectedRefString = [elementInfo[@"refText"] description];
+		if (selectedRefString.length > 0) {
+			for (PBGitRef *ref in historyController.webCommit.refs) {
+				if ([[ref shortName] isEqualToString:selectedRefString]) {
+					return [contextMenuDelegate menuItemsForRef:ref];
+				}
+			}
+			NSLog(@"Could not find selected ref for context menu: %@", selectedRefString);
+		}
+		return defaultMenuItems;
+	}
+
+	if ([type isEqualToString:@"representedfile"]) {
+		return nil;
+	}
+
+	if ([type isEqualToString:@"image"]) {
+		NSMutableArray *filtered = [NSMutableArray array];
+		for (NSMenuItem *item in defaultMenuItems) {
+			if ([item tag] == WebMenuItemTagCopyImageToClipboard || [[item title] rangeOfString:@"copy" options:NSCaseInsensitiveSearch].location != NSNotFound) {
+				[filtered addObject:item];
+			}
+		}
+		return filtered.count ? [filtered copy] : nil;
 	}
 
 	return defaultMenuItems;

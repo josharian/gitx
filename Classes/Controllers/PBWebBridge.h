@@ -1,21 +1,26 @@
 //
-//  PBWebViewBridge.h
+//  PBWebBridge.h
 //  GitX
 //
 //  Created by ChatGPT on 2024-XX-XX.
 //
 
 #import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-#import "PBWebBridge.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface PBWebViewBridge : NSObject <PBWebBridge, WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate, WebResourceLoadDelegate>
+@protocol PBWebBridge;
 
-@property (nonatomic, weak, readonly) WebView *webView;
+typedef void (^PBWebBridgeLoadHandler)(id<PBWebBridge> bridge);
+typedef void (^PBWebBridgeWindowObjectHandler)(id<PBWebBridge> bridge, id _Nullable windowObject);
+typedef NSURLRequest * _Nullable (^PBWebBridgeRequestRewriter)(id<PBWebBridge> bridge, NSURLRequest *request);
+typedef BOOL (^PBWebBridgeNavigationHandler)(id<PBWebBridge> bridge, NSURLRequest *request);
+typedef NSArray * _Nullable (^PBWebBridgeContextMenuHandler)(id<PBWebBridge> bridge, NSDictionary *elementInfo, NSArray *defaultMenuItems);
+typedef void (^PBWebBridgeJSONMessageHandler)(id<PBWebBridge> bridge, NSDictionary *payload);
+
+@protocol PBWebBridge <NSObject>
+
 @property (nonatomic, strong, readonly) NSView *view;
-@property (nonatomic, strong, readonly) NSBundle *bundle;
 @property (nonatomic, copy, nullable) PBWebBridgeLoadHandler didFinishLoadHandler;
 @property (nonatomic, copy, nullable) PBWebBridgeWindowObjectHandler didClearWindowObjectHandler;
 @property (nonatomic, copy, nullable) PBWebBridgeRequestRewriter requestRewriter;
@@ -24,14 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) PBWebBridgeContextMenuHandler contextMenuHandler;
 @property (nonatomic, copy, nullable) PBWebBridgeJSONMessageHandler jsonMessageHandler;
 
-- (instancetype)initWithWebView:(WebView *)webView bundle:(NSBundle *)bundle;
-
 - (void)loadStartFileNamed:(NSString *)startFile;
-- (WebScriptObject *)windowScriptObject;
-- (void)injectValue:(id)value forKey:(NSString *)key;
-- (void)removeValueForKey:(NSString *)key;
-- (id)callWebScriptMethod:(NSString *)method withArguments:(NSArray *)arguments;
 - (void)evaluateJavaScript:(NSString *)javascript completion:(void (^)(id _Nullable result, NSError * _Nullable error))completion;
+- (void)sendJSONMessageString:(NSString *)jsonString completion:(void (^)(NSError * _Nullable error))completion;
 
 @end
 

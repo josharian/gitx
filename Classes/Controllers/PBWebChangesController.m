@@ -30,7 +30,6 @@
 
 - (void)closeView
 {
-	[[self script] removeWebScriptKey:@"Index"];
 	[unstagedFilesController removeObserver:self forKeyPath:@"selection"];
 	[cachedFilesController removeObserver:self forKeyPath:@"selection"];
 
@@ -39,7 +38,6 @@
 
 - (void) didLoad
 {
-	[[self script] setValue:controller.index forKey:@"Index"];
 	[self refresh];
 }
 

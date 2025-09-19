@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23727"/>
-        <plugIn identifier="com.apple.WebKitIBPlugin" version="23727"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -237,18 +236,10 @@
                             <rect key="frame" x="0.0" y="172" width="955" height="233"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <webView focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="21">
+                                <customView focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="21">
                                     <rect key="frame" x="0.0" y="0.0" width="955" height="233"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="11" plugInsEnabled="NO" javaEnabled="NO">
-                                        <nil key="identifier"/>
-                                    </webPreferences>
-                                    <connections>
-                                        <outlet property="UIDelegate" destination="40" id="85"/>
-                                        <outlet property="frameLoadDelegate" destination="40" id="84"/>
-                                        <outlet property="policyDelegate" destination="40" id="109"/>
-                                    </connections>
-                                </webView>
+                                </customView>
                             </subviews>
                         </customView>
                     </subviews>

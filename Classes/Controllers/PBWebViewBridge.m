@@ -16,6 +16,11 @@ static NSString * const PBWebViewBridgeErrorDomain = @"PBWebViewBridgeErrorDomai
 
 @implementation PBWebViewBridge
 
+- (NSView *)view
+{
+    return self.webView;
+}
+
 - (instancetype)initWithWebView:(WebView *)webView bundle:(NSBundle *)bundle
 {
     self = [super init];
@@ -95,6 +100,35 @@ static NSString * const PBWebViewBridgeErrorDomain = @"PBWebViewBridgeErrorDomai
 
     NSString *result = [self.webView stringByEvaluatingJavaScriptFromString:javascript];
     completion(result, nil);
+}
+
+- (void)sendJSONMessageString:(NSString *)jsonString completion:(void (^)(NSError * _Nullable))completion
+{
+    if (jsonString.length == 0) {
+        if (completion) {
+            NSError *error = [NSError errorWithDomain:PBWebViewBridgeErrorDomain
+                                                 code:2
+                                             userInfo:@{ NSLocalizedDescriptionKey: @"Cannot send empty bridge message" }];
+            completion(error);
+        }
+        return;
+    }
+
+    @try {
+        [self callWebScriptMethod:@"gitxReceiveNativeMessage" withArguments:@[jsonString]];
+        if (completion) {
+            completion(nil);
+        }
+    } @catch (NSException *exception) {
+        if (completion) {
+            NSString *reason = exception.reason ?: exception.name ?: @"Unknown exception";
+            NSError *error = [NSError errorWithDomain:PBWebViewBridgeErrorDomain
+                                                 code:3
+                                             userInfo:@{ NSLocalizedDescriptionKey: @"Failed to dispatch bridge message",
+                                                         NSLocalizedFailureReasonErrorKey: reason }];
+            completion(error);
+        }
+    }
 }
 
 #pragma mark - WebFrameLoadDelegate

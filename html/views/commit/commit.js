@@ -144,7 +144,6 @@ var handleCommitSelectionChanged = function (message) {
 	if (slider)
 		contextLines = parseInt(slider.value, 10) || 0;
 
-	notify("Loading changes...", 0);
 	requestCommitDiff();
 };
 
