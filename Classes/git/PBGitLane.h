@@ -6,37 +6,19 @@
 //  Copyright 2008 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#include <string>
+#import <Foundation/Foundation.h>
 
-class PBGitLane {
-	std::string d_sha;
-	int d_index;
+NS_ASSUME_NONNULL_BEGIN
 
-public:
+@interface PBGitLane : NSObject
 
-	PBGitLane(NSString *sha)
-	{
-		d_sha = [sha UTF8String];
-	}
+@property (nonatomic, copy, nullable) NSString *sha;
+@property (nonatomic, assign, readonly) NSInteger index;
 
-	PBGitLane(int index, NSString *sha)
-	: d_index(index)
-	{
-		d_sha = [sha UTF8String];
-	}
-	
-	bool isCommit(NSString *sha) const
-	{
-		return d_sha.compare([sha UTF8String]) == 0;
-	}
-	
-	void setSha(NSString *sha);
-	
-	NSString *sha() const
-	{
-		return [NSString stringWithUTF8String:d_sha.c_str()];
-	}
-	
-	int index() const;
-};
+- (instancetype)initWithSHA:(nullable NSString *)sha;
+- (instancetype)initWithIndex:(NSInteger)index sha:(nullable NSString *)sha NS_DESIGNATED_INITIALIZER;
+- (BOOL)isCommit:(NSString *)sha;
+
+@end
+
+NS_ASSUME_NONNULL_END

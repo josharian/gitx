@@ -21,7 +21,7 @@
 
 ARCHS = x86_64 arm64
 SDKROOT = macosx
-MACOSX_DEPLOYMENT_TARGET = 10.13
+MACOSX_DEPLOYMENT_TARGET = 10.15
 
 // Search Paths
 
@@ -42,11 +42,6 @@ CLANG_ENABLE_OBJC_ARC = YES
 GCC_C_LANGUAGE_STANDARD = gnu11
 CLANG_CXX_LANGUAGE_STANDARD = gnu++14
 
-// Prefix Header
-
-GCC_PRECOMPILE_PREFIX_HEADER = YES
-GCC_PREFIX_HEADER = GitX_Prefix.pch
-
 // Linking
 
 PREBINDING = NO
@@ -55,4 +50,3 @@ ZERO_LINK = NO // this is no longer needed
 // Other
 
 LLVM_LTO = NO   // Link-Time Optimization causes a Rel32 address space error when linking (since we now target x86_64 inclusively)
-
