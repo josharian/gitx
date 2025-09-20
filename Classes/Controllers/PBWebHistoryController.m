@@ -62,7 +62,7 @@
 
 - (void) changeContentTo: (PBGitCommit *) content
 {
-	if (content == nil || !finishedLoading)
+	if (content == nil)
 		return;
 
 	NSString *headRef = [[[historyController repository] headRef] simpleRef];
@@ -140,7 +140,7 @@
 
 - (void) sendKey: (NSString*) key
 {
-	if (key.length == 0 || !finishedLoading)
+	if (key.length == 0)
 		return;
 
 	NSDictionary *payload = @{ @"key": key ?: @"" };

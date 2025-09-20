@@ -28,11 +28,20 @@
 
 	if ([character isEqualToString:@" "]) {
 		WKWebView *historyWebView = [webController webView];
-		if (historyWebView) {
-			NSString *script = ([event modifierFlags] & NSEventModifierFlagShift)
-				? @"window.scrollBy(0, -window.innerHeight);"
-				: @"window.scrollBy(0, window.innerHeight);";
-			[historyWebView evaluateJavaScript:script completionHandler:nil];
+		NSScrollView *scrollView = historyWebView.enclosingScrollView;
+		if (!scrollView) {
+			for (NSView *subview in historyWebView.subviews) {
+				if ([subview isKindOfClass:[NSScrollView class]]) {
+					scrollView = (NSScrollView *)subview;
+					break;
+				}
+			}
+		}
+		if (scrollView) {
+			if ([event modifierFlags] & NSEventModifierFlagShift)
+				[scrollView pageUp:nil];
+			else
+				[scrollView pageDown:nil];
 			return;
 		}
 	}

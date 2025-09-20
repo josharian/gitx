@@ -74,9 +74,6 @@
 
 - (void) showMultiple: (NSArray *)objects
 {
-	if (!finishedLoading)
-		return;
-
 	NSMutableArray *filesPayload = [NSMutableArray arrayWithCapacity:[objects count]];
 	for (id file in objects) {
 		NSString *path = nil;
@@ -97,9 +94,6 @@
 
 - (void) refresh
 {
-	if (!finishedLoading)
-		return;
-
 	NSMutableDictionary *payload = [NSMutableDictionary dictionary];
 	payload[@"cached"] = @(selectedFileIsCached);
 	if (selectedFile)
@@ -143,9 +137,6 @@
 
 - (void) setStateMessage:(NSString *)state
 {
-	if (!finishedLoading)
-		return;
-
 	NSDictionary *payload = @{ @"state": state ?: @"" };
 	[self sendBridgeEventWithType:@"commitState" payload:payload];
 }

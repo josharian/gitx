@@ -52,6 +52,9 @@
 		4A5D76F314A9A9CC00DF6C68 /* PBWebHistoryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764B14A9A9CC00DF6C68 /* PBWebHistoryController.m */; };
 		B2E4C5887FB04F468C0826DE /* PBWKWebViewBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E4C5877FB04F468C0826DE /* PBWKWebViewBridge.m */; };
 		B2E4C5897FB04F468C0826DE /* PBWKGitXSchemeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E4C58B7FB04F468C0826DE /* PBWKGitXSchemeHandler.m */; };
+		B2E4C58C7FB04F468C0826DE /* PBWebControllerNativePost.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C58F7FB04F468C0826DE /* PBWebControllerNativePost.js */; };
+		B2E4C58D7FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C5907FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js */; };
+		B2E4C58E7FB04F468C0826DE /* PBWebControllerContextMenuTracking.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C5917FB04F468C0826DE /* PBWebControllerContextMenuTracking.js */; };
 		4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */; };
 		4A5D76F514A9A9CC00DF6C68 /* PBGitCommit.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765114A9A9CC00DF6C68 /* PBGitCommit.m */; };
 		4A5D76F714A9A9CC00DF6C68 /* PBGitDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.m */; };
@@ -221,6 +224,9 @@
 		B2E4C5877FB04F468C0826DE /* PBWKWebViewBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PBWKWebViewBridge.m; sourceTree = "<group>"; };
 		B2E4C58A7FB04F468C0826DE /* PBWKGitXSchemeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PBWKGitXSchemeHandler.h; sourceTree = "<group>"; };
 		B2E4C58B7FB04F468C0826DE /* PBWKGitXSchemeHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PBWKGitXSchemeHandler.m; sourceTree = "<group>"; };
+		B2E4C58F7FB04F468C0826DE /* PBWebControllerNativePost.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = PBWebControllerNativePost.js; sourceTree = "<group>"; };
+		B2E4C5907FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = PBWebControllerBridgeBootstrap.js; sourceTree = "<group>"; };
+		B2E4C5917FB04F468C0826DE /* PBWebControllerContextMenuTracking.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = PBWebControllerContextMenuTracking.js; sourceTree = "<group>"; };
 		4A5D764E14A9A9CC00DF6C68 /* PBGitBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitBinary.h; sourceTree = "<group>"; };
 		4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitBinary.m; sourceTree = "<group>"; };
 		4A5D765014A9A9CC00DF6C68 /* PBGitCommit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PBGitCommit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -460,6 +466,9 @@
 				4A90A72B14A9C12F00D0DA02 /* README.markdown */,
 				4A90A72C14A9C12F00D0DA02 /* Release.xcconfig */,
 				4A5D75B514A9A90500DF6C68 /* source.css */,
+				B2E4C58F7FB04F468C0826DE /* PBWebControllerNativePost.js */,
+				B2E4C5907FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js */,
+				B2E4C5917FB04F468C0826DE /* PBWebControllerContextMenuTracking.js */,
 				4A5D75B714A9A90500DF6C68 /* UpdateKey.pem */,
 				4A5D75B914A9A90500DF6C68 /* XIBs */,
 			);
@@ -814,6 +823,9 @@
 				4A5D75F114A9A90500DF6C68 /* rewindImage.pdf in Resources */,
 				978357B8189C19A000ADC689 /* AddBranchTemplate.pdf in Resources */,
 				4A5D75F714A9A90500DF6C68 /* source.css in Resources */,
+				B2E4C58C7FB04F468C0826DE /* PBWebControllerNativePost.js in Resources */,
+				B2E4C58D7FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js in Resources */,
+				B2E4C58E7FB04F468C0826DE /* PBWebControllerContextMenuTracking.js in Resources */,
 				4A5D75F914A9A90500DF6C68 /* UpdateKey.pem in Resources */,
 				978357C1189C1F5700ADC689 /* CherryPickTemplate.pdf in Resources */,
 				978357C7189C23AF00ADC689 /* TreeViewTemplate.pdf in Resources */,

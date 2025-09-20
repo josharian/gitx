@@ -18,107 +18,14 @@
 @property (nonatomic, strong) PBWKGitXSchemeHandler *gitxSchemeHandler;
 @property (nonatomic, strong) NSDictionary *lastContextMenuPayload;
 @property (nonatomic, assign) BOOL bridgeUserScriptsInstalled;
+@property (nonatomic, strong) NSMutableArray<NSDictionary *> *pendingBridgeMessages;
 - (void)configureBridgeUserScriptsIfNeeded;
 - (void)handleDecodedBridgePayload:(NSDictionary *)payload;
+- (void)flushPendingBridgeMessages;
+- (void)dispatchBridgeMessage:(NSDictionary *)message;
+- (NSArray<NSString *> *)bridgeUserScriptResourceNames;
+- (NSString *)bridgeUserScriptSourceNamed:(NSString *)resourceName;
 @end
-
-static NSString * const PBWebControllerWKNativePostScript =
-@"window.gitxNativePost = window.gitxNativePost || function(payload){\n"
- "  try {\n"
- "    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.gitxBridge) {\n"
- "      window.webkit.messageHandlers.gitxBridge.postMessage(payload || {});\n"
- "    }\n"
- "  } catch (error) {\n"
- "    if (window.console && console.error) { console.error('gitxNativePost failed', error); }\n"
- "  }\n"
- "};";
-
-static NSString * const PBWebControllerBridgeBootstrapScript =
-@"(function(){\n"
- "  var gitx = window.gitx = window.gitx || {};\n"
- "  gitx._nativeSubscribers = gitx._nativeSubscribers || [];\n"
- "  gitx.postMessage = gitx.postMessage || function(payload){\n"
- "    try { window.gitxNativePost(payload || {}); }\n"
- "    catch (error) { if (window.console && console.error) { console.error('gitx.postMessage failed', error); } }\n"
- "  };\n"
- "  gitx.subscribeToNativeMessages = gitx.subscribeToNativeMessages || function(handler){\n"
- "    if (typeof handler !== 'function') { return function(){}; }\n"
- "    gitx._nativeSubscribers.push(handler);\n"
- "    return function(){\n"
- "      var index = gitx._nativeSubscribers.indexOf(handler);\n"
- "      if (index >= 0) { gitx._nativeSubscribers.splice(index, 1); }\n"
- "    };\n"
- "  };\n"
- "  gitx._dispatchNativeMessage = function(message){\n"
- "    var payload = message;\n"
- "    if (typeof message === 'string') {\n"
- "      try { payload = JSON.parse(message); }\n"
- "      catch (error) {\n"
- "        if (window.console && console.error) { console.error('gitx._dispatchNativeMessage parse failure', error, message); }\n"
- "        return;\n"
- "      }\n"
- "    }\n"
- "    if (!payload || typeof payload !== 'object') {\n"
- "      return;\n"
- "    }\n"
- "    if (typeof gitx.onNativeMessage === 'function') {\n"
- "      try { gitx.onNativeMessage(payload); }\n"
- "      catch (error) { if (window.console && console.error) { console.error('gitx.onNativeMessage failure', error); } }\n"
- "    }\n"
- "    gitx._nativeSubscribers.slice().forEach(function(handler){\n"
- "      try { handler(payload); }\n"
- "      catch (error) { if (window.console && console.error) { console.error('gitx native subscriber failure', error); } }\n"
- "    });\n"
- "  };\n"
- "  window.gitxReceiveNativeMessage = gitx._dispatchNativeMessage;\n"
- "  if (window.gitxBridge && typeof window.gitxBridge.flush === 'function') {\n"
- "    try { window.gitxBridge.flush(); }\n"
- "    catch (error) { if (window.console && console.error) { console.error('gitxBridge.flush failed', error); } }\n"
- "  }\n"
- "})();";
-
-static NSString * const PBWebControllerContextMenuTrackingScript =
-@"(function(){\n"
- "  var gitx = window.gitx = window.gitx || {};\n"
- "  gitx._lastContextMenuInfo = gitx._lastContextMenuInfo || {};\n"
- "  gitx.getLastContextMenuInfo = function(){ return gitx._lastContextMenuInfo || {}; };\n"
- "  function extractInfo(target){\n"
- "    var info = { type: 'default' };\n"
- "    var node = target;\n"
- "    while (node) {\n"
- "      if (!info.refText && node.className && typeof node.className === 'string' && node.className.indexOf('refs ') === 0) {\n"
- "        info.type = 'refs';\n"
- "        info.refText = (node.textContent || '').trim();\n"
- "        break;\n"
- "      }\n"
- "      if (node.hasAttribute && node.hasAttribute('representedFile')) {\n"
- "        info.type = 'representedFile';\n"
- "        info.representedFile = node.getAttribute('representedFile') || '1';\n"
- "        break;\n"
- "      }\n"
- "      if (node.tagName && node.tagName.toUpperCase() === 'IMG') {\n"
- "        info.type = 'image';\n"
- "        break;\n"
- "      }\n"
- "      node = node.parentNode;\n"
- "    }\n"
- "    return info;\n"
- "  }\n"
- "  function handleContextMenu(event){\n"
- "    try {\n"
- "      var info = extractInfo(event.target || event.srcElement);\n"
- "      gitx._lastContextMenuInfo = info;\n"
- "      if (gitx.postMessage) {\n"
- "        gitx.postMessage({ type: '__contextMenuPreview__', info: info });\n"
- "      }\n"
- "    } catch (error) {\n"
- "      if (window.console && console.error) { console.error('gitx context menu tracking failed', error); }\n"
- "    }\n"
- "  }\n"
- "  if (document && document.addEventListener) {\n"
- "    document.addEventListener('contextmenu', handleContextMenu, true);\n"
- "  }\n"
- "})();";
 
 @implementation PBWebController
 
@@ -128,6 +35,7 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 - (void)awakeFromNib
 {
 	finishedLoading = NO;
+	self.pendingBridgeMessages = [NSMutableArray array];
 
 	NSBundle *bundle = [NSBundle mainBundle];
 	NSView *containerView = view;
@@ -206,6 +114,7 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 		if ([strongSelf respondsToSelector:@selector(didLoad)]) {
 			[strongSelf performSelector:@selector(didLoad)];
 		}
+		[strongSelf flushPendingBridgeMessages];
 	};
 
 	PBWebBridgeNavigationHandler navigationBlock = ^BOOL (id<PBWebBridge> activeBridge, NSURLRequest *request) {
@@ -268,10 +177,8 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 		return;
 	}
 
-	NSArray<NSString *> *scriptSources = @[ PBWebControllerWKNativePostScript,
-		PBWebControllerBridgeBootstrapScript,
-		PBWebControllerContextMenuTrackingScript ];
-	for (NSString *source in scriptSources) {
+	for (NSString *resourceName in [self bridgeUserScriptResourceNames]) {
+		NSString *source = [self bridgeUserScriptSourceNamed:resourceName];
 		if (source.length == 0) {
 			continue;
 		}
@@ -328,17 +235,15 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 		return;
 	}
 
-	__weak typeof(self) weakSelf = self;
-	[self.bridge sendJSONMessage:message completion:^(NSError * _Nullable error) {
-		if (!error) {
-			return;
+	if (!finishedLoading) {
+		if (!self.pendingBridgeMessages) {
+			self.pendingBridgeMessages = [NSMutableArray array];
 		}
-		__strong typeof(weakSelf) strongSelf = weakSelf;
-		if (!strongSelf) {
-			return;
-		}
-		NSLog(@"PBWebController: Failed to dispatch message %@: %@", type, error);
-	}];
+		[self.pendingBridgeMessages addObject:[message copy]];
+		return;
+	}
+
+	[self dispatchBridgeMessage:message];
 }
 
 - (void)closeView
@@ -347,12 +252,69 @@ static NSString * const PBWebControllerContextMenuTrackingScript =
 	self.bridge = nil;
 	self.gitxSchemeHandler = nil;
 	self.lastContextMenuPayload = nil;
+	[self.pendingBridgeMessages removeAllObjects];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload
 {
 	NSLog(@"PBWebController: Unhandled bridge message %@ with payload %@", type, payload);
+}
+
+- (void)flushPendingBridgeMessages
+{
+	if (!finishedLoading || self.pendingBridgeMessages.count == 0)
+		return;
+
+	NSArray<NSDictionary *> *queuedMessages = [self.pendingBridgeMessages copy];
+	[self.pendingBridgeMessages removeAllObjects];
+	for (NSDictionary *message in queuedMessages) {
+		[self dispatchBridgeMessage:message];
+	}
+}
+
+- (void)dispatchBridgeMessage:(NSDictionary *)message
+{
+	if (!message || !self.bridge)
+		return;
+
+	__weak typeof(self) weakSelf = self;
+	[self.bridge sendJSONMessage:message completion:^(NSError * _Nullable error) {
+		if (!error)
+			return;
+		__strong typeof(weakSelf) strongSelf = weakSelf;
+		if (!strongSelf)
+			return;
+		NSString *type = [message objectForKey:@"type"];
+		NSLog(@"PBWebController: Failed to dispatch message %@: %@", type, error);
+	}];
+}
+
+- (NSArray<NSString *> *)bridgeUserScriptResourceNames
+{
+	return @[ @"PBWebControllerNativePost",
+		@"PBWebControllerBridgeBootstrap",
+		@"PBWebControllerContextMenuTracking" ];
+}
+
+- (NSString *)bridgeUserScriptSourceNamed:(NSString *)resourceName
+{
+	if (resourceName.length == 0)
+		return nil;
+
+	NSBundle *bundle = [NSBundle mainBundle];
+	NSURL *resourceURL = [bundle URLForResource:resourceName withExtension:@"js"];
+	if (!resourceURL) {
+		NSLog(@"PBWebController: Missing bridge script resource %@.js", resourceName);
+		return nil;
+	}
+
+	NSError *error = nil;
+	NSString *source = [NSString stringWithContentsOfURL:resourceURL encoding:NSUTF8StringEncoding error:&error];
+	if (!source) {
+		NSLog(@"PBWebController: Failed to load bridge script %@.js: %@", resourceName, error);
+	}
+	return source;
 }
 
 @end
