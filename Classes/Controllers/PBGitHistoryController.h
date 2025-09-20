@@ -63,8 +63,6 @@
 - (IBAction)selectNext:(id)sender;
 - (IBAction)selectPrevious:(id)sender;
 
-- (void) copyCommitInfo;
-- (void) copyCommitSHA;
 
 - (BOOL) hasNonlinearPath;
 

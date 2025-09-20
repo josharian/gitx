@@ -10,37 +10,9 @@
 #import "PBGitRevisionCell.h"
 #import "PBWebHistoryController.h"
 #import "PBHistorySearchController.h"
-#import <WebKit/WebKit.h>
-
 @implementation PBCommitList
 
 @synthesize useAdjustScroll;
-
-- (void)keyDown:(NSEvent *)event
-{
-	NSString* character = [event charactersIgnoringModifiers];
-
-	// Pass on command-shift up/down to the responder. We want the splitview to capture this.
-	if ([event modifierFlags] & NSEventModifierFlagShift && [event modifierFlags] & NSEventModifierFlagCommand && ([event keyCode] == 0x7E || [event keyCode] == 0x7D)) {
-		[self.nextResponder keyDown:event];
-		return;
-	}
-
-	if ([character rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"jkcv"]].location == 0)
-		[webController sendKey: character];
-	else
-		[super keyDown: event];
-}
-
-- (void) copy:(id)sender
-{
-	[controller copyCommitInfo];
-}
-
-- (void) copySHA:(id)sender
-{
-	[controller copyCommitSHA];
-}
 
 // !!! Andre Berg 20100330: Used from -scrollSelectionToTopOfViewFrom: of PBGitHistoryController
 // so that when the history controller udpates the branch filter the origin of the superview gets
