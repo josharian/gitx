@@ -37,14 +37,8 @@ static NSString* gitPath = nil;
 	if (!version)
 		return NO;
 
-	NSComparisonResult c = [version compare:@"" MIN_GIT_VERSION];
-	if (c == NSOrderedSame || c == NSOrderedDescending) {
-		gitPath = path;
-		return YES;
-	}
-
-	NSLog(@"Found a git binary at %@, but is only version %@", path, version);
-	return NO;
+	gitPath = path;
+	return YES;
 }
 
 + (void) initialize
@@ -57,9 +51,7 @@ static NSString* gitPath = nil;
 			return;
 		NSAlert *alert = [[NSAlert alloc] init];
 		[alert setMessageText:@"Invalid git path"];
-		[alert setInformativeText:[NSString stringWithFormat:@"You entered a custom git path in the Preferences pane, "
-					"but this path is not a valid git v" MIN_GIT_VERSION " or higher binary. We're going to use the default "
-					"search paths instead"]];
+		[alert setInformativeText:@"You entered a custom git path in the Preferences pane, but this path does not appear to be a valid git binary. We're going to use the default search paths instead"];
 		[alert addButtonWithTitle:@"OK"];
 		[alert runModal];
 	}
@@ -91,7 +83,7 @@ static NSString* gitPath = nil;
 		return;
 	}
 
-	NSLog(@"Could not find a git binary higher than version " MIN_GIT_VERSION);
+	NSLog(@"Could not find a git binary.");
 }
 
 + (NSString *) path;
@@ -123,7 +115,7 @@ static NSMutableArray *locations = nil;
 + (NSString *) notFoundError
 {
 	NSMutableString *error = [NSMutableString stringWithString:
-							  @"Could not find a git binary version " MIN_GIT_VERSION " or higher.\n"
+							  @"Could not find a git binary.\n"
 							  @"Please make sure there is a git binary in one of the following locations:\n\n"];
 	for (NSString *location in [PBGitBinary searchLocations]) {
 		[error appendFormat:@"\t%@\n", location];
