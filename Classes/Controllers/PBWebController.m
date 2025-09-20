@@ -293,6 +293,7 @@
 - (NSArray<NSString *> *)bridgeUserScriptResourceNames
 {
 	return @[ @"PBWebControllerNativePost",
+		@"html/lib/gitx-bridge",
 		@"PBWebControllerBridgeBootstrap",
 		@"PBWebControllerContextMenuTracking" ];
 }
@@ -303,7 +304,15 @@
 		return nil;
 
 	NSBundle *bundle = [NSBundle mainBundle];
-	NSURL *resourceURL = [bundle URLForResource:resourceName withExtension:@"js"];
+	NSString *subdirectory = nil;
+	NSString *fileName = resourceName;
+	NSString *candidateDirectory = [resourceName stringByDeletingLastPathComponent];
+	if (candidateDirectory.length > 0 && ![candidateDirectory isEqualToString:resourceName])
+		subdirectory = candidateDirectory;
+	if (subdirectory.length > 0)
+		fileName = [resourceName lastPathComponent];
+
+	NSURL *resourceURL = [bundle URLForResource:fileName withExtension:@"js" subdirectory:subdirectory];
 	if (!resourceURL) {
 		NSLog(@"PBWebController: Missing bridge script resource %@.js", resourceName);
 		return nil;

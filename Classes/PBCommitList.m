@@ -26,26 +26,7 @@
 		return;
 	}
 
-	if ([character isEqualToString:@" "]) {
-		WKWebView *historyWebView = [webController webView];
-		NSScrollView *scrollView = historyWebView.enclosingScrollView;
-		if (!scrollView) {
-			for (NSView *subview in historyWebView.subviews) {
-				if ([subview isKindOfClass:[NSScrollView class]]) {
-					scrollView = (NSScrollView *)subview;
-					break;
-				}
-			}
-		}
-		if (scrollView) {
-			if ([event modifierFlags] & NSEventModifierFlagShift)
-				[scrollView pageUp:nil];
-			else
-				[scrollView pageDown:nil];
-			return;
-		}
-	}
-	else if ([character rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"jkcv"]].location == 0)
+	if ([character rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"jkcv"]].location == 0)
 		[webController sendKey: character];
 	else
 		[super keyDown: event];

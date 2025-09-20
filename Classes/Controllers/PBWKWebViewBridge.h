@@ -2,8 +2,6 @@
 //  PBWKWebViewBridge.h
 //  GitX
 //
-//  Created by ChatGPT on 2024-XX-XX.
-//
 
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>

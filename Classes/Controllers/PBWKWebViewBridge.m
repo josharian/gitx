@@ -2,8 +2,6 @@
 //  PBWKWebViewBridge.m
 //  GitX
 //
-//  Created by ChatGPT on 2024-XX-XX.
-//
 
 #import "PBWKWebViewBridge.h"
 

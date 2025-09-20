@@ -102,14 +102,6 @@
 	[self sendBridgeEventWithType:@"commitSelectionChanged" payload:payload];
 }
 
-- (void)stageHunk:(NSString *)hunk reverse:(BOOL)reverse
-{
-	[controller.index applyPatch:hunk stage:YES reverse:reverse];
-	// FIXME: Don't need a hard refresh
-
-	[self refresh];
-}
-
 - (void) discardHunk:(NSString *)hunk
 {
     [controller.index applyPatch:hunk stage:NO reverse:YES];
