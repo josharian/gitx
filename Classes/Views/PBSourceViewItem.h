@@ -37,12 +37,12 @@
 
 - (PBGitRef *) ref;
 
-@property NSString *title;
-@property(nonatomic, readonly) NSArray *sortedChildren;
-@property(assign) BOOL isGroupItem, isUncollapsible, isExpanded;
-@property PBGitRevSpecifier *revSpecifier;
-@property (assign)PBSourceViewItem *parent;
-@property(readonly) NSString *iconName;
-@property(readonly) NSImage *icon;
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, readonly) NSArray *sortedChildren;
+@property (nonatomic, assign) BOOL isGroupItem, isUncollapsible, isExpanded;
+@property (nonatomic, strong) PBGitRevSpecifier *revSpecifier;
+@property (nonatomic, weak) PBSourceViewItem *parent;
+@property (nonatomic, readonly) NSString *iconName;
+@property (nonatomic, readonly) NSImage *icon;
 
 @end

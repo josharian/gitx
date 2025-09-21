@@ -100,9 +100,13 @@
 	repository.currentBranchFilter = kGitXAllBranchesFilter;
 
 
-	__unsafe_unretained PBGitHistoryController *weakSelf = self;
+	__weak typeof(self) weakSelf = self;
 	commitList.findPanelActionBlock = ^(id sender) {
-		[weakSelf.view.window makeFirstResponder:weakSelf->searchField];
+		__strong typeof(weakSelf) strongSelf = weakSelf;
+		if (!strongSelf) {
+			return;
+		}
+		[strongSelf.view.window makeFirstResponder:strongSelf->searchField];
 	};
 
 	[super awakeFromNib];

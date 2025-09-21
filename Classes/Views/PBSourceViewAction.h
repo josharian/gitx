@@ -13,5 +13,5 @@
 	NSImage *icon;
 }
 
-@property(retain) NSImage *icon;
+@property (nonatomic, strong) NSImage *icon;
 @end

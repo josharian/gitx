@@ -32,9 +32,9 @@
 + (PBGitRevSpecifier *)allBranchesRevSpec;
 + (PBGitRevSpecifier *)localBranchesRevSpec;
 
-@property(retain)   NSString *description;
-@property(readonly) NSArray *parameters;
-@property(retain)   NSURL *workingDirectory;
-@property(readonly) BOOL isSimpleRef;
+@property (nonatomic, copy) NSString *description;
+@property (nonatomic, readonly) NSArray *parameters;
+@property (nonatomic, strong) NSURL *workingDirectory;
+@property (nonatomic, readonly) BOOL isSimpleRef;
 
 @end
