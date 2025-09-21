@@ -13,16 +13,15 @@ final class PBEasyPipe: NSObject {
     // MARK: - Public API (ObjC exposed)
 
     @objc(handleForCommand:withArgs:)
-    class func handleForCommand(_ command: String, withArgs arguments: NSArray) -> FileHandle? {
+    class func handleForCommand(_ command: String, withArgs arguments: [String]) -> FileHandle? {
         return handleForCommand(command, withArgs: arguments, inDir: nil)
     }
 
     @objc(taskForCommand:withArgs:inDir:)
-    class func taskForCommand(_ command: String, withArgs arguments: NSArray, inDir directory: String?) -> Process? {
-        let coercedArguments = coerceArguments(arguments)
+    class func taskForCommand(_ command: String, withArgs arguments: [String], inDir directory: String?) -> Process? {
         guard let process = makeProcess(
             executablePath: command,
-            arguments: coercedArguments,
+            arguments: arguments,
             workingDirectory: directory,
             environmentExtras: nil,
             combineOutputPipes: true
@@ -30,12 +29,12 @@ final class PBEasyPipe: NSObject {
             return nil
         }
 
-        logIfNeeded(command: command, arguments: coercedArguments, directory: directory)
+        logIfNeeded(command: command, arguments: arguments, directory: directory)
         return process
     }
 
     @objc(handleForCommand:withArgs:inDir:)
-    class func handleForCommand(_ command: String, withArgs arguments: NSArray, inDir directory: String?) -> FileHandle? {
+    class func handleForCommand(_ command: String, withArgs arguments: [String], inDir directory: String?) -> FileHandle? {
         guard let process = taskForCommand(command, withArgs: arguments, inDir: directory) else {
             return nil
         }
@@ -55,7 +54,7 @@ final class PBEasyPipe: NSObject {
 
     @objc(outputForCommand:withArgs:inDir:retValue:)
     class func outputForCommand(_ command: String,
-                                withArgs arguments: NSArray,
+                                withArgs arguments: [String],
                                 inDir directory: String?,
                                 retValue: UnsafeMutablePointer<Int32>?) -> String? {
         return outputForCommand(
@@ -70,7 +69,7 @@ final class PBEasyPipe: NSObject {
 
     @objc(outputForCommand:withArgs:inDir:inputString:retValue:)
     class func outputForCommand(_ command: String,
-                                withArgs arguments: NSArray,
+                                withArgs arguments: [String],
                                 inDir directory: String?,
                                 inputString: String?,
                                 retValue: UnsafeMutablePointer<Int32>?) -> String? {
@@ -86,17 +85,16 @@ final class PBEasyPipe: NSObject {
 
     @objc(outputForCommand:withArgs:inDir:byExtendingEnvironment:inputString:retValue:)
     class func outputForCommand(_ command: String,
-                                withArgs arguments: NSArray,
+                                withArgs arguments: [String],
                                 inDir directory: String?,
-                                byExtendingEnvironment environment: NSDictionary?,
+                                byExtendingEnvironment environment: [String: String]?,
                                 inputString: String?,
                                 retValue: UnsafeMutablePointer<Int32>?) -> String? {
-        let coercedArguments = coerceArguments(arguments)
-        let environmentExtras = environment as? [String: String]
+        let environmentExtras = environment
 
         guard let result = runProcess(
             executablePath: command,
-            arguments: coercedArguments,
+            arguments: arguments,
             workingDirectory: directory,
             environmentExtras: environmentExtras,
             input: inputString
@@ -120,7 +118,7 @@ final class PBEasyPipe: NSObject {
 
     @objc(outputForCommand:withArgs:inDir:)
     class func outputForCommand(_ command: String,
-                                withArgs arguments: NSArray,
+                                withArgs arguments: [String],
                                 inDir directory: String?) -> String? {
         var status: Int32 = 0
         let string = outputForCommand(
@@ -133,12 +131,12 @@ final class PBEasyPipe: NSObject {
     }
 
     @objc(outputForCommand:withArgs:)
-    class func outputForCommand(_ command: String, withArgs arguments: NSArray) -> String? {
+    class func outputForCommand(_ command: String, withArgs arguments: [String]) -> String? {
         return outputForCommand(command, withArgs: arguments, inDir: nil)
     }
 
     @objc(gitOutputForArgs:inDir:error:)
-    class func gitOutputForArgs(_ args: NSArray,
+    class func gitOutputForArgs(_ args: [String],
                                 inDir directory: String?,
                                 error: UnsafeMutablePointer<NSError?>?) -> String? {
         guard let gitPath = (NSClassFromString("PBGitBinary") as AnyObject?)?.perform(NSSelectorFromString("path"))?.takeUnretainedValue() as? String else {
@@ -188,18 +186,6 @@ final class PBEasyPipe: NSObject {
             try process.run()
         } else {
             process.launch()
-        }
-    }
-
-    private class func coerceArguments(_ args: NSArray) -> [String] {
-        return args.compactMap { element -> String? in
-            if let string = element as? String {
-                return string
-            }
-            if let convertible = element as? CustomStringConvertible {
-                return convertible.description
-            }
-            return nil
         }
     }
 

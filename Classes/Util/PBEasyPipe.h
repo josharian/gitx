@@ -6,39 +6,52 @@
 //  Copyright 2008 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
-@interface PBEasyPipe: NSObject {
+NS_ASSUME_NONNULL_BEGIN
 
-}
+@interface PBEasyPipe : NSObject
 
-+ (NSTask *) taskForCommand:(NSString *)cmd withArgs:(NSArray *)args inDir:(NSString *)dir;
++ (nullable NSTask *)taskForCommand:(NSString *)command
+                            withArgs:(NSArray<NSString *> *)arguments
+                               inDir:(nullable NSString *)directory;
 
-+ (NSFileHandle*) handleForCommand: (NSString*) cmd withArgs: (NSArray*) args;
-+ (NSFileHandle*) handleForCommand: (NSString*) cmd withArgs: (NSArray*) args inDir: (NSString*) dir;
++ (nullable NSFileHandle *)handleForCommand:(NSString *)command
+                                    withArgs:(NSArray<NSString *> *)arguments;
 
-+ (NSString*) outputForCommand: (NSString*) cmd withArgs: (NSArray*) args;
-+ (NSString*) outputForCommand: (NSString*) cmd withArgs: (NSArray*) args inDir: (NSString*) dir;
-+ (NSString*) outputForCommand:(NSString *) cmd
-					  withArgs:(NSArray *)  args
-						 inDir:(NSString *) dir
-				      retValue:(int *)      ret;
-+ (NSString*) outputForCommand:(NSString *) cmd
-					  withArgs:(NSArray *)  args
-						 inDir:(NSString *) dir
-				   inputString:(NSString *)input
-				      retValue:(int *)      ret;
-+ (NSString*) outputForCommand:(NSString *) cmd
-					  withArgs:(NSArray *)  args
-						 inDir:(NSString *) dir
-		byExtendingEnvironment:(NSDictionary *)dict
-				   inputString:(NSString *)input
-				      retValue:(int *)      ret;
++ (nullable NSFileHandle *)handleForCommand:(NSString *)command
+                                    withArgs:(NSArray<NSString *> *)arguments
+                                       inDir:(nullable NSString *)directory;
 
-// Convenience method for git commands with standardized error handling
-+ (NSString*) gitOutputForArgs:(NSArray *)args
-                         inDir:(NSString *)dir
-                         error:(NSError **)error;
++ (nullable NSString *)outputForCommand:(NSString *)command
+                                 withArgs:(NSArray<NSString *> *)arguments;
 
++ (nullable NSString *)outputForCommand:(NSString *)command
+                                 withArgs:(NSArray<NSString *> *)arguments
+                                    inDir:(nullable NSString *)directory;
+
++ (nullable NSString *)outputForCommand:(NSString *)command
+                                 withArgs:(NSArray<NSString *> *)arguments
+                                    inDir:(nullable NSString *)directory
+                                  retValue:(nullable int *)returnCode;
+
++ (nullable NSString *)outputForCommand:(NSString *)command
+                                 withArgs:(NSArray<NSString *> *)arguments
+                                    inDir:(nullable NSString *)directory
+                               inputString:(nullable NSString *)input
+                                  retValue:(nullable int *)returnCode;
+
++ (nullable NSString *)outputForCommand:(NSString *)command
+                                 withArgs:(NSArray<NSString *> *)arguments
+                                    inDir:(nullable NSString *)directory
+                 byExtendingEnvironment:(nullable NSDictionary<NSString *, NSString *> *)environment
+                               inputString:(nullable NSString *)input
+                                  retValue:(nullable int *)returnCode;
+
++ (nullable NSString *)gitOutputForArgs:(NSArray<NSString *> *)arguments
+                                   inDir:(nullable NSString *)directory
+                                   error:(NSError * _Nullable * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END
