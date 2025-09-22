@@ -1,0 +1,1 @@
+Run `./agent-build.sh` before sharing code changes. It filters `xcodebuild` output to show only success or specific failures. Do *not* read the full log unless absolutely necessary—it's saved to `build/latest.log`.
