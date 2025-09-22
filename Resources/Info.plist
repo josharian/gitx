@@ -77,11 +77,11 @@
 			<string>GitX</string>
 			<key>NSReturnTypes</key>
 			<array>
-				<string>NSStringPboardType</string>
+				<string>public.utf8-plain-text</string>
 			</array>
 			<key>NSSendTypes</key>
 			<array>
-				<string>NSStringPboardType</string>
+				<string>public.utf8-plain-text</string>
 			</array>
 		</dict>
 	</array>

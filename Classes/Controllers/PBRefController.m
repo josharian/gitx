@@ -80,8 +80,8 @@
 		commit = [historyController.repository commitForRef:[sender refish]];
 
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-	[pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-	[pasteboard setString:[commit realSha] forType:NSStringPboardType];
+	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
+	[pasteboard setString:[commit realSha] forType:NSPasteboardTypeString];
 }
 
 
@@ -94,8 +94,8 @@
 		commit = [historyController.repository commitForRef:[sender refish]];
     
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-	[pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-	[pasteboard setString:[commit shortName] forType:NSStringPboardType];
+	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
+	[pasteboard setString:[commit shortName] forType:NSPasteboardTypeString];
 }
 
 
@@ -108,8 +108,8 @@
 		commit = [historyController.repository commitForRef:[sender refish]];
 
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-	[pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-	[pasteboard setString:[commit patch] forType:NSStringPboardType];
+	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
+	[pasteboard setString:[commit patch] forType:NSPasteboardTypeString];
 }
 
 #pragma mark Tags

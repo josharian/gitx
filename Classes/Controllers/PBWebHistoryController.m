@@ -191,10 +191,10 @@
 			return;
 		}
 
-		dispatch_async(dispatch_get_main_queue(), ^{
-			NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-			[pasteboard declareTypes:@[NSStringPboardType] owner:self];
-			[pasteboard setString:source forType:NSStringPboardType];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+				[pasteboard declareTypes:@[NSPasteboardTypeString] owner:self];
+				[pasteboard setString:source forType:NSPasteboardTypeString];
 		});
 	}];
 }
