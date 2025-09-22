@@ -50,3 +50,5 @@ ZERO_LINK = NO // this is no longer needed
 // Other
 
 LLVM_LTO = NO   // Link-Time Optimization causes a Rel32 address space error when linking (since we now target x86_64 inclusively)
+ENABLE_APP_INTENTS_METADATA_GENERATION = NO
+APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = --quiet-warnings

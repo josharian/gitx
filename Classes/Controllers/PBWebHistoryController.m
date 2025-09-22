@@ -223,7 +223,10 @@
 	if ([type isEqualToString:@"image"]) {
 		NSMutableArray *filtered = [NSMutableArray array];
 		for (NSMenuItem *item in defaultMenuItems) {
-			if ([item tag] == WebMenuItemTagCopyImageToClipboard || [[item title] rangeOfString:@"copy" options:NSCaseInsensitiveSearch].location != NSNotFound) {
+			SEL action = item.action;
+			BOOL isCopyAction = (action == @selector(copy:)) || (action == NSSelectorFromString(@"copyImageToClipboard:"));
+			BOOL titleIndicatesCopy = [[item title] rangeOfString:@"copy" options:NSCaseInsensitiveSearch].location != NSNotFound;
+			if (isCopyAction || titleIndicatesCopy) {
 				[filtered addObject:item];
 			}
 		}

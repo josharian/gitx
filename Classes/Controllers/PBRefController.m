@@ -178,8 +178,8 @@
 	[alert addButtonWithTitle:@"Cancel"];
 	alert.showsSuppressionButton = YES;
 	
-	[alert beginSheetModalForWindow:[historyController.repository.windowController window] completionHandler:^(NSModalResponse returnCode) {
-		if ([alert.suppressionButton state] == NSOnState)
+		[alert beginSheetModalForWindow:[historyController.repository.windowController window] completionHandler:^(NSModalResponse returnCode) {
+			if ([alert.suppressionButton state] == NSControlStateValueOn)
 			[PBGitDefaults suppressDialogWarningForDialog:kDialogDeleteRef];
 		
 		if (returnCode == NSAlertFirstButtonReturn || returnCode == NSModalResponseOK) {

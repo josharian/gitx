@@ -14,6 +14,11 @@
 
 @implementation PBGitLane
 
+- (instancetype)init
+{
+    return [self initWithIndex:NSNotFound sha:nil];
+}
+
 - (instancetype)initWithSHA:(NSString *)sha
 {
     return [self initWithIndex:NSNotFound sha:sha];

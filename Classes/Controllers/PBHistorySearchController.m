@@ -333,16 +333,16 @@
 	NSMenuItem *item;
 
 	item = [searchMenu itemWithTag:PBHistorySearchModeBasic];
-	[item setState:(searchMode == PBHistorySearchModeBasic) ? NSOnState : NSOffState];
+	[item setState:(searchMode == PBHistorySearchModeBasic) ? NSControlStateValueOn : NSControlStateValueOff];
 
 	item = [searchMenu itemWithTag:PBHistorySearchModePickaxe];
-	[item setState:(searchMode == PBHistorySearchModePickaxe) ? NSOnState : NSOffState];
+	[item setState:(searchMode == PBHistorySearchModePickaxe) ? NSControlStateValueOn : NSControlStateValueOff];
 
 	item = [searchMenu itemWithTag:PBHistorySearchModeRegex];
-	[item setState:(searchMode == PBHistorySearchModeRegex) ? NSOnState : NSOffState];
+	[item setState:(searchMode == PBHistorySearchModeRegex) ? NSControlStateValueOn : NSControlStateValueOff];
 
 	item = [searchMenu itemWithTag:PBHistorySearchModePath];
-	[item setState:(searchMode == PBHistorySearchModePath) ? NSOnState : NSOffState];
+	[item setState:(searchMode == PBHistorySearchModePath) ? NSControlStateValueOn : NSControlStateValueOff];
 
     [[searchField cell] setSearchMenuTemplate:searchMenu];
 
@@ -541,7 +541,6 @@
 												  backing:NSBackingStoreBuffered 
 													defer:YES];
 	[panel setIgnoresMouseEvents:YES];
-	[panel setOneShot:YES];
 	[panel setOpaque:NO];
 	[panel setBackgroundColor:[NSColor clearColor]];
 	[panel setHasShadow:NO];
@@ -549,7 +548,8 @@
 
 	NSBox *box = [[NSBox alloc] initWithFrame:[[panel contentView] frame]];
 	[box setBoxType:NSBoxCustom];
-	[box setBorderType:NSLineBorder];
+	[box setTransparent:NO];
+	[box setBorderWidth:1.0f];
 	[box setFillColor:[NSColor colorWithCalibratedWhite:0.0f alpha:0.5f]];
 	[box setBorderColor:[NSColor colorWithCalibratedWhite:0.5f alpha:0.5f]];
 	[box setCornerRadius:12.0f];

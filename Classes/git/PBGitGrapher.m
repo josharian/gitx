@@ -11,6 +11,20 @@
 #import "PBGitCommit.h"
 #import "PBGitLane.h"
 #import "PBGitGraphLine.h"
+#import <limits.h>
+
+static inline int PBGitClampedInt(NSInteger value)
+{
+    if (value > INT_MAX) {
+        return INT_MAX;
+    }
+
+    if (value < INT_MIN) {
+        return INT_MIN;
+    }
+
+    return (int)value;
+}
 
 static inline void PBGitAddLine(struct PBGitGraphLine *lines,
                                 int *currentIndex,
@@ -21,9 +35,9 @@ static inline void PBGitAddLine(struct PBGitGraphLine *lines,
 {
     struct PBGitGraphLine line = {
         .upper = upper ? 1 : 0,
-        .from = (int)from,
-        .to = (int)to,
-        .colorIndex = (int)laneIndex
+        .from = PBGitClampedInt(from),
+        .to = PBGitClampedInt(to),
+        .colorIndex = PBGitClampedInt(laneIndex)
     };
 
     lines[(*currentIndex)++] = line;
@@ -162,10 +176,10 @@ static NSString *PBGitParentSHA(id candidate)
     }
 
     if (!commit.lineInfo) {
-        self.previous = [[PBGraphCellInfo alloc] initWithPosition:newPosition andLines:lines];
+        self.previous = [[PBGraphCellInfo alloc] initWithPosition:PBGitClampedInt(newPosition) andLines:lines];
     } else {
         self.previous = commit.lineInfo;
-        self.previous.position = (int)newPosition;
+        self.previous.position = PBGitClampedInt(newPosition);
         self.previous.lines = lines;
     }
 
