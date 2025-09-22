@@ -46,7 +46,7 @@
 					  forKey:kShouldCheckoutBranch];
 	[defaultValues setObject:[NSNumber numberWithBool:NO]
                       forKey:kOpenPreviousDocumentsOnLaunch];
-	[defaultValues setObject:[NSNumber numberWithInteger:kGitXBasicSeachMode]
+	[defaultValues setObject:[NSNumber numberWithInteger:PBHistorySearchModeBasic]
                       forKey:kHistorySearchMode];
 	[defaultValues setObject:[NSNumber numberWithInteger:0]
                       forKey:kBranchFilterState];

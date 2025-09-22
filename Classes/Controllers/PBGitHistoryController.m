@@ -97,7 +97,7 @@
 	[upperToolbarView setTopShade:237.0f/255.0f bottomShade:216.0f/255.0f];
 	
 	// Always use All branches filter
-	repository.currentBranchFilter = kGitXAllBranchesFilter;
+	repository.currentBranchFilter = PBGitBranchFilterTypeAll;
 
 
 	__weak typeof(self) weakSelf = self;

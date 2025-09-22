@@ -75,7 +75,7 @@
 		return NO;
 	}
 	for (PBChangedFile *selectedItem in selectedFiles) {
-		if (selectedItem.status != NEW) {
+		if (selectedItem.status != PBChangedFileStatusNew) {
 			return NO;
 		}
 	}
@@ -133,7 +133,7 @@
 	BOOL hasNewFiles = NO;
 	for (PBChangedFile *file in selectedFiles)
 	{
-		if (file.status == NEW)
+		if (file.status == PBChangedFileStatusNew)
 		{
 			hasNewFiles = YES;
 		}
@@ -297,7 +297,7 @@
 
 	for (PBChangedFile *file in files)
 	{
-		if (file.status == NEW)
+		if (file.status == PBChangedFileStatusNew)
 		{
 			[filesToTrash addObject:file];
 		}

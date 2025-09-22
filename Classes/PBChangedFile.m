@@ -25,7 +25,7 @@
 
 - (NSString *)indexInfo
 {
-	NSAssert(status == NEW || self.commitBlobSHA, @"File is not new, but doesn't have an index entry!");
+	NSAssert(status == PBChangedFileStatusNew || self.commitBlobSHA, @"File is not new, but doesn't have an index entry!");
 	if (!self.commitBlobSHA)
 		return [NSString stringWithFormat:@"0 0000000000000000000000000000000000000000\t%@\0", self.path];
 	else
@@ -36,10 +36,10 @@
 {
 	NSString *filename;
 	switch (status) {
-		case NEW:
+		case PBChangedFileStatusNew:
 			filename = @"new_file";
 			break;
-		case DELETED:
+		case PBChangedFileStatusDeleted:
 			filename = @"deleted_file";
 			break;
 		default:

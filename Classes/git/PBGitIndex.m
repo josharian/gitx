@@ -393,7 +393,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	}
 
 	for (PBChangedFile *file in discardFiles)
-		if (file.status != NEW)
+		if (file.status != PBChangedFileStatusNew)
 			file.hasUnstagedChanges = NO;
 
 	[self postIndexChange];
@@ -429,7 +429,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	if (staged) {
 		NSString *indexPath = [@":0:" stringByAppendingString:file.path];
 
-		if (file.status == NEW) {
+		if (file.status == PBChangedFileStatusNew) {
 			NSError *error = nil;
 			return [repository executeGitCommand:[NSArray arrayWithObjects:@"show", indexPath, nil] error:&error];
 		}
@@ -439,7 +439,7 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 	}
 
 	// unstaged
-	if (file.status == NEW) {
+	if (file.status == PBChangedFileStatusNew) {
 		NSStringEncoding encoding;
 		NSError *error = nil;
 		NSString *path = [[repository workingDirectory] stringByAppendingPathComponent:file.path];
@@ -555,12 +555,12 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 				else
 					file.hasUnstagedChanges = YES;
 				if ([[fileStatus objectAtIndex:4] isEqualToString:@"D"])
-					file.status = DELETED;
+					file.status = PBChangedFileStatusDeleted;
 			} else {
 				// Untracked file, set status to NEW, only unstaged changes
 				file.hasStagedChanges = NO;
 				file.hasUnstagedChanges = YES;
-				file.status = NEW;
+				file.status = PBChangedFileStatusNew;
 			}
 
 			// We handled this file, remove it from the dictionary
@@ -575,12 +575,12 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 			// Tracked file does not have unstaged changes, file is not new,
 			// so we can set it to No. (If it would be new, it would not
 			// be in this dictionary, but in the "other dictionary").
-			else if (tracked && file.status != NEW)
+			else if (tracked && file.status != PBChangedFileStatusNew)
 				file.hasUnstagedChanges = NO;
 			// Unstaged, untracked dictionary ("Other" files), and file
 			// is indicated as new (which would be untracked), so let's
 			// remove it
-			else if (!tracked && file.status == NEW)
+			else if (!tracked && file.status == PBChangedFileStatusNew)
 				file.hasUnstagedChanges = NO;
 		}
 	}
@@ -597,11 +597,11 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 
 		PBChangedFile *file = [[PBChangedFile alloc] initWithPath:path];
 		if ([[fileStatus objectAtIndex:4] isEqualToString:@"D"])
-			file.status = DELETED;
+			file.status = PBChangedFileStatusDeleted;
 		else if([[fileStatus objectAtIndex:0] isEqualToString:@":000000"])
-			file.status = NEW;
+			file.status = PBChangedFileStatusNew;
 		else
-			file.status = MODIFIED;
+			file.status = PBChangedFileStatusModified;
 
 		if (tracked) {
 			file.commitBlobMode = [[fileStatus objectAtIndex:0] substringFromIndex:1];

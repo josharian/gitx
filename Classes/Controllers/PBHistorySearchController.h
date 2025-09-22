@@ -9,13 +9,13 @@
 #import <Cocoa/Cocoa.h>
 
 
-typedef enum historySearchModes {
-	kGitXBasicSeachMode = 1,
-	kGitXPickaxeSearchMode,
-	kGitXRegexSearchMode,
-	kGitXPathSearchMode,
-	kGitXMaxSearchMode    // always keep this item last
-} PBHistorySearchMode;
+typedef NS_ENUM(NSInteger, PBHistorySearchMode) {
+    PBHistorySearchModeBasic = 1,
+    PBHistorySearchModePickaxe,
+    PBHistorySearchModeRegex,
+    PBHistorySearchModePath,
+    PBHistorySearchModeMax    // always keep this item last
+};
 
 @class PBGitHistoryController;
 

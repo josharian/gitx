@@ -107,7 +107,7 @@
 
 - (IBAction)updateSearch:(id)sender
 {
-	if (self.searchMode == kGitXBasicSeachMode)
+	if (self.searchMode == PBHistorySearchModeBasic)
 		[self startBasicSearch];
 	else
 		[self startBackgroundSearch];
@@ -280,22 +280,22 @@
 
 	item = [[NSMenuItem alloc] initWithTitle:kGitXBasicSearchLabel action:@selector(selectSearchMode:) keyEquivalent:@""];
 	[item setTarget:self];
-    [item setTag:kGitXBasicSeachMode];
+    [item setTag:PBHistorySearchModeBasic];
     [searchMenu addItem:item];
 
 	item = [[NSMenuItem alloc] initWithTitle:kGitXPickaxeSearchLabel action:@selector(selectSearchMode:) keyEquivalent:@""];
 	[item setTarget:self];
-    [item setTag:kGitXPickaxeSearchMode];
+    [item setTag:PBHistorySearchModePickaxe];
     [searchMenu addItem:item];
 
 	item = [[NSMenuItem alloc] initWithTitle:kGitXRegexSearchLabel action:@selector(selectSearchMode:) keyEquivalent:@""];
 	[item setTarget:self];
-    [item setTag:kGitXRegexSearchMode];
+    [item setTag:PBHistorySearchModeRegex];
     [searchMenu addItem:item];
 
 	item = [[NSMenuItem alloc] initWithTitle:kGitXPathSearchLabel action:@selector(selectSearchMode:) keyEquivalent:@""];
 	[item setTarget:self];
-    [item setTag:kGitXPathSearchMode];
+    [item setTag:PBHistorySearchModePath];
     [searchMenu addItem:item];
 
     item = [NSMenuItem separatorItem];
@@ -332,17 +332,17 @@
 
 	NSMenuItem *item;
 
-	item = [searchMenu itemWithTag:kGitXBasicSeachMode];
-	[item setState:(searchMode == kGitXBasicSeachMode) ? NSOnState : NSOffState];
+	item = [searchMenu itemWithTag:PBHistorySearchModeBasic];
+	[item setState:(searchMode == PBHistorySearchModeBasic) ? NSOnState : NSOffState];
 
-	item = [searchMenu itemWithTag:kGitXPickaxeSearchMode];
-	[item setState:(searchMode == kGitXPickaxeSearchMode) ? NSOnState : NSOffState];
+	item = [searchMenu itemWithTag:PBHistorySearchModePickaxe];
+	[item setState:(searchMode == PBHistorySearchModePickaxe) ? NSOnState : NSOffState];
 
-	item = [searchMenu itemWithTag:kGitXRegexSearchMode];
-	[item setState:(searchMode == kGitXRegexSearchMode) ? NSOnState : NSOffState];
+	item = [searchMenu itemWithTag:PBHistorySearchModeRegex];
+	[item setState:(searchMode == PBHistorySearchModeRegex) ? NSOnState : NSOffState];
 
-	item = [searchMenu itemWithTag:kGitXPathSearchMode];
-	[item setState:(searchMode == kGitXPathSearchMode) ? NSOnState : NSOffState];
+	item = [searchMenu itemWithTag:PBHistorySearchModePath];
+	[item setState:(searchMode == PBHistorySearchModePath) ? NSOnState : NSOffState];
 
     [[searchField cell] setSearchMenuTemplate:searchMenu];
 
@@ -352,13 +352,13 @@
 - (void)updateSearchPlaceholderString
 {
 	switch (self.searchMode) {
-		case kGitXPickaxeSearchMode:
+		case PBHistorySearchModePickaxe:
 			[[searchField cell] setPlaceholderString:kGitXPickaxeSearchLabel];
 			break;
-		case kGitXRegexSearchMode:
+		case PBHistorySearchModeRegex:
 			[[searchField cell] setPlaceholderString:kGitXRegexSearchLabel];
 			break;
-		case kGitXPathSearchMode:
+		case PBHistorySearchModePath:
 			[[searchField cell] setPlaceholderString:kGitXPathSearchLabel];
 			break;
 		default:
@@ -374,8 +374,8 @@
 
 - (void)setSearchMode:(PBHistorySearchMode)mode
 {
-	if ((mode < kGitXBasicSeachMode) || (mode >= kGitXMaxSearchMode))
-		mode = kGitXBasicSeachMode;
+	if ((mode < PBHistorySearchModeBasic) || (mode >= PBHistorySearchModeMax))
+		mode = PBHistorySearchModeBasic;
 
 	searchMode = mode;
 	[PBGitDefaults setHistorySearchMode:searchMode];
@@ -462,12 +462,12 @@
 
 	NSMutableArray *searchArguments = [NSMutableArray arrayWithObjects:@"log", @"--pretty=format:%H", nil];
 	switch (self.searchMode) {
-		case kGitXRegexSearchMode:
+		case PBHistorySearchModeRegex:
 			[searchArguments addObject:@"--pickaxe-regex"];
-		case kGitXPickaxeSearchMode:
+		case PBHistorySearchModePickaxe:
 			[searchArguments addObject:[NSString stringWithFormat:@"-S%@", searchString]];
 			break;
-		case kGitXPathSearchMode:
+		case PBHistorySearchModePath:
 			[searchArguments addObject:@"--"];
 			[searchArguments addObjectsFromArray:[searchString componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
 			break;

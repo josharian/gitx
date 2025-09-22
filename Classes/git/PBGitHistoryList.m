@@ -209,7 +209,7 @@
 
 - (NSSet *) baseCommits
 {
-	if ((repository.currentBranchFilter == kGitXSelectedBranchFilter) || (repository.currentBranchFilter == kGitXAllBranchesFilter)) {
+	if ((repository.currentBranchFilter == PBGitBranchFilterTypeSelected) || (repository.currentBranchFilter == PBGitBranchFilterTypeAll)) {
 		if (lastSHA)
 			return [NSMutableSet setWithObject:lastSHA];
 		else if ([repository.currentBranch isSimpleRef]) {
@@ -219,7 +219,7 @@
 				return [NSMutableSet setWithObject:sha];
 		}
 	}
-	else if (repository.currentBranchFilter == kGitXLocalRemoteBranchesFilter) {
+	else if (repository.currentBranchFilter == PBGitBranchFilterTypeLocalRemote) {
 		if ([[repository.currentBranch ref] isRemote])
 			return [self baseCommitsForRemoteRefs];
 		else
@@ -232,7 +232,7 @@
 
 - (PBGitHistoryGrapher *) grapher
 {
-	BOOL viewAllBranches = (repository.currentBranchFilter == kGitXAllBranchesFilter);
+	BOOL viewAllBranches = (repository.currentBranchFilter == PBGitBranchFilterTypeAll);
 
 	return [[PBGitHistoryGrapher alloc] initWithBaseCommits:[self baseCommits] viewAllBranches:viewAllBranches queue:graphQueue delegate:self];
 }
@@ -254,13 +254,13 @@
 
 - (BOOL) isAllBranchesOnlyUpdate
 {
-	return (lastBranchFilter == kGitXAllBranchesFilter) && (repository.currentBranchFilter == kGitXAllBranchesFilter);
+	return (lastBranchFilter == PBGitBranchFilterTypeAll) && (repository.currentBranchFilter == PBGitBranchFilterTypeAll);
 }
 
 
 - (BOOL) isLocalRemoteOnlyUpdate:(PBGitRevSpecifier *)rev
 {
-	if ((lastBranchFilter == kGitXLocalRemoteBranchesFilter) && (repository.currentBranchFilter == kGitXLocalRemoteBranchesFilter)) {
+	if ((lastBranchFilter == PBGitBranchFilterTypeLocalRemote) && (repository.currentBranchFilter == PBGitBranchFilterTypeLocalRemote)) {
 		if (!lastRemoteRef && ![[rev ref] isRemote])
 			return YES;
 

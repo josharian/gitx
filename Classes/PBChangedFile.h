@@ -10,11 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef enum {
-	NEW,
-	MODIFIED,
-	DELETED
-} PBChangedFileStatus;
+typedef NS_ENUM(NSInteger, PBChangedFileStatus) {
+    PBChangedFileStatusNew,
+    PBChangedFileStatusModified,
+    PBChangedFileStatusDeleted
+};
 
 @interface PBChangedFile : NSObject {
 	NSString *path;

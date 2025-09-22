@@ -26,21 +26,21 @@ typedef NS_ENUM(NSInteger, PBGitErrorCode) {
     PBGitErrorInvalidArguments = 1005
 };
 
-typedef enum branchFilterTypes {
-	kGitXAllBranchesFilter = 0,
-	kGitXLocalRemoteBranchesFilter,
-	kGitXSelectedBranchFilter
-} PBGitXBranchFilterType;
+typedef NS_ENUM(NSInteger, PBGitBranchFilterType) {
+    PBGitBranchFilterTypeAll = 0,
+    PBGitBranchFilterTypeLocalRemote,
+    PBGitBranchFilterTypeSelected
+};
 
-static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
+static NSString *PBStringFromBranchFilterType(PBGitBranchFilterType type) {
     switch (type) {
-        case kGitXAllBranchesFilter:
+        case PBGitBranchFilterTypeAll:
             return @"All";
             break;
-        case kGitXLocalRemoteBranchesFilter:
+        case PBGitBranchFilterTypeLocalRemote:
             return @"Local";
             break;
-        case kGitXSelectedBranchFilter:
+        case PBGitBranchFilterTypeSelected:
             return @"Selected";
             break;
         default:
@@ -59,7 +59,7 @@ static NSString * PBStringFromBranchFilterType(PBGitXBranchFilterType type) {
 
 
 @property (assign) BOOL hasChanged;
-@property (assign) NSInteger currentBranchFilter;
+@property (assign) PBGitBranchFilterType currentBranchFilter;
 
 @property (readonly, strong) PBGitWindowController *windowController;
 @property (readonly, getter = getIndexURL) NSURL* indexURL;

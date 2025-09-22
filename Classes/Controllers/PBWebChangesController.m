@@ -229,7 +229,7 @@
 		response[@"contextLines"] = @(contextLines);
 		response[@"diff"] = diff;
 		response[@"isBinary"] = @(isBinary);
-		response[@"isNewFile"] = @((selectedFile.status == NEW));
+	response[@"isNewFile"] = @((selectedFile.status == PBChangedFileStatusNew));
 
 		[self sendBridgeEventWithType:@"commitDiff" payload:response];
 		return;
