@@ -9,6 +9,7 @@
 #import "PBPrefsWindowController.h"
 #import "PBGitRepository.h"
 #import "PBGitDefaults.h"
+#import "PBGitBinary.h"
 
 #define kPreferenceViewIdentifier @"PBGitXPreferenceViewIdentifier"
 
@@ -54,6 +55,7 @@
 - (IBAction) resetGitPath: sender
 {
 	[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"gitExecutable"];
+	[PBGitBinary invalidateCachedPath];
 }
 
 - (void)pathCell:(NSPathCell *)pathCell willDisplayOpenPanel:(NSOpenPanel *)openPanel

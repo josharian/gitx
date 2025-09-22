@@ -11,89 +11,160 @@
 
 @implementation PBGitBinary
 
-static NSString* gitPath = nil;
+static NSString *gitPath = nil;
+static NSError *gitPathError = nil;
+static NSString *cachedUserConfiguredPath = nil;
+
+static NSString * const PBGitBinaryErrorDomain = @"PBGitBinaryErrorDomain";
+static const NSInteger PBGitBinaryErrorNotFound = 1;
+
+static dispatch_queue_t PBGitBinaryResolutionQueue(void)
+{
+	static dispatch_once_t onceToken;
+	static dispatch_queue_t queue;
+	dispatch_once(&onceToken, ^{
+		queue = dispatch_queue_create("xyz.commaok.gitx.git-binary", DISPATCH_QUEUE_SERIAL);
+	});
+	return queue;
+}
+
+static NSString *PBGitBinarySanitizedPath(NSString *candidate)
+{
+	if (candidate.length == 0)
+		return nil;
+
+	NSString *trimmed = [candidate stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	if (trimmed.length == 0)
+		return nil;
+
+	return [trimmed stringByStandardizingPath];
+}
+
+static NSString *PBGitBinaryValidatedExecutableAtPath(NSString *candidate)
+{
+	NSString *standardized = PBGitBinarySanitizedPath(candidate);
+	if (standardized.length == 0)
+		return nil;
+
+	if (![[NSFileManager defaultManager] isExecutableFileAtPath:standardized])
+		return nil;
+
+	NSString *version = [PBGitBinary versionForPath:standardized];
+	if (!version)
+		return nil;
+
+	return standardized;
+}
+
+static NSString *PBGitBinaryLocateGit(NSError * __autoreleasing *error)
+{
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *userConfigured = [defaults stringForKey:@"gitExecutable"];
+	NSString *resolved = PBGitBinaryValidatedExecutableAtPath(userConfigured);
+	if (resolved)
+		return resolved;
+
+	if (userConfigured.length > 0)
+		NSLog(@"PBGitBinary: user-configured git path '%@' is invalid; falling back to search paths.", userConfigured);
+
+	char *envPath = getenv("GIT_PATH");
+	if (envPath) {
+		NSString *envCandidate = [NSString stringWithUTF8String:envPath];
+		resolved = PBGitBinaryValidatedExecutableAtPath(envCandidate);
+		if (resolved)
+			return resolved;
+	}
+
+	NSString *whichPath = [PBEasyPipe outputForCommand:@"/usr/bin/which" withArgs:@[@"git"]];
+	resolved = PBGitBinaryValidatedExecutableAtPath(whichPath);
+	if (resolved)
+		return resolved;
+
+	for (NSString *location in [PBGitBinary searchLocations]) {
+		resolved = PBGitBinaryValidatedExecutableAtPath(location);
+		if (resolved)
+			return resolved;
+	}
+
+	NSString *xcrunPath = [PBEasyPipe outputForCommand:@"/usr/bin/xcrun" withArgs:@[@"-f", @"git"]];
+	resolved = PBGitBinaryValidatedExecutableAtPath(xcrunPath);
+	if (resolved)
+		return resolved;
+
+	if (error) {
+		NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: @"Could not locate git executable.",
+			NSLocalizedRecoverySuggestionErrorKey: [PBGitBinary notFoundError] };
+		*error = [NSError errorWithDomain:PBGitBinaryErrorDomain code:PBGitBinaryErrorNotFound userInfo:userInfo];
+	}
+
+	NSLog(@"PBGitBinary: Could not find a git binary. Checked user defaults, environment, PATH, standard locations, and xcrun.");
+	return nil;
+}
 
 + (NSString *)versionForPath:(NSString *)path
 {
-	if (!path)
+	NSString *standardized = PBGitBinarySanitizedPath(path);
+	if (standardized.length == 0)
 		return nil;
 
-	if (![[NSFileManager defaultManager] fileExistsAtPath:path])
+	if (![[NSFileManager defaultManager] isExecutableFileAtPath:standardized])
 		return nil;
 
-	NSString *version = [PBEasyPipe outputForCommand:path withArgs:[NSArray arrayWithObject:@"--version"]];
+	NSString *version = [PBEasyPipe outputForCommand:standardized withArgs:@[@"--version"]];
+	version = [version stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 	if ([version hasPrefix:@"git version "])
 		return [version substringFromIndex:12];
 
 	return nil;
 }
 
-+ (BOOL) acceptBinary:(NSString *)path
++ (NSString *)path
 {
-	if (!path)
-		return NO;
-
-	NSString *version = [self versionForPath:path];
-	if (!version)
-		return NO;
-
-	gitPath = path;
-	return YES;
+	return [self resolveGitPath:nil];
 }
 
-+ (void) initialize
++ (NSString *)resolveGitPath:(NSError * __autoreleasing *)error
 {
-	// Check what we might have in user defaults
-	// NOTE: Currently this should NOT have a registered default, or the searching bits below won't work
-	gitPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"gitExecutable"];
-	if (gitPath.length > 0) {
-		if ([self acceptBinary:gitPath])
-			return;
-		NSAlert *alert = [[NSAlert alloc] init];
-		[alert setMessageText:@"Invalid git path"];
-		[alert setInformativeText:@"You entered a custom git path in the Preferences pane, but this path does not appear to be a valid git binary. We're going to use the default search paths instead"];
-		[alert addButtonWithTitle:@"OK"];
-		[alert runModal];
-	}
+	__block NSString *resolvedPath = nil;
+	__block NSError *resolvedError = nil;
 
-	// Try to find the path of the Git binary
-	char* path = getenv("GIT_PATH");
-	if (path && [self acceptBinary:[NSString stringWithUTF8String:path]])
-		return;
+	dispatch_sync(PBGitBinaryResolutionQueue(), ^{
+		NSString *currentUserSetting = [[NSUserDefaults standardUserDefaults] stringForKey:@"gitExecutable"];
+		if ((cachedUserConfiguredPath || currentUserSetting) && ![cachedUserConfiguredPath isEqualToString:currentUserSetting]) {
+			gitPath = nil;
+			gitPathError = nil;
+		}
+		cachedUserConfiguredPath = [currentUserSetting copy];
 
-	// No explicit path.
-	
-	// Try to find git with "which"
-	NSString* whichPath = [PBEasyPipe outputForCommand:@"/usr/bin/which"
-											  withArgs:[NSArray arrayWithObject:@"git"]];
-	if ([self acceptBinary:whichPath])
-		return;
+		if (!gitPath && !gitPathError) {
+			NSError *localError = nil;
+			NSString *resolved = PBGitBinaryLocateGit(&localError);
+			gitPath = resolved;
+			gitPathError = localError;
+		}
 
-	// Still no path. Let's try some default locations.
-	for (NSString* location in [PBGitBinary searchLocations]) {
-		if ([self acceptBinary:location])
-			return;
-	}
-	
-	// Lastly, try `xcrun git`
-	NSString* xcrunPath = [PBEasyPipe outputForCommand:@"/usr/bin/xcrun"
-											  withArgs:[NSArray arrayWithObjects:@"-f", @"git", nil]];
-	if ([self acceptBinary:xcrunPath])
-	{
-		return;
-	}
+		resolvedPath = gitPath;
+		resolvedError = gitPathError;
+	});
 
-	NSLog(@"Could not find a git binary.");
+	if (!resolvedPath && error)
+		*error = resolvedError;
+
+	return resolvedPath;
 }
 
-+ (NSString *) path;
++ (void)invalidateCachedPath
 {
-	return gitPath;
+	dispatch_sync(PBGitBinaryResolutionQueue(), ^{
+		gitPath = nil;
+		gitPathError = nil;
+		cachedUserConfiguredPath = nil;
+	});
 }
 
 static NSMutableArray *locations = nil;
 
-+ (NSArray *) searchLocations
++ (NSArray *)searchLocations
 {
 	if (!locations)
 	{
@@ -112,7 +183,7 @@ static NSMutableArray *locations = nil;
 	return locations;
 }
 
-+ (NSString *) notFoundError
++ (NSString *)notFoundError
 {
 	NSMutableString *error = [NSMutableString stringWithString:
 							  @"Could not find a git binary.\n"
@@ -126,7 +197,11 @@ static NSMutableArray *locations = nil;
 
 + (NSString *)version
 {
-	return [self versionForPath:gitPath];
+	NSString *path = [self resolveGitPath:nil];
+	if (!path)
+		return nil;
+
+	return [self versionForPath:path];
 }
 
 

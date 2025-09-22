@@ -12,8 +12,11 @@
 
 }
 
-+ (NSString *) path;
-+ (NSString *) version;
-+ (NSArray *) searchLocations;
-+ (NSString *) notFoundError;
++ (NSString *)path;
++ (NSString *)version;
++ (NSArray *)searchLocations;
++ (NSString *)notFoundError;
+
++ (NSString *)resolveGitPath:(NSError * __autoreleasing *)error;
++ (void)invalidateCachedPath;
 @end
