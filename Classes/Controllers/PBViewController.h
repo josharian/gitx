@@ -10,20 +10,22 @@
 #import "PBGitRepository.h"
 #import "PBGitWindowController.h"
 
-@interface PBViewController : NSViewController {
-	__weak PBGitRepository *repository;
-	PBGitWindowController *superController;
+NS_ASSUME_NONNULL_BEGIN
 
-	NSString *status;
-	BOOL isBusy;
-	BOOL hasViewLoaded;
+@interface PBViewController : NSViewController {
+    __weak PBGitRepository *repository;
+    PBGitWindowController *superController;
+
+    NSString * _Nullable status;
+    BOOL isBusy;
+    BOOL hasViewLoaded;
 }
 
-@property (weak, readonly)  PBGitRepository *repository;
-@property(copy) NSString *status;
-@property(assign) BOOL isBusy;
+@property (weak, readonly) PBGitRepository *repository;
+@property (copy, nullable) NSString *status;
+@property (assign) BOOL isBusy;
 
-- (id)initWithRepository:(PBGitRepository *)theRepository superController:(PBGitWindowController *)controller;
+- (instancetype)initWithRepository:(PBGitRepository *)theRepository superController:(PBGitWindowController *)controller;
 
 /* closeView is called when the repository window will be closed */
 - (void)closeView;
@@ -36,7 +38,9 @@
  */
 - (void)viewLoaded;
 
-- (NSResponder *)firstResponder;
-- (IBAction) refresh:(id)sender;
+- (nullable NSResponder *)firstResponder;
+- (IBAction)refresh:(nullable id)sender;
 
 @end
+
+NS_ASSUME_NONNULL_END

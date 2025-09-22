@@ -35,7 +35,7 @@
 
 @synthesize index;
 
-- (id)initWithRepository:(PBGitRepository *)theRepository superController:(PBGitWindowController *)controller
+- (instancetype)initWithRepository:(PBGitRepository *)theRepository superController:(PBGitWindowController *)controller
 {
 	if (!(self = [super initWithRepository:theRepository superController:controller]))
 		return nil;
@@ -93,7 +93,7 @@
 	return commitMessageView;
 }
 
-- (IBAction)signOff:(id)sender
+- (IBAction)signOff:(nullable id)sender
 {
 	NSString* userName = nil;
 	NSString* userEmail = nil;
@@ -127,7 +127,7 @@
 	}
 }
 
-- (void) refresh:(id) sender
+- (IBAction)refresh:(nullable id)sender
 {
 	self.isBusy = YES;
 	self.status = @"Refreshing index…";
@@ -142,12 +142,12 @@
 	[self refresh:nil];
 }
 
-- (IBAction) commit:(id) sender
+- (IBAction)commit:(nullable id)sender
 {
     [self commitWithVerification:YES];
 }
 
-- (IBAction) forceCommit:(id) sender
+- (IBAction)forceCommit:(nullable id)sender
 {
     [self commitWithVerification:NO];
 }

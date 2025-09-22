@@ -13,10 +13,10 @@
 #import "PBWKGitXSchemeHandler.h"
 
 @interface PBWebController ()
-@property (nonatomic, strong) id<PBWebBridge> bridge;
-@property (nonatomic, strong) WKWebView *webView;
-@property (nonatomic, strong) PBWKGitXSchemeHandler *gitxSchemeHandler;
-@property (nonatomic, strong) NSDictionary *lastContextMenuPayload;
+@property (nonatomic, strong, nullable) id<PBWebBridge> bridge;
+@property (nonatomic, strong, nullable) WKWebView *webView;
+@property (nonatomic, strong, nullable) PBWKGitXSchemeHandler *gitxSchemeHandler;
+@property (nonatomic, strong, nullable) NSDictionary *lastContextMenuPayload;
 @property (nonatomic, assign) BOOL bridgeUserScriptsInstalled;
 @property (nonatomic, strong) NSMutableArray<NSDictionary *> *pendingBridgeMessages;
 - (void)configureBridgeUserScriptsIfNeeded;
@@ -256,7 +256,7 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload
+- (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary * _Nullable)payload
 {
 	NSLog(@"PBWebController: Unhandled bridge message %@ with payload %@", type, payload);
 }

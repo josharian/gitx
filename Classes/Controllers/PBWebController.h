@@ -9,33 +9,37 @@
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol PBWebBridge;
 @class PBWKWebViewBridge;
 @class PBWKGitXSchemeHandler;
 
 @interface PBWebController : NSObject {
 	IBOutlet NSView *view;
-	NSString *startFile;
+	NSString * _Nullable startFile;
 	BOOL finishedLoading;
 
-	// For the repository access
-	IBOutlet id repository;
+    // For the repository access
+    IBOutlet id _Nullable repository;
 
-	id<PBWebBridge> _bridge;
+	id<PBWebBridge> _Nullable _bridge;
 }
 
-@property  NSString *startFile;
-@property  id repository;
+@property (copy, nullable) NSString *startFile;
+@property (strong, nullable) id repository;
 
 - (void) closeView;
 
-- (void)handleBridgeMessage:(NSString *)type payload:(NSDictionary *)payload NS_REQUIRES_SUPER;
+- (void)handleBridgeMessage:(NSString *)type payload:(nullable NSDictionary *)payload NS_REQUIRES_SUPER;
 - (void)sendBridgeEventWithType:(NSString *)type payload:(NSDictionary *)payload;
 
-@property (nonatomic, strong, readonly) id<PBWebBridge> bridge;
-@property (nonatomic, strong, readonly) WKWebView *webView;
+@property (nonatomic, strong, readonly, nullable) id<PBWebBridge> bridge;
+@property (nonatomic, strong, readonly, nullable) WKWebView *webView;
 
-- (NSArray *)contextMenuItemsForBridge:(id<PBWebBridge>)bridge
-                            elementInfo:(NSDictionary *)elementInfo
-                      defaultMenuItems:(NSArray *)defaultMenuItems;
+- (nullable NSArray *)contextMenuItemsForBridge:(id<PBWebBridge>)bridge
+                                    elementInfo:(nullable NSDictionary *)elementInfo
+                              defaultMenuItems:(NSArray *)defaultMenuItems;
 @end
+
+NS_ASSUME_NONNULL_END

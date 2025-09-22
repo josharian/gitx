@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef enum {
 	NEW,
 	MODIFIED,
@@ -20,19 +22,24 @@ typedef enum {
 	BOOL hasUnstagedChanges;
 
 	// Index and HEAD stuff, to be used to revert changes
-	NSString *commitBlobSHA;
-	NSString *commitBlobMode;
+	NSString * _Nullable commitBlobSHA;
+	NSString * _Nullable commitBlobMode;
 
 	PBChangedFileStatus status;
 }
 
 
-@property (copy) NSString *path, *commitBlobSHA, *commitBlobMode;
+@property (copy) NSString *path;
+@property (copy, nullable) NSString *commitBlobSHA;
+@property (copy, nullable) NSString *commitBlobMode;
 @property (assign) PBChangedFileStatus status;
-@property (assign) BOOL hasStagedChanges, hasUnstagedChanges;
+@property (assign) BOOL hasStagedChanges;
+@property (assign) BOOL hasUnstagedChanges;
 
 - (NSImage *)icon;
 - (NSString *)indexInfo;
 
-- (id) initWithPath:(NSString *)p;
+- (instancetype)initWithPath:(NSString *)path;
 @end
+
+NS_ASSUME_NONNULL_END

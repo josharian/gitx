@@ -13,12 +13,12 @@
 
 @synthesize path, status, hasStagedChanges, hasUnstagedChanges, commitBlobSHA, commitBlobMode;
 
-- (id) initWithPath:(NSString *)p
+- (instancetype)initWithPath:(NSString *)path
 {
     self = [super init];
     
     if (self) {
-        path = p;
+        self.path = path;
     }
 	return self;
 }

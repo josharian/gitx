@@ -15,7 +15,7 @@
 @synthesize status;
 @synthesize isBusy;
 
-- (id)initWithRepository:(PBGitRepository *)theRepository superController:(PBGitWindowController *)controller
+- (instancetype)initWithRepository:(PBGitRepository *)theRepository superController:(PBGitWindowController *)controller
 {
 	NSString *nibName = [[[self class] description] stringByReplacingOccurrencesOfString:@"Controller"
 																			  withString:@"View"];
@@ -43,12 +43,12 @@
 	hasViewLoaded = YES;
 }
 
-- (NSResponder *)firstResponder;
+- (nullable NSResponder *)firstResponder;
 {
 	return nil;
 }
 
-- (IBAction) refresh: sender
+- (IBAction)refresh:(nullable id)sender
 {
 }
 
