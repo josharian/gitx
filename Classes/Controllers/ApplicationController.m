@@ -128,11 +128,4 @@ static OpenRecentController* recentsDialog = nil;
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/rowanj/gitx/issues"]];
 }
 
-- (IBAction)showChangeLog:(id)sender
-{
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://builds.phere.net/GitX/development/GitX-dev.html"]];
-}
-
-
-
 @end

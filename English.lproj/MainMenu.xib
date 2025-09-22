@@ -31,12 +31,6 @@
                                     <action selector="openPreferencesWindow:" target="205" id="933"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Check for Updates…" id="919">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="checkForUpdates:" target="918" id="920"/>
-                                </connections>
-                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="143">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
@@ -374,12 +368,6 @@
                                     <action selector="reportAProblem:" target="205" id="971"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Latest changes" id="974" userLabel="Menu Item - Change Log">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="showChangeLog:" target="205" id="976"/>
-                                </connections>
-                            </menuItem>
                             <menuItem title="Discuss GitX" id="972">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
@@ -396,6 +384,5 @@
         </customObject>
         <customObject id="908" customClass="PBRepositoryDocumentController"/>
         <userDefaultsController representsSharedInstance="YES" id="912"/>
-        <customObject id="918" customClass="SUUpdater"/>
     </objects>
 </document>

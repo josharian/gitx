@@ -23,8 +23,6 @@
 	[self addView:generalPrefsView label:@"General" image:[NSImage imageNamed:@"gitx"]];
 	// INTERGRATION
 	[self addView:integrationPrefsView label:@"Integration" image:[NSImage imageNamed:NSImageNameNetwork]];
-	// UPDATES
-	[self addView:updatesPrefsView label:@"Updates"];
 }
 
 - (void)displayViewForIdentifier:(NSString *)identifier animate:(BOOL)animate
@@ -37,8 +35,11 @@
 - (NSString *)defaultViewIdentifier
 {
 	NSString *identifier = [[NSUserDefaults standardUserDefaults] objectForKey:kPreferenceViewIdentifier];
-	if (identifier)
+	if (identifier && [toolbarIdentifiers containsObject:identifier])
 		return identifier;
+
+	if (identifier)
+		[[NSUserDefaults standardUserDefaults] removeObjectForKey:kPreferenceViewIdentifier];
 
 	return [super defaultViewIdentifier];
 }

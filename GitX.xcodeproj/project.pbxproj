@@ -20,7 +20,6 @@
 		4A5D75E214A9A90500DF6C68 /* Updates.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75A014A9A90500DF6C68 /* Updates.png */; };
 		4A5D75F114A9A90500DF6C68 /* rewindImage.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75AF14A9A90500DF6C68 /* rewindImage.pdf */; };
 		4A5D75F714A9A90500DF6C68 /* source.css in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75B514A9A90500DF6C68 /* source.css */; };
-		4A5D75F914A9A90500DF6C68 /* UpdateKey.pem in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75B714A9A90500DF6C68 /* UpdateKey.pem */; };
 		4A5D75FB14A9A90500DF6C68 /* OpenRecentPopup.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BA14A9A90500DF6C68 /* OpenRecentPopup.xib */; };
 		4A5D75FC14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BB14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib */; };
 		4A5D75FE14A9A90500DF6C68 /* PBGitCommitView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75BD14A9A90500DF6C68 /* PBGitCommitView.xib */; };
@@ -162,7 +161,6 @@
 		4A40159614067B6300DB9C07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4A40159814067B7A00DB9C07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		4A4EF0BD142CBC59001B8CDF /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		4A52D2CD1558187800B778A5 /* GitX-dev.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "GitX-dev.html"; path = "updates/GitX-dev.html"; sourceTree = SOURCE_ROOT; };
 		4A5D757D14A9A90500DF6C68 /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		4A5D757E14A9A90500DF6C68 /* gitx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = gitx.icns; sourceTree = "<group>"; };
 		4A5D759814A9A90500DF6C68 /* gitx_icon.psd */ = {isa = PBXFileReference; lastKnownFileType = file; path = gitx_icon.psd; sourceTree = "<group>"; };
@@ -172,7 +170,6 @@
 		4A5D75AF14A9A90500DF6C68 /* rewindImage.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = rewindImage.pdf; sourceTree = "<group>"; };
 		4A5D75B414A9A90500DF6C68 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A5D75B514A9A90500DF6C68 /* source.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = source.css; sourceTree = "<group>"; };
-		4A5D75B714A9A90500DF6C68 /* UpdateKey.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = UpdateKey.pem; sourceTree = "<group>"; };
 		4A5D75BA14A9A90500DF6C68 /* OpenRecentPopup.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenRecentPopup.xib; sourceTree = "<group>"; };
 		4A5D75BB14A9A90500DF6C68 /* PBCommitHookFailedSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PBCommitHookFailedSheet.xib; sourceTree = "<group>"; };
 		4A5D75BD14A9A90500DF6C68 /* PBGitCommitView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PBGitCommitView.xib; sourceTree = "<group>"; };
@@ -449,7 +446,6 @@
 		4A5D757C14A9A90500DF6C68 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				4A52D2CD1558187800B778A5 /* GitX-dev.html */,
 				4A90A73414A9D24300D0DA02 /* GitX.sdef */,
 				4A90A72714A9C12F00D0DA02 /* Common.xcconfig */,
 				4A5D757D14A9A90500DF6C68 /* Credits.html */,
@@ -467,7 +463,6 @@
 				B2E4C58F7FB04F468C0826DE /* PBWebControllerNativePost.js */,
 				B2E4C5907FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js */,
 				B2E4C5917FB04F468C0826DE /* PBWebControllerContextMenuTracking.js */,
-				4A5D75B714A9A90500DF6C68 /* UpdateKey.pem */,
 				4A5D75B914A9A90500DF6C68 /* XIBs */,
 			);
 			path = Resources;
@@ -824,7 +819,6 @@
 				B2E4C58C7FB04F468C0826DE /* PBWebControllerNativePost.js in Resources */,
 				B2E4C58D7FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js in Resources */,
 				B2E4C58E7FB04F468C0826DE /* PBWebControllerContextMenuTracking.js in Resources */,
-				4A5D75F914A9A90500DF6C68 /* UpdateKey.pem in Resources */,
 				978357C1189C1F5700ADC689 /* CherryPickTemplate.pdf in Resources */,
 				978357C7189C23AF00ADC689 /* TreeViewTemplate.pdf in Resources */,
 				4A5D75FB14A9A90500DF6C68 /* OpenRecentPopup.xib in Resources */,
