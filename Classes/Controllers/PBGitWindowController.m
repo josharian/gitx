@@ -159,7 +159,8 @@
 - (void)showErrorSheetTitle:(NSString *)title message:(NSString *)message arguments:(NSArray *)arguments output:(NSString *)output
 {
 	NSString *command = [arguments componentsJoinedByString:@" "];
-	NSString *reason = [NSString stringWithFormat:@"%@\n\ncommand: git %@\n%@", message, command, output];
+	NSString *details = output.length ? output : @"No additional output.";
+	NSString *reason = [NSString stringWithFormat:@"%@\n\ncommand: git %@\n%@", message, command, details];
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
 							  title, NSLocalizedDescriptionKey,
 							  reason, NSLocalizedRecoverySuggestionErrorKey,

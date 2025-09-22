@@ -48,6 +48,14 @@ NS_ASSUME_NONNULL_BEGIN
                                inputString:(nullable NSString *)input
                                   retValue:(nullable int *)returnCode;
 
++ (nullable NSString *)outputForCommand:(NSString *)command
+                                 withArgs:(NSArray<NSString *> *)arguments
+                                    inDir:(nullable NSString *)directory
+                 byExtendingEnvironment:(nullable NSDictionary<NSString *, NSString *> *)environment
+                               inputString:(nullable NSString *)input
+                                  retValue:(nullable int *)returnCode
+                              standardError:(NSString * _Nullable * _Nullable)standardError;
+
 + (nullable NSString *)gitOutputForArgs:(NSArray<NSString *> *)arguments
                                    inDir:(nullable NSString *)directory
                                    error:(NSError * _Nullable * _Nullable)error;

@@ -829,7 +829,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	NSString *output = [self executeGitCommand:arguments inWorkingDir:YES error:&error];
 	if (error) {
 		NSString *message = [NSString stringWithFormat:@"There was an error creating the branch '%@' at %@ '%@'.", branchName, [ref refishType], [ref shortName]];
-		[self.windowController showErrorSheetTitle:@"Create Branch failed!" message:message arguments:arguments output:output];
+		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription ?: output ?: @"No additional output.";
+		[self.windowController showErrorSheetTitle:@"Create Branch failed!" message:message arguments:arguments output:errorDetails];
 		return NO;
 	}
 
@@ -855,7 +856,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	NSString *output = [self executeGitCommand:arguments error:&error];
 	if (error) {
 		NSString *errorMessage = [NSString stringWithFormat:@"There was an error creating the tag '%@' at %@ '%@'.", tagName, [target refishType], [target shortName]];
-		[self.windowController showErrorSheetTitle:@"Create Tag failed!" message:errorMessage arguments:arguments output:output];
+		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription ?: output ?: @"No additional output.";
+		[self.windowController showErrorSheetTitle:@"Create Tag failed!" message:errorMessage arguments:arguments output:errorDetails];
 		return NO;
 	}
 
@@ -876,7 +878,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	NSString *output = [self executeGitCommand:arguments error:&error];
 	if (error) {
 		NSString *message = [NSString stringWithFormat:@"There was an error deleting the ref: %@\n\n", [ref shortName]];
-		[self.windowController showErrorSheetTitle:@"Delete ref failed!" message:message arguments:arguments output:output];
+		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription ?: output ?: @"No additional output.";
+		[self.windowController showErrorSheetTitle:@"Delete ref failed!" message:message arguments:arguments output:errorDetails];
 		return NO;
 	}
 
@@ -937,108 +940,76 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
         return nil;
     }
     
-    NSTask *task = [[NSTask alloc] init];
-    task.launchPath = gitPath;
-    task.arguments = arguments;
-    
-    // Set working directory 
     NSString *workDir = [self workingDirectory];
-    if (workDir) {
-        task.currentDirectoryPath = workDir;
-    }
-    
-    // Prepare environment
-    NSMutableDictionary *environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
-    [environment removeObjectsForKeys:@[@"MallocStackLogging", @"MallocStackLoggingNoCompact", @"NSZombieEnabled"]];
+
+    NSMutableDictionary<NSString *, NSString *> *mutableEnvironment = [[[NSProcessInfo processInfo] environment] mutableCopy];
+    [mutableEnvironment removeObjectsForKeys:@[@"MallocStackLogging", @"MallocStackLoggingNoCompact", @"NSZombieEnabled"]];
     if (env) {
-        [environment addEntriesFromDictionary:env];
-    }
-    task.environment = environment;
-    
-    // Set up pipes
-    NSPipe *outputPipe = [NSPipe pipe];
-    NSPipe *errorPipe = [NSPipe pipe];
-    task.standardOutput = outputPipe;
-    task.standardError = errorPipe;
-    
-    // Handle input if provided
-    if (input) {
-        NSPipe *inputPipe = [NSPipe pipe];
-        task.standardInput = inputPipe;
-    }
-    
-    // Debug logging
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"Show Debug Messages"]) {
-        NSLog(@"Executing git command: %@ %@ in %@", gitPath, [arguments componentsJoinedByString:@" "], workDir);
-    }
-    
-    NSString *output = nil;
-    NSString *errorOutput = nil;
-    
-    @try {
-        [task launch];
-        
-        // Write input if provided
-        if (input) {
-            NSFileHandle *inputHandle = [[task standardInput] fileHandleForWriting];
-            [inputHandle writeData:[input dataUsingEncoding:NSUTF8StringEncoding]];
-            [inputHandle closeFile];
-        }
-        
-        // Read output
-        NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-        NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
-        
-        [task waitUntilExit];
-        
-        // Convert output to string
-        output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
-        if (!output) {
-            output = [[NSString alloc] initWithData:outputData encoding:NSISOLatin1StringEncoding];
-        }
-        
-        errorOutput = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
-        if (!errorOutput) {
-            errorOutput = [[NSString alloc] initWithData:errorData encoding:NSISOLatin1StringEncoding];
-        }
-        
-        // Strip trailing newlines
-        if ([output hasSuffix:@"\n"]) {
-            output = [output substringToIndex:[output length] - 1];
-        }
-        
-        // Check for command failure
-        if (task.terminationStatus != 0) {
-            if (error) {
-                NSString *errorMessage = [NSString stringWithFormat:@"Git command failed with exit code %d", task.terminationStatus];
-                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                 errorMessage, NSLocalizedDescriptionKey,
-                                                 [NSString stringWithFormat:@"Command: git %@", [arguments componentsJoinedByString:@" "]], @"GitCommand",
-                                                 @(task.terminationStatus), @"ExitCode",
-                                                 nil];
-                
-                if (errorOutput && [errorOutput length] > 0) {
-                    [userInfo setObject:errorOutput forKey:NSLocalizedRecoverySuggestionErrorKey];
-                }
-                
-                *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
-                                             code:PBGitErrorCommandFailed
-                                         userInfo:userInfo];
+        [env enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+            if (![key isKindOfClass:[NSString class]]) {
+                return;
             }
-            return nil;
-        }
-        
-    } @catch (NSException *exception) {
-        if (error) {
-            *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
-                                         code:PBGitErrorCommandFailed
-                                     userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Git command execution failed: %@", exception.reason],
-                                               @"Exception": exception.reason ?: @"Unknown exception"}];
-        }
-        return nil;
+            NSString *stringValue = nil;
+            if ([value isKindOfClass:[NSString class]]) {
+                stringValue = value;
+            } else if ([value respondsToSelector:@selector(description)]) {
+                stringValue = [value description];
+            }
+            if (stringValue) {
+                mutableEnvironment[(NSString *)key] = stringValue;
+            }
+        }];
     }
-    
-    return output;
+    NSDictionary<NSString *, NSString *> *environment = [mutableEnvironment copy];
+
+    NSMutableArray<NSString *> *coercedArguments = [NSMutableArray arrayWithCapacity:[arguments count]];
+    for (id argument in arguments) {
+        if ([argument isKindOfClass:[NSString class]]) {
+            [coercedArguments addObject:argument];
+        } else if (argument) {
+            [coercedArguments addObject:[argument description]];
+        }
+    }
+    NSArray<NSString *> *commandArguments = [coercedArguments copy];
+
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"Show Debug Messages"]) {
+        NSLog(@"Executing git command: %@ %@ in %@", gitPath, [commandArguments componentsJoinedByString:@" "], workDir);
+    }
+
+    int exitCode = -1;
+    NSString *standardError = nil;
+    NSString *output = [PBEasyPipe outputForCommand:gitPath
+                                           withArgs:commandArguments
+                                              inDir:workDir
+                            byExtendingEnvironment:environment
+                                        inputString:input
+                                           retValue:&exitCode
+                                     standardError:&standardError];
+
+    if (exitCode == 0 && output) {
+        return output;
+    }
+
+    if (error) {
+        NSString *joinedArguments = [commandArguments componentsJoinedByString:@" "];
+        NSString *errorMessage = exitCode == -1 ? @"Git command execution failed" : [NSString stringWithFormat:@"Git command failed with exit code %d", exitCode];
+
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                          errorMessage, NSLocalizedDescriptionKey,
+                                          [NSString stringWithFormat:@"Command: git %@", joinedArguments], @"GitCommand",
+                                          @(exitCode), @"ExitCode",
+                                          nil];
+
+        if (standardError.length > 0) {
+            [userInfo setObject:standardError forKey:NSLocalizedRecoverySuggestionErrorKey];
+        }
+
+        *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
+                                     code:PBGitErrorCommandFailed
+                                 userInfo:userInfo];
+    }
+
+    return nil;
 }
 
 #pragma mark low level

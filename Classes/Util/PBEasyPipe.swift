@@ -63,7 +63,8 @@ final class PBEasyPipe: NSObject {
             inDir: directory,
             byExtendingEnvironment: nil,
             inputString: nil,
-            retValue: retValue
+            retValue: retValue,
+            standardError: nil
         )
     }
 
@@ -79,7 +80,8 @@ final class PBEasyPipe: NSObject {
             inDir: directory,
             byExtendingEnvironment: nil,
             inputString: inputString,
-            retValue: retValue
+            retValue: retValue,
+            standardError: nil
         )
     }
 
@@ -90,20 +92,47 @@ final class PBEasyPipe: NSObject {
                                 byExtendingEnvironment environment: [String: String]?,
                                 inputString: String?,
                                 retValue: UnsafeMutablePointer<Int32>?) -> String? {
-        let environmentExtras = environment
+        return outputForCommand(
+            command,
+            withArgs: arguments,
+            inDir: directory,
+            byExtendingEnvironment: environment,
+            inputString: inputString,
+            retValue: retValue,
+            standardError: nil
+        )
+    }
 
+    @objc(outputForCommand:withArgs:inDir:byExtendingEnvironment:inputString:retValue:standardError:)
+    class func outputForCommand(_ command: String,
+                                withArgs arguments: [String],
+                                inDir directory: String?,
+                                byExtendingEnvironment environment: [String: String]?,
+                                inputString: String?,
+                                retValue: UnsafeMutablePointer<Int32>?,
+                                standardError: AutoreleasingUnsafeMutablePointer<NSString?>?) -> String? {
         guard let result = runProcess(
             executablePath: command,
             arguments: arguments,
             workingDirectory: directory,
-            environmentExtras: environmentExtras,
+            environmentExtras: environment,
             input: inputString
         ) else {
             retValue?.pointee = -1
+            standardError?.pointee = nil
             return nil
         }
 
         retValue?.pointee = result.terminationStatus
+
+        if var stderrString = decodeToString(result.standardError) {
+            if stderrString.hasSuffix("\n") {
+                stderrString.removeLast()
+            }
+            standardError?.pointee = stderrString as NSString
+        } else {
+            standardError?.pointee = nil
+        }
 
         guard var output = decodeToString(result.standardOutput) else {
             return nil
@@ -152,21 +181,28 @@ final class PBEasyPipe: NSObject {
         }
 
         var exitCode: Int32 = 0
+        var stderrOutput: NSString?
         let output = outputForCommand(
             gitPath,
             withArgs: args,
             inDir: directory,
-            retValue: &exitCode
+            byExtendingEnvironment: nil,
+            inputString: nil,
+            retValue: &exitCode,
+            standardError: &stderrOutput
         )
 
         if exitCode != 0 {
             if let errorPointer = error {
                 let description = "Git command failed with exit code \(exitCode)"
-                let userInfo: [String: Any] = [
+                var userInfo: [String: Any] = [
                     NSLocalizedDescriptionKey: description,
                     "GitArgs": args,
                     "ExitCode": NSNumber(value: exitCode)
                 ]
+                if let stderr = stderrOutput as String?, !stderr.isEmpty {
+                    userInfo[NSLocalizedRecoverySuggestionErrorKey] = stderr
+                }
                 errorPointer.pointee = NSError(
                     domain: "PBGitRepositoryErrorDomain",
                     code: 1001,
