@@ -9,7 +9,6 @@
 #import "ApplicationController.h"
 #import "PBGitRevisionCell.h"
 #import "PBGitWindowController.h"
-#import "PBServicesController.h"
 #import "PBPrefsWindowController.h"
 #import "PBNSURLPathUserDefaultsTransfomer.h"
 #import "PBGitDefaults.h"
@@ -42,21 +41,6 @@ static OpenRecentController* recentsDialog = nil;
 	return self;
 }
 
-- (void)registerServices
-{
-	// Register the service class
-	PBServicesController *services = [[PBServicesController alloc] init];
-	[NSApp setServicesProvider:services];
-
-	// Force update the services menu if we have a new services version
-	NSInteger serviceVersion = [[NSUserDefaults standardUserDefaults] integerForKey:@"Services Version"];
-	if (serviceVersion < 2)
-	{
-		NSLog(@"Updating services menu…");
-		NSUpdateDynamicServices();
-		[[NSUserDefaults standardUserDefaults] setInteger:2 forKey:@"Services Version"];
-	}
-}
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender
 {
@@ -83,7 +67,6 @@ static OpenRecentController* recentsDialog = nil;
 {
 
 
-	[self registerServices];
 	started = YES;
 }
 

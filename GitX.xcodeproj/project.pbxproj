@@ -44,7 +44,6 @@
 		4A5D76EB14A9A9CC00DF6C68 /* PBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D763B14A9A9CC00DF6C68 /* PBPrefsWindowController.m */; };
 		4A5D76EC14A9A9CC00DF6C68 /* PBRefController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D763D14A9A9CC00DF6C68 /* PBRefController.m */; };
 		4A5D76ED14A9A9CC00DF6C68 /* PBRepositoryDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D763F14A9A9CC00DF6C68 /* PBRepositoryDocumentController.m */; };
-		4A5D76EE14A9A9CC00DF6C68 /* PBServicesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764114A9A9CC00DF6C68 /* PBServicesController.m */; };
 		4A5D76EF14A9A9CC00DF6C68 /* PBViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764314A9A9CC00DF6C68 /* PBViewController.m */; };
 		4A5D76F014A9A9CC00DF6C68 /* PBWebChangesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764514A9A9CC00DF6C68 /* PBWebChangesController.m */; };
 		4A5D76F114A9A9CC00DF6C68 /* PBWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764714A9A9CC00DF6C68 /* PBWebController.m */; };
@@ -208,8 +207,6 @@
 		4A5D763D14A9A9CC00DF6C68 /* PBRefController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRefController.m; sourceTree = "<group>"; };
 		4A5D763E14A9A9CC00DF6C68 /* PBRepositoryDocumentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRepositoryDocumentController.h; sourceTree = "<group>"; };
 		4A5D763F14A9A9CC00DF6C68 /* PBRepositoryDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRepositoryDocumentController.m; sourceTree = "<group>"; };
-		4A5D764014A9A9CC00DF6C68 /* PBServicesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBServicesController.h; sourceTree = "<group>"; };
-		4A5D764114A9A9CC00DF6C68 /* PBServicesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBServicesController.m; sourceTree = "<group>"; };
 		4A5D764214A9A9CC00DF6C68 /* PBViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBViewController.h; sourceTree = "<group>"; };
 		4A5D764314A9A9CC00DF6C68 /* PBViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBViewController.m; sourceTree = "<group>"; };
 		4A5D764414A9A9CC00DF6C68 /* PBWebChangesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBWebChangesController.h; sourceTree = "<group>"; };
@@ -597,8 +594,6 @@
 				4A5D763D14A9A9CC00DF6C68 /* PBRefController.m */,
 				4A5D763E14A9A9CC00DF6C68 /* PBRepositoryDocumentController.h */,
 				4A5D763F14A9A9CC00DF6C68 /* PBRepositoryDocumentController.m */,
-				4A5D764014A9A9CC00DF6C68 /* PBServicesController.h */,
-				4A5D764114A9A9CC00DF6C68 /* PBServicesController.m */,
 				4A5D764214A9A9CC00DF6C68 /* PBViewController.h */,
 				4A5D764314A9A9CC00DF6C68 /* PBViewController.m */,
 				4A5D764414A9A9CC00DF6C68 /* PBWebChangesController.h */,
@@ -909,7 +904,6 @@
 				4A5D76EB14A9A9CC00DF6C68 /* PBPrefsWindowController.m in Sources */,
 				4A5D76EC14A9A9CC00DF6C68 /* PBRefController.m in Sources */,
 				4A5D76ED14A9A9CC00DF6C68 /* PBRepositoryDocumentController.m in Sources */,
-				4A5D76EE14A9A9CC00DF6C68 /* PBServicesController.m in Sources */,
 				4A5D76EF14A9A9CC00DF6C68 /* PBViewController.m in Sources */,
 				4A5D76F014A9A9CC00DF6C68 /* PBWebChangesController.m in Sources */,
 				4A5D76F114A9A9CC00DF6C68 /* PBWebController.m in Sources */,
