@@ -55,7 +55,8 @@
 		B2E4C58D7FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C5907FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js */; };
 		B2E4C58E7FB04F468C0826DE /* PBWebControllerContextMenuTracking.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C5917FB04F468C0826DE /* PBWebControllerContextMenuTracking.js */; };
 		4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */; };
-		4A5D76F514A9A9CC00DF6C68 /* PBGitCommit.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765114A9A9CC00DF6C68 /* PBGitCommit.m */; };
+		B2F5C2AF2CB0C1F100C0C001 /* PBGitCommit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2AE2CB0C1F100C0C001 /* PBGitCommit.swift */; };
+		B2F5C2B22CB0C4D200C0C001 /* PBGitCommitConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2B12CB0C4D200C0C001 /* PBGitCommitConstants.m */; };
 		4A5D76F714A9A9CC00DF6C68 /* PBGitDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.m */; };
 		4A5D76F814A9A9CC00DF6C68 /* PBGitGrapher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765714A9A9CC00DF6C68 /* PBGitGrapher.m */; };
 		4A5D76F914A9A9CC00DF6C68 /* PBGitGraphLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765914A9A9CC00DF6C68 /* PBGitGraphLine.m */; };
@@ -227,7 +228,9 @@
 		4A5D764E14A9A9CC00DF6C68 /* PBGitBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitBinary.h; sourceTree = "<group>"; };
 		4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitBinary.m; sourceTree = "<group>"; };
 		4A5D765014A9A9CC00DF6C68 /* PBGitCommit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PBGitCommit.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		4A5D765114A9A9CC00DF6C68 /* PBGitCommit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PBGitCommit.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		B2F5C2AE2CB0C1F100C0C001 /* PBGitCommit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitCommit.swift; sourceTree = "<group>"; };
+		B2F5C2B12CB0C4D200C0C001 /* PBGitCommitConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PBGitCommitConstants.m; sourceTree = "<group>"; };
+		B2F5C2B02CB0C1F100C0C001 /* GitX-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GitX-Bridging-Header.h"; sourceTree = "<group>"; };
 		4A5D765414A9A9CC00DF6C68 /* PBGitDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitDefaults.h; sourceTree = "<group>"; };
 		4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitDefaults.m; sourceTree = "<group>"; };
 		4A5D765614A9A9CC00DF6C68 /* PBGitGrapher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitGrapher.h; sourceTree = "<group>"; };
@@ -416,6 +419,7 @@
 			children = (
 				4A5D762114A9A9CC00DF6C68 /* Classes */,
 				4A5D757C14A9A90500DF6C68 /* Resources */,
+				B2F5C2B02CB0C1F100C0C001 /* GitX-Bridging-Header.h */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -616,7 +620,8 @@
 				4A5D764E14A9A9CC00DF6C68 /* PBGitBinary.h */,
 				4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */,
 				4A5D765014A9A9CC00DF6C68 /* PBGitCommit.h */,
-				4A5D765114A9A9CC00DF6C68 /* PBGitCommit.m */,
+				B2F5C2AE2CB0C1F100C0C001 /* PBGitCommit.swift */,
+				B2F5C2B12CB0C4D200C0C001 /* PBGitCommitConstants.m */,
 				4A5D765414A9A9CC00DF6C68 /* PBGitDefaults.h */,
 				4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.m */,
 				4A5D765614A9A9CC00DF6C68 /* PBGitGrapher.h */,
@@ -909,7 +914,8 @@
 				B2E4C5887FB04F468C0826DE /* PBWKWebViewBridge.m in Sources */,
 				B2E4C5897FB04F468C0826DE /* PBWKGitXSchemeHandler.m in Sources */,
 				4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */,
-				4A5D76F514A9A9CC00DF6C68 /* PBGitCommit.m in Sources */,
+				B2F5C2AF2CB0C1F100C0C001 /* PBGitCommit.swift in Sources */,
+				B2F5C2B22CB0C4D200C0C001 /* PBGitCommitConstants.m in Sources */,
 				4A5D76F714A9A9CC00DF6C68 /* PBGitDefaults.m in Sources */,
 				4A5D76F814A9A9CC00DF6C68 /* PBGitGrapher.m in Sources */,
 				4A5D76F914A9A9CC00DF6C68 /* PBGitGraphLine.m in Sources */,
@@ -1046,6 +1052,7 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				WRAPPER_EXTENSION = app;
 				SWIFT_VERSION = 5.0;
+				SWIFT_OBJC_BRIDGING_HEADER = "GitX-Bridging-Header.h";
 			};
 			name = Debug;
 		};
@@ -1066,6 +1073,7 @@
 				VERSIONING_SYSTEM = "apple-generic";
 				WRAPPER_EXTENSION = app;
 				SWIFT_VERSION = 5.0;
+				SWIFT_OBJC_BRIDGING_HEADER = "GitX-Bridging-Header.h";
 			};
 			name = Release;
 		};
