@@ -8,11 +8,8 @@ final class PBGitDefaults: NSObject {
         static let commitMessageViewVerticalBodyLineLength = "PBCommitMessageViewVerticalBodyLineLength"
         static let commitMessageViewHasVerticalLine = "PBCommitMessageViewHasVerticalLine"
         static let showWhitespaceDifferences = "PBShowWhitespaceDifferences"
-        static let openCurDirOnLaunch = "PBOpenCurDirOnLaunch"
-        static let showOpenPanelOnLaunch = "PBShowOpenPanelOnLaunch"
         static let shouldCheckoutBranch = "PBShouldCheckoutBranch"
         static let showStageView = "PBShowStageView"
-        static let openPreviousDocumentsOnLaunch = "PBOpenPreviousDocumentsOnLaunch"
         static let branchFilterState = "PBBranchFilter"
         static let historySearchMode = "PBHistorySearchMode"
         static let suppressedDialogWarnings = "Suppressed Dialog Warnings"
@@ -26,11 +23,8 @@ final class PBGitDefaults: NSObject {
             Key.commitMessageViewVerticalBodyLineLength: 72,
             Key.commitMessageViewHasVerticalLine: true,
             Key.showWhitespaceDifferences: true,
-            Key.openCurDirOnLaunch: true,
-            Key.showOpenPanelOnLaunch: true,
             Key.shouldCheckoutBranch: true,
             Key.showStageView: true,
-            Key.openPreviousDocumentsOnLaunch: false,
             Key.historySearchMode: 1,
             Key.branchFilterState: 0
         ])

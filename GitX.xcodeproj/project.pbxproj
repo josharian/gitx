@@ -34,7 +34,7 @@
 		4A5D762014A9A99E00DF6C68 /* RepositoryWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D761514A9A99E00DF6C68 /* RepositoryWindow.xib */; };
 		4A5D76E114A9A9CC00DF6C68 /* ApplicationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762714A9A9CC00DF6C68 /* ApplicationController.m */; };
 		4A5D76E214A9A9CC00DF6C68 /* DBPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762914A9A9CC00DF6C68 /* DBPrefsWindowController.m */; };
-		4A5D76E314A9A9CC00DF6C68 /* OpenRecentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.m */; };
+		4A5D76E314A9A9CC00DF6C68 /* OpenRecentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.swift */; };
 		4A5D76E514A9A9CC00DF6C68 /* PBGitCommitController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D762F14A9A9CC00DF6C68 /* PBGitCommitController.m */; };
 		4A5D76E614A9A9CC00DF6C68 /* PBGitHistoryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D763114A9A9CC00DF6C68 /* PBGitHistoryController.m */; };
 		4A5D76E714A9A9CC00DF6C68 /* PBGitIndexController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D763314A9A9CC00DF6C68 /* PBGitIndexController.m */; };
@@ -187,8 +187,7 @@
 		4A5D762714A9A9CC00DF6C68 /* ApplicationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApplicationController.m; sourceTree = "<group>"; };
 		4A5D762814A9A9CC00DF6C68 /* DBPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBPrefsWindowController.h; sourceTree = "<group>"; };
 		4A5D762914A9A9CC00DF6C68 /* DBPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBPrefsWindowController.m; sourceTree = "<group>"; };
-		4A5D762A14A9A9CC00DF6C68 /* OpenRecentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenRecentController.h; sourceTree = "<group>"; };
-		4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenRecentController.m; sourceTree = "<group>"; };
+		4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenRecentController.swift; sourceTree = "<group>"; };
 		4A5D762E14A9A9CC00DF6C68 /* PBGitCommitController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitCommitController.h; sourceTree = "<group>"; };
 		4A5D762F14A9A9CC00DF6C68 /* PBGitCommitController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitCommitController.m; sourceTree = "<group>"; };
 		4A5D763014A9A9CC00DF6C68 /* PBGitHistoryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PBGitHistoryController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -573,8 +572,7 @@
 				4A5D762714A9A9CC00DF6C68 /* ApplicationController.m */,
 				4A5D762814A9A9CC00DF6C68 /* DBPrefsWindowController.h */,
 				4A5D762914A9A9CC00DF6C68 /* DBPrefsWindowController.m */,
-				4A5D762A14A9A9CC00DF6C68 /* OpenRecentController.h */,
-				4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.m */,
+				4A5D762B14A9A9CC00DF6C68 /* OpenRecentController.swift */,
 				4A5D762E14A9A9CC00DF6C68 /* PBGitCommitController.h */,
 				4A5D762F14A9A9CC00DF6C68 /* PBGitCommitController.m */,
 				4A5D763014A9A9CC00DF6C68 /* PBGitHistoryController.h */,
@@ -892,7 +890,7 @@
 			files = (
 				4A5D76E114A9A9CC00DF6C68 /* ApplicationController.m in Sources */,
 				4A5D76E214A9A9CC00DF6C68 /* DBPrefsWindowController.m in Sources */,
-				4A5D76E314A9A9CC00DF6C68 /* OpenRecentController.m in Sources */,
+				4A5D76E314A9A9CC00DF6C68 /* OpenRecentController.swift in Sources */,
 				4A5D76E514A9A9CC00DF6C68 /* PBGitCommitController.m in Sources */,
 				4A5D76E614A9A9CC00DF6C68 /* PBGitHistoryController.m in Sources */,
 				4A5D76E714A9A9CC00DF6C68 /* PBGitIndexController.m in Sources */,
