@@ -46,4 +46,20 @@ final class PBCommitData: NSObject {
                   committerName: other.committerName,
                   parentSHAs: other.parentSHAs)
     }
+
+    @objc(parentSHAsFromString:)
+    class func parentSHAs(from string: String?) -> [String] {
+        guard let string, !string.isEmpty else {
+            return []
+        }
+
+        let separators = CharacterSet.whitespacesAndNewlines
+        return string
+            .split(separator: " ")
+            .map { substring -> String in
+                let trimmed = String(substring).trimmingCharacters(in: separators)
+                return trimmed
+            }
+            .filter { $0.count >= 40 }
+    }
 }

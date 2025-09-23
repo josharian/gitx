@@ -24,10 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
                     shortSHA:(nullable NSString *)shortSHA
                       message:(nullable NSString *)message
                messageSummary:(nullable NSString *)messageSummary
-                   commitDate:(nullable NSDate *)commitDate
-                  authorName:(nullable NSString *)authorName
-               committerName:(nullable NSString *)committerName
+                  commitDate:(nullable NSDate *)commitDate
+                 authorName:(nullable NSString *)authorName
+              committerName:(nullable NSString *)committerName
                   parentSHAs:(nullable NSArray<NSString *> *)parentSHAs NS_DESIGNATED_INITIALIZER;
+
++ (NSArray<NSString *> *)parentSHAsFromString:(nullable NSString *)parentSHAsString;
 
 - (instancetype)init;
 

@@ -191,16 +191,7 @@
 			
 			if ([shaString length] >= 40) {
 				NSTimeInterval timestamp = [timestampString doubleValue];
-				NSMutableArray *parentSHAs = [NSMutableArray array];
-				if ([parentSHAsString length] > 0) {
-					NSArray *parentSHAsList = [parentSHAsString componentsSeparatedByString:@" "];
-					for (NSString *parentSHA in parentSHAsList) {
-						NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-						if ([trimmedSHA length] >= 40) {
-							[parentSHAs addObject:trimmedSHA];
-						}
-					}
-				}
+				NSArray *parentSHAs = [PBCommitData parentSHAsFromString:parentSHAsString];
 				PBCommitData *commitData = [[PBCommitData alloc] initWithSha:shaString
 												shortSHA:[shaString substringToIndex:MIN(7, [shaString length])]
 												 message:message
