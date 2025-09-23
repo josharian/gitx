@@ -34,8 +34,15 @@ fi
 cp "$TEMP_LOG" "$LOG_FILE"
 
 if [[ "$BUILD_STATUS" -eq 0 ]]; then
-  echo "Build succeeded"
-  exit 0
+  : >"$TEMP_LOG"
+  if xcodebuild -project "GitX.xcodeproj" -target "cli tool" -configuration "Release" -arch arm64 build >"$TEMP_LOG" 2>&1; then
+    cp "$TEMP_LOG" "$LOG_FILE"
+    echo "Build succeeded"
+    exit 0
+  else
+    BUILD_STATUS=$?
+    cp "$TEMP_LOG" "$LOG_FILE"
+  fi
 fi
 
 # Verbatim extraction of diagnostics (errors/warnings) preserving order.
