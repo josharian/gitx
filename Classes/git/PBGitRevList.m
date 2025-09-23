@@ -190,18 +190,7 @@
 			NSString *parentSHAsString = fields[6];
 			
 			if ([shaString length] >= 40) {
-				PBCommitData *commitData = [[PBCommitData alloc] init];
-				commitData.sha = shaString;
-				commitData.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
-				commitData.messageSummary = messageSummary;
-				commitData.message = message;
-				commitData.authorName = authorName;
-				commitData.committerName = committerName;
-				
 				NSTimeInterval timestamp = [timestampString doubleValue];
-				commitData.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
-				
-				// Parse parent commit SHAs
 				NSMutableArray *parentSHAs = [NSMutableArray array];
 				if ([parentSHAsString length] > 0) {
 					NSArray *parentSHAsList = [parentSHAsString componentsSeparatedByString:@" "];
@@ -212,7 +201,14 @@
 						}
 					}
 				}
-				commitData.parentSHAs = parentSHAs;
+				PBCommitData *commitData = [[PBCommitData alloc] initWithSha:shaString
+												shortSHA:[shaString substringToIndex:MIN(7, [shaString length])]
+												 message:message
+											messageSummary:messageSummary
+											 commitDate:[NSDate dateWithTimeIntervalSince1970:timestamp]
+											 authorName:authorName
+											committerName:committerName
+											 parentSHAs:parentSHAs];
 				
 				dispatch_group_async(loadGroup, loadQueue, ^{
 					PBGitCommit *newCommit = nil;

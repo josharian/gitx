@@ -56,35 +56,40 @@ NSString * const kGitXCommitType = @"commit";
 	NSString *output = [repo executeGitCommand:@[@"show", @"--format=%H%n%s%n%B%n%an%n%cn%n%ct%n%P", @"--no-patch", sha] error:&error];
 	
 	PBCommitData *commitData = [[PBCommitData alloc] init];
-	
+
 	if (!error && output) {
 		NSArray *lines = [output componentsSeparatedByString:@"\n"];
 		
 		if (lines.count >= 7) {
 			NSString *shaString = lines[0];
-			commitData.sha = shaString;
-			commitData.shortSHA = [shaString substringToIndex:MIN(7, [shaString length])];
-			commitData.messageSummary = lines[1];
-			commitData.message = lines[2];
-			commitData.authorName = lines[3];
-			commitData.committerName = lines[4];
-			
-			NSTimeInterval timestamp = [lines[5] doubleValue];
-			commitData.commitDate = [NSDate dateWithTimeIntervalSince1970:timestamp];
-			
-			// Parse parent commit SHAs - just store the SHA strings
+			NSString *messageSummary = lines[1];
+			NSString *message = lines[2];
+			NSString *authorName = lines[3];
+			NSString *committerName = lines[4];
+			NSString *timestampString = lines[5];
 			NSString *parentSHAsString = lines[6];
-			NSMutableArray *parentSHAs = [NSMutableArray array];
-			if ([parentSHAsString length] > 0) {
-				NSArray *parentSHAsList = [parentSHAsString componentsSeparatedByString:@" "];
-				for (NSString *parentSHA in parentSHAsList) {
-					NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-					if ([trimmedSHA length] >= 40) {
-						[parentSHAs addObject:trimmedSHA];
+			
+			if ([shaString length] >= 40) {
+				NSMutableArray *parentSHAs = [NSMutableArray array];
+				if ([parentSHAsString length] > 0) {
+					NSArray *parentSHAsList = [parentSHAsString componentsSeparatedByString:@" "];
+					for (NSString *parentSHA in parentSHAsList) {
+						NSString *trimmedSHA = [parentSHA stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if ([trimmedSHA length] >= 40) {
+							[parentSHAs addObject:trimmedSHA];
+						}
 					}
 				}
+				NSTimeInterval timestamp = [timestampString doubleValue];
+				commitData = [[PBCommitData alloc] initWithSha:shaString
+												shortSHA:[shaString substringToIndex:MIN(7, [shaString length])]
+												 message:message
+											messageSummary:messageSummary
+											 commitDate:[NSDate dateWithTimeIntervalSince1970:timestamp]
+											 authorName:authorName
+											committerName:committerName
+											 parentSHAs:parentSHAs];
 			}
-			commitData.parentSHAs = parentSHAs;
 		}
 	}
 	
