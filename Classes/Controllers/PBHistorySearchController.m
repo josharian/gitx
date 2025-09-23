@@ -14,9 +14,8 @@
 #import "PBGitRepository.h"
 #import "PBGitDefaults.h"
 #import "PBCommitList.h"
-#import "PBEasyPipe.h"
 #import "PBGitBinary.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 
 @interface PBHistorySearchController ()
 

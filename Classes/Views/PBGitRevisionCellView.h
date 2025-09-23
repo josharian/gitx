@@ -6,7 +6,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBGraphCellInfo.h"
 #import "PBRefContextDelegate.h"
 

@@ -8,10 +8,9 @@
 
 #import "PBGitRevList.h"
 #import "PBGitRepository.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBGitGrapher.h"
 #import "PBGitRevSpecifier.h"
-#import "PBCommitData.h"
 
 
 // #import <ObjectiveGit/ObjectiveGit.h>

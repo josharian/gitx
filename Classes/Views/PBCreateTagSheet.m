@@ -8,7 +8,7 @@
 
 #import "PBCreateTagSheet.h"
 #import "PBGitRepository.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBGitRef.h"
 #import "PBGitWindowController.h"
 #import "PBGitRevSpecifier.h"

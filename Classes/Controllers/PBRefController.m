@@ -13,6 +13,8 @@
 #import "PBCreateTagSheet.h"
 #import "PBGitDefaults.h"
 #import "PBGitRevSpecifier.h"
+#import "GitX-Swift.h"
+#import "PBGitCommitConstants.h"
 
 #define kDialogDeleteRef @"Delete Ref"
 

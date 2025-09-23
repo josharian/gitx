@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "PBGitRef.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 
 @interface PBRefMenuItem : NSMenuItem {
 	id <PBGitRefish> refish;

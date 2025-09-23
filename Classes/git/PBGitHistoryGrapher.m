@@ -8,7 +8,7 @@
 
 #import "PBGitHistoryGrapher.h"
 #import "PBGitGrapher.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 
 @implementation PBGitHistoryGrapher
 

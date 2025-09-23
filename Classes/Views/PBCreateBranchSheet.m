@@ -9,7 +9,7 @@
 #import "PBCreateBranchSheet.h"
 #import "PBGitRepository.h"
 #import "PBGitDefaults.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBGitRef.h"
 #import "PBGitWindowController.h"
 

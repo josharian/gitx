@@ -8,7 +8,7 @@
 
 #import "PBGraphCellInfo.h"
 #import "PBGitGrapher.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBGitLane.h"
 #import "PBGitGraphLine.h"
 #import <limits.h>

@@ -7,11 +7,10 @@
 //
 
 #import "PBGitRepository.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBGitWindowController.h"
 #import "PBGitBinary.h"
 
-#import "PBEasyPipe.h"
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
 #import "PBGitRevList.h"
@@ -21,6 +20,7 @@
 #import "GitRepoFinder.h"
 #import "PBGitHistoryList.h"
 #import "PBGitSVSubmoduleItem.h"
+#import "GitX-Swift.h"
 
 
 NSString *PBGitRepositoryDocumentType = @"Git Repository";
@@ -99,10 +99,10 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
         gitPath = @"/usr/bin/git"; // Fallback for initial validation
     }
     
-    [PBEasyPipe outputForCommand:gitPath
-                        withArgs:@[@"rev-parse", @"--git-dir"]
-                           inDir:[absoluteURL path]
-                        retValue:&exitCode];
+    (void)[PBEasyPipe outputForCommand:gitPath
+                               withArgs:@[@"rev-parse", @"--git-dir"]
+                                  inDir:[absoluteURL path]
+                               retValue:&exitCode];
     
     BOOL isValidRepo = (exitCode == 0);
     
@@ -918,98 +918,11 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input environment:(NSDictionary *)env error:(NSError **)error
 {
-    // Validate arguments
-    if (!arguments || [arguments count] == 0) {
-        if (error) {
-            *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
-                                         code:PBGitErrorInvalidArguments
-                                     userInfo:@{NSLocalizedDescriptionKey: @"Git command arguments cannot be empty"}];
-        }
-        return nil;
-    }
-    
-    // Check that git binary is available
-    NSString *gitPath = [PBGitBinary path];
-    if (!gitPath) {
-        if (error) {
-            *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
-                                         code:PBGitErrorGitNotFound
-                                     userInfo:@{NSLocalizedDescriptionKey: @"Git binary not found",
-                                               NSLocalizedRecoverySuggestionErrorKey: [PBGitBinary notFoundError]}];
-        }
-        return nil;
-    }
-    
-    NSString *workDir = [self workingDirectory];
-
-    NSMutableDictionary<NSString *, NSString *> *mutableEnvironment = [[[NSProcessInfo processInfo] environment] mutableCopy];
-    [mutableEnvironment removeObjectsForKeys:@[@"MallocStackLogging", @"MallocStackLoggingNoCompact", @"NSZombieEnabled"]];
-    if (env) {
-        [env enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-            if (![key isKindOfClass:[NSString class]]) {
-                return;
-            }
-            NSString *stringValue = nil;
-            if ([value isKindOfClass:[NSString class]]) {
-                stringValue = value;
-            } else if ([value respondsToSelector:@selector(description)]) {
-                stringValue = [value description];
-            }
-            if (stringValue) {
-                mutableEnvironment[(NSString *)key] = stringValue;
-            }
-        }];
-    }
-    NSDictionary<NSString *, NSString *> *environment = [mutableEnvironment copy];
-
-    NSMutableArray<NSString *> *coercedArguments = [NSMutableArray arrayWithCapacity:[arguments count]];
-    for (id argument in arguments) {
-        if ([argument isKindOfClass:[NSString class]]) {
-            [coercedArguments addObject:argument];
-        } else if (argument) {
-            [coercedArguments addObject:[argument description]];
-        }
-    }
-    NSArray<NSString *> *commandArguments = [coercedArguments copy];
-
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"Show Debug Messages"]) {
-        NSLog(@"Executing git command: %@ %@ in %@", gitPath, [commandArguments componentsJoinedByString:@" "], workDir);
-    }
-
-    int exitCode = -1;
-    NSString *standardError = nil;
-    NSString *output = [PBEasyPipe outputForCommand:gitPath
-                                           withArgs:commandArguments
-                                              inDir:workDir
-                            byExtendingEnvironment:environment
-                                        inputString:input
-                                           retValue:&exitCode
-                                     standardError:&standardError];
-
-    if (exitCode == 0 && output) {
-        return output;
-    }
-
-    if (error) {
-        NSString *joinedArguments = [commandArguments componentsJoinedByString:@" "];
-        NSString *errorMessage = exitCode == -1 ? @"Git command execution failed" : [NSString stringWithFormat:@"Git command failed with exit code %d", exitCode];
-
-        NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                          errorMessage, NSLocalizedDescriptionKey,
-                                          [NSString stringWithFormat:@"Command: git %@", joinedArguments], @"GitCommand",
-                                          @(exitCode), @"ExitCode",
-                                          nil];
-
-        if (standardError.length > 0) {
-            [userInfo setObject:standardError forKey:NSLocalizedRecoverySuggestionErrorKey];
-        }
-
-        *error = [NSError errorWithDomain:PBGitRepositoryErrorDomain
-                                     code:PBGitErrorCommandFailed
-                                 userInfo:userInfo];
-    }
-
-    return nil;
+    return [[GitCommandRunner shared] runWithArguments:arguments
+                                            repository:self
+                                                input:input
+                                           environment:env
+                                                error:error];
 }
 
 #pragma mark low level

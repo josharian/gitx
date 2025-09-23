@@ -6,7 +6,7 @@
 //  Copyright 2008 __MyCompanyName__. All rights reserved.
 //
 
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBGitRef.h"
 #import "PBGitHistoryList.h"
 #import "PBGitRevSpecifier.h"

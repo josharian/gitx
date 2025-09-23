@@ -10,7 +10,7 @@
 #import "PBGitHistoryController.h"
 #import "PBCommitList.h"
 #import "PBGitRef.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBRefContextDelegate.h"
 
 @class PBRefMenuItem;

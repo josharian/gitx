@@ -7,7 +7,7 @@
 //
 
 #import "GitXTextFieldCell.h"
-#import "PBGitCommit.h"
+#import "GitX-Swift.h"
 #import "PBRefController.h"
 #import "PBRefContextDelegate.h"
 
