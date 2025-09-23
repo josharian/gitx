@@ -22,6 +22,24 @@
 
 @implementation PBRefController
 
+- (PBGitCommit *)commitForMenuItem:(PBRefMenuItem *)sender
+{
+	id<PBGitRefish> refish = [sender refish];
+	if (!refish) {
+		return nil;
+	}
+
+	if ([refish isKindOfClass:[PBGitCommit class]]) {
+		return (PBGitCommit *)refish;
+	}
+
+	if ([refish isKindOfClass:[PBGitRef class]]) {
+		return [historyController.repository commitForRef:(PBGitRef *)refish];
+	}
+
+	return nil;
+}
+
 
 
 
@@ -75,11 +93,11 @@
 
 - (void) copySHA:(PBRefMenuItem *)sender
 {
-	PBGitCommit *commit = nil;
-	if ([[sender refish] refishType] == kGitXCommitType)
-		commit = (PBGitCommit *)[sender refish];
-	else
-		commit = [historyController.repository commitForRef:[sender refish]];
+	PBGitCommit *commit = [self commitForMenuItem:sender];
+	if (!commit) {
+		NSBeep();
+		return;
+	}
 
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
 	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
@@ -89,11 +107,11 @@
 
 - (void) copyShortSHA:(PBRefMenuItem *)sender
 {
-	PBGitCommit *commit = nil;
-	if ([[sender refish] refishType] == kGitXCommitType)
-		commit = (PBGitCommit *)[sender refish];
-	else
-		commit = [historyController.repository commitForRef:[sender refish]];
+	PBGitCommit *commit = [self commitForMenuItem:sender];
+	if (!commit) {
+		NSBeep();
+		return;
+	}
     
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
 	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
@@ -103,11 +121,11 @@
 
 - (void) copyPatch:(PBRefMenuItem *)sender
 {
-	PBGitCommit *commit = nil;
-	if ([[sender refish] refishType] == kGitXCommitType)
-		commit = (PBGitCommit *)[sender refish];
-	else
-		commit = [historyController.repository commitForRef:[sender refish]];
+	PBGitCommit *commit = [self commitForMenuItem:sender];
+	if (!commit) {
+		NSBeep();
+		return;
+	}
 
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
 	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
@@ -161,7 +179,7 @@
 
 - (void)showDeleteRefSheet:(PBRefMenuItem *)sender
 {
-	if ([[sender refish] refishType] == kGitXCommitType)
+	if ([[sender refish] isKindOfClass:[PBGitCommit class]])
 		return;
 
 	PBGitRef *ref = (PBGitRef *)[sender refish];
