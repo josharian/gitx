@@ -14,7 +14,6 @@
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
 #import "PBGitRevList.h"
-#import "PBGitDefaults.h"
 #import "GitXScriptingConstants.h"
 #import "PBHistorySearchController.h"
 #import "GitRepoFinder.h"

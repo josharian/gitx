@@ -8,7 +8,7 @@
 
 #import "PBCommitMessageView.h"
 
-#import "PBGitDefaults.h"
+#import "GitX-Swift.h"
 #import "PBGitRepository.h"
 
 @implementation PBCommitMessageView

@@ -11,7 +11,7 @@
 #import "PBGitWindowController.h"
 #import "PBPrefsWindowController.h"
 #import "PBNSURLPathUserDefaultsTransfomer.h"
-#import "PBGitDefaults.h"
+#import "GitX-Swift.h"
 #import "OpenRecentController.h"
 #import "PBGitBinary.h"
 

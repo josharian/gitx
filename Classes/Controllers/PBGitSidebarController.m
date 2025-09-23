@@ -12,7 +12,7 @@
 #import "PBGitCommitController.h"
 #import "PBRefController.h"
 #import "PBSourceViewCell.h"
-#import "PBGitDefaults.h"
+#import "GitX-Swift.h"
 #import "PBHistorySearchController.h"
 
 @interface PBGitSidebarController ()

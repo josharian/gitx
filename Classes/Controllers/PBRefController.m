@@ -11,7 +11,6 @@
 #import "PBRefMenuItem.h"
 #import "PBCreateBranchSheet.h"
 #import "PBCreateTagSheet.h"
-#import "PBGitDefaults.h"
 #import "PBGitRevSpecifier.h"
 #import "GitX-Swift.h"
 #import "PBGitCommitConstants.h"

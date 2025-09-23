@@ -7,7 +7,7 @@
 //
 
 #import "OpenRecentController.h"
-#import "PBGitDefaults.h"
+#import "GitX-Swift.h"
 
 @implementation OpenRecentController
 

@@ -8,7 +8,6 @@
 
 #import "PBCreateBranchSheet.h"
 #import "PBGitRepository.h"
-#import "PBGitDefaults.h"
 #import "GitX-Swift.h"
 #import "PBGitRef.h"
 #import "PBGitWindowController.h"

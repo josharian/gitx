@@ -8,7 +8,7 @@
 
 #import "PBWebHistoryController.h"
 #import "PBWebBridge.h"
-#import "PBGitDefaults.h"
+#import "GitX-Swift.h"
 // #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"

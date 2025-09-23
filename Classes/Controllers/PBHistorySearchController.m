@@ -12,7 +12,6 @@
 #import "PBGitHistoryController.h"
 #import "PBCommitListRowView.h"
 #import "PBGitRepository.h"
-#import "PBGitDefaults.h"
 #import "PBCommitList.h"
 #import "PBGitBinary.h"
 #import "GitX-Swift.h"
