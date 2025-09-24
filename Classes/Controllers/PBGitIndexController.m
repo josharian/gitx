@@ -113,6 +113,11 @@
 	[openItem setRepresentedObject:selectedFiles];
 	[menu addItem:openItem];
 
+	NSMenuItem *openInVSCodeItem = [[NSMenuItem alloc] initWithTitle:@"Open in VSCode" action:@selector(openFilesInVSCodeAction:) keyEquivalent:@""];
+	[openInVSCodeItem setTarget:self];
+	[openInVSCodeItem setRepresentedObject:selectedFiles];
+	[menu addItem:openInVSCodeItem];
+
 	// Attempt to ignore
 	if ([self allSelectedCanBeIgnored:selectedFiles]) {
 		NSString *ignoreText = [selectedFiles count] == 1 ? @"Ignore File": @"Ignore Files";
@@ -216,6 +221,34 @@
 	NSString *workingDirectory = [commitController.repository workingDirectory];
 	for (PBChangedFile *file in files)
 		[[NSWorkspace sharedWorkspace] openFile:[workingDirectory stringByAppendingPathComponent:[file path]]];
+}
+
+- (void) openFilesInVSCodeAction:(id)sender
+{
+	NSArray *files = [sender representedObject];
+	if ([files count] == 0)
+		return;
+
+	NSString *workingDirectory = [commitController.repository workingDirectory];
+	NSMutableArray<NSString *> *arguments = [NSMutableArray array];
+	[arguments addObject:@"code"];
+
+	for (PBChangedFile *file in files) {
+		NSString *fullPath = [workingDirectory stringByAppendingPathComponent:[file path]];
+		if (fullPath != nil) {
+			[arguments addObject:fullPath];
+		}
+	}
+
+	NSTask *task = [[NSTask alloc] init];
+	[task setLaunchPath:@"/usr/bin/env"];
+	[task setArguments:arguments];
+	@try {
+		[task launch];
+	}
+	@catch (NSException *exception) {
+		NSLog(@"Failed to launch VSCode: %@", exception);
+	}
 }
 
 - (void) ignoreFilesAction:(id) sender
