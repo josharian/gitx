@@ -2,3 +2,4 @@
 #import "PBGitRefish.h"
 #import "PBGitBinary.h"
 #import "PBGitGraphLine.h"
+#import "PBSourceViewItem.h"

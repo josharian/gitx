@@ -15,7 +15,6 @@
 #import "GitXScriptingConstants.h"
 #import "PBHistorySearchController.h"
 #import "PBGitHistoryList.h"
-#import "PBGitSVSubmoduleItem.h"
 
 
 NSString *PBGitRepositoryDocumentType = @"Git Repository";

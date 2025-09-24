@@ -51,7 +51,7 @@
     }
     
     int exitCode = 0;
-    [PBEasyPipe outputForCommand:gitPath
+    (void)[PBEasyPipe outputForCommand:gitPath
                         withArgs:@[@"init"]
                            inDir:[[op URL] path]
                         retValue:&exitCode];

@@ -17,4 +17,3 @@
 #import "PBGitSVTagItem.h"
 #import "PBGitSVOtherRevItem.h"
 #import "PBGitSVFolderItem.h"
-#import "PBGitSVSubmoduleItem.h"
