@@ -25,13 +25,13 @@ run_quiet_xcodebuild() {
 
 echo "🔐 Requesting sudo for installation"
 sudo -v
-echo "🧹 Cleaning previous build"
+echo "🧹 Cleaning previous builds"
 run_quiet_xcodebuild -scheme Release clean
 
-echo "🔨 Building GitX app in Release configuration..."
+echo "🔨 Building GitX app"
 run_quiet_xcodebuild -scheme Release -configuration Release build
 
-echo "🔨 Building gitx CLI tool"
+echo "🔨 Building gitx CLI"
 run_quiet_xcodebuild -target "cli tool" -configuration Release build
 
 echo "📦 Gathering build settings"
@@ -41,13 +41,12 @@ APP_NAME=$(printf '%s\n' "$BUILD_SETTINGS" | awk -F ' = ' '/FULL_PRODUCT_NAME/ {
 
 FULL_APP_PATH="$APP_PATH/$APP_NAME"
 
-echo "📍 App built at: $FULL_APP_PATH"
-echo "📦 Moving app to /Applications/GitX.app"
+# install the app
 sudo rm -rf /Applications/GitX.app
 sudo mv "$FULL_APP_PATH" /Applications/GitX.app
 cp build/Release/gitx /Applications/GitX.app/Contents/Resources/
 
-echo "🔗 Installing command line tool"
+# install command line tool
 sudo mkdir -p /usr/local/bin
 sudo ln -sf "/Applications/GitX.app/Contents/Resources/gitx" /usr/local/bin/gitx
 
