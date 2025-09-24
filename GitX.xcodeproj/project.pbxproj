@@ -13,6 +13,8 @@
 		4A40159714067B6300DB9C07 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159614067B6300DB9C07 /* CoreFoundation.framework */; };
 		4A40159914067B7A00DB9C07 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159814067B7A00DB9C07 /* AppKit.framework */; };
 		4A4EF0BE142CBC59001B8CDF /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A4EF0BD142CBC59001B8CDF /* libz.dylib */; };
+		B2F5C2D12CB0CA0000C0C001 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */; settings = { ATTRIBUTES = (Weak, ); }; };
+		B2F5C2D22CB0CA0000C0C001 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */; settings = { ATTRIBUTES = (Weak, ); }; };
 		4A5D75C114A9A90500DF6C68 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D757D14A9A90500DF6C68 /* Credits.html */; };
 		4A5D75C214A9A90500DF6C68 /* gitx.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D757E14A9A90500DF6C68 /* gitx.icns */; };
 		4A5D75DE14A9A90500DF6C68 /* mainSplitterBar.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D759B14A9A90500DF6C68 /* mainSplitterBar.tiff */; };
@@ -152,6 +154,7 @@
 		2B27333E60F67679B05F54E5 /* PBGitTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitTableCellView.m; sourceTree = "<group>"; };
 		4A40159614067B6300DB9C07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4A40159814067B7A00DB9C07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 		4A4EF0BD142CBC59001B8CDF /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		4A5D757D14A9A90500DF6C68 /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		4A5D757E14A9A90500DF6C68 /* gitx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = gitx.icns; sourceTree = "<group>"; };
@@ -346,6 +349,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A4EF0BE142CBC59001B8CDF /* libz.dylib in Frameworks */,
+				B2F5C2D12CB0CA0000C0C001 /* AppIntents.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				F56526240E03D85900F03B52 /* WebKit.framework in Frameworks */,
 				F5E4DBFB0EAB58D90013FAFC /* SystemConfiguration.framework in Frameworks */,
@@ -360,6 +364,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A40159914067B7A00DB9C07 /* AppKit.framework in Frameworks */,
+				B2F5C2D22CB0CA0000C0C001 /* AppIntents.framework in Frameworks */,
 				4A40159714067B6300DB9C07 /* CoreFoundation.framework in Frameworks */,
 				D89E9B141218BA260097A90B /* ScriptingBridge.framework in Frameworks */,
 			);
@@ -395,6 +400,7 @@
 			children = (
 				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
 				4A40159814067B7A00DB9C07 /* AppKit.framework */,
+				B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				77C82804067257F0000B614F /* CoreData.framework */,
 				4A40159614067B6300DB9C07 /* CoreFoundation.framework */,
@@ -970,6 +976,8 @@
 				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GENERATE_APPINTENTS_METADATA = NO;
+				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
 				INSTALL_PATH = /Applications;
@@ -990,6 +998,8 @@
 				FRAMEWORK_SEARCH_PATHS = "\"$(PROJECT_DIR)\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
+				GENERATE_APPINTENTS_METADATA = NO;
+				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
 				INSTALL_PATH = /Applications;
@@ -1023,6 +1033,8 @@
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
+				GENERATE_APPINTENTS_METADATA = NO;
+				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
 				VALID_ARCHS = arm64;
 			};
 			name = Debug;
@@ -1043,6 +1055,8 @@
 				OTHER_CFLAGS = "-Werror=incompatible-pointer-types";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
+				GENERATE_APPINTENTS_METADATA = NO;
+				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
 				VALID_ARCHS = arm64;
 			};
 			name = Release;
@@ -1056,6 +1070,8 @@
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "GitX-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				GENERATE_APPINTENTS_METADATA = NO;
+				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
 			};
 			name = Debug;
 		};
@@ -1069,6 +1085,8 @@
 				STRIP_INSTALLED_PRODUCT = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "GitX-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				GENERATE_APPINTENTS_METADATA = NO;
+				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
 			};
 			name = Release;
 		};
