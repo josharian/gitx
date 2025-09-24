@@ -15,6 +15,19 @@ cleanup() {
 }
 trap cleanup EXIT
 
+extract_diagnostics() {
+  local log_file="$1"
+  local dest_file="$2"
+
+  grep -E -i \
+    '(^|\s)(error:|warning:|fatal error:)|Undefined symbols for architecture|duplicate symbol|ld: symbol\(s\) not found|linker command failed|library not found for -l|framework not found|Command .* failed with a nonzero exit code|no such module|could not build Objective-C module|error generated\.|No such file or directory|file not found|module map file .* not found|failed to emit precompiled header' \
+    "$log_file" >>"$dest_file" || true
+
+  if grep -q 'The following build commands failed:' "$log_file"; then
+    sed -n '/The following build commands failed:/,$p' "$log_file" >>"$dest_file"
+  fi
+}
+
 # Default build args; allow callers to pass extra xcodebuild flags via "$@".
 BUILD_ARGS=(
   -project "GitX.xcodeproj"
@@ -32,35 +45,29 @@ fi
 
 # Preserve the full log for exceptional needs.
 cp "$TEMP_LOG" "$LOG_FILE"
+extract_diagnostics "$TEMP_LOG" "$EXCERPT_RESULT"
 
 if [[ "$BUILD_STATUS" -eq 0 ]]; then
   : >"$TEMP_LOG"
   if xcodebuild -project "GitX.xcodeproj" -target "cli tool" -configuration "Release" -arch arm64 build >"$TEMP_LOG" 2>&1; then
     cp "$TEMP_LOG" "$LOG_FILE"
+    extract_diagnostics "$TEMP_LOG" "$EXCERPT_RESULT"
+    if [[ -s "$EXCERPT_RESULT" ]]; then
+      cat "$EXCERPT_RESULT"
+    fi
     echo "Build succeeded"
     exit 0
   else
     BUILD_STATUS=$?
     cp "$TEMP_LOG" "$LOG_FILE"
+    extract_diagnostics "$TEMP_LOG" "$EXCERPT_RESULT"
   fi
 fi
 
-# Verbatim extraction of diagnostics (errors/warnings) preserving order.
-# Broad, case-insensitive patterns to minimize false negatives across Swift/Clang/ld/xcodebuild.
-grep -E -i \
-  '(^|\s)(error:|warning:|fatal error:)|Undefined symbols for architecture|duplicate symbol|ld: symbol\(s\) not found|linker command failed|library not found for -l|framework not found|Command .* failed with a nonzero exit code|no such module|could not build Objective-C module|error generated\.|No such file or directory|file not found|module map file .* not found|failed to emit precompiled header' \
-  "$TEMP_LOG" >"$EXCERPT_RESULT" || true
-
-# Also include xcodebuild’s failure summary block if present (typically concise and near the end).
-if grep -q 'The following build commands failed:' "$TEMP_LOG"; then
-  sed -n '/The following build commands failed:/,$p' "$TEMP_LOG" >>"$EXCERPT_RESULT"
-fi
-
 if [[ -s "$EXCERPT_RESULT" ]]; then
-  # Output only the verbatim excerpts; no headers, no commentary.
   cat "$EXCERPT_RESULT"
 else
-  # Safety net: we failed but matched nothing; direct the developer to the preserved log.
+  # Safety net: we failed but no usual diagnostics were matched; direct the developer to the preserved log.
   echo "Build failed but no diagnostics matched known patterns; see $LOG_FILE" >&2
 fi
 
