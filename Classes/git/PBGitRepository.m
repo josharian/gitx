@@ -10,8 +10,6 @@
 #import "GitX-Swift.h"
 #import "PBGitWindowController.h"
 #import "PBGitBinary.h"
-
-#import "PBGitRef.h"
 #import "PBGitRevSpecifier.h"
 #import "PBGitRevList.h"
 #import "GitXScriptingConstants.h"
@@ -727,7 +725,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 - (BOOL) checkoutRefish:(id <PBGitRefish>)ref
 {
 	NSString *refName = nil;
-	if ([ref refishType] == kGitXBranchType)
+	NSString *refType = [ref refishType];
+	if ([refType isEqualToString:@"branch"])
 		refName = [ref shortName];
 	else
 		refName = [ref refishName];
@@ -869,7 +868,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if (!ref)
 		return NO;
 
-	if ([ref refishType] == kGitXRemoteType)
+	if ([[ref refishType] isEqualToString:@"remote"])
 		return NO;
 
 	NSArray *arguments = [NSArray arrayWithObjects:@"update-ref", @"-d", [ref ref], nil];

@@ -8,7 +8,7 @@
 
 #import "PBSourceViewItem.h"
 #import "PBSourceViewItems.h"
-#import "PBGitRef.h"
+#import "GitX-Swift.h"
 
 @interface PBSourceViewItem ()
 

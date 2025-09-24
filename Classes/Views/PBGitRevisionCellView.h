@@ -7,10 +7,10 @@
 
 #import <Cocoa/Cocoa.h>
 #import "GitX-Swift.h"
-#import "PBGraphCellInfo.h"
 #import "PBRefContextDelegate.h"
 
 @class PBGitHistoryController;
+@class PBGraphCellInfo;
 
 @interface PBGitRevisionGraphView : NSView
 @property (nonatomic, strong) PBGitCommit *commit;

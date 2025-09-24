@@ -7,7 +7,7 @@
 //
 
 #import "PBGitRevSpecifier.h"
-#import "PBGitRef.h"
+#import "GitX-Swift.h"
 
 @implementation PBGitRevSpecifier
 

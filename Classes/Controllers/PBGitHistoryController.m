@@ -7,7 +7,6 @@
 //
 
 #import "GitX-Swift.h"
-#import "PBGitRef.h"
 #import "PBGitHistoryList.h"
 #import "PBGitRevSpecifier.h"
 #import "PBCollapsibleSplitView.h"

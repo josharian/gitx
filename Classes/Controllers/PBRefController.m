@@ -13,7 +13,6 @@
 #import "PBCreateTagSheet.h"
 #import "PBGitRevSpecifier.h"
 #import "GitX-Swift.h"
-#import "PBGitCommitConstants.h"
 
 #define kDialogDeleteRef @"Delete Ref"
 
@@ -141,7 +140,8 @@
 
 - (void) showTagInfoSheet:(PBRefMenuItem *)sender
 {
-	if ([[sender refish] refishType] != kGitXTagType)
+	NSString *refishType = [[sender refish] refishType];
+	if (![refishType isEqualToString:@"tag"])
 		return;
 
 	NSString *tagName = [(PBGitRef *)[sender refish] tagName];

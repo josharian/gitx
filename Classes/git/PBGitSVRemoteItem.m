@@ -7,7 +7,7 @@
 //
 
 #import "PBGitSVRemoteItem.h"
-#import "PBGitRef.h"
+#import "GitX-Swift.h"
 
 
 @implementation PBGitSVRemoteItem
@@ -27,7 +27,7 @@
 
 - (PBGitRef *) ref
 {
-	return [PBGitRef refFromString:[kGitXRemoteRefPrefix stringByAppendingString:self.title]];
+    return [PBGitRef refFromString:[@"refs/remotes/" stringByAppendingString:self.title]];
 }
 
 @end

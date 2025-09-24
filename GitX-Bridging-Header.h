@@ -1,5 +1,4 @@
 #import "PBGitRepository.h"
-#import "PBGitRef.h"
-#import "PBGraphCellInfo.h"
 #import "PBGitRefish.h"
 #import "PBGitBinary.h"
+#import "PBGitGraphLine.h"

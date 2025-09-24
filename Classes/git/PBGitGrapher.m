@@ -6,10 +6,8 @@
 //  Converted to Objective-C from mixed Objective-C++.
 //
 
-#import "PBGraphCellInfo.h"
 #import "PBGitGrapher.h"
 #import "GitX-Swift.h"
-#import "PBGitLane.h"
 #import "PBGitGraphLine.h"
 #import <limits.h>
 

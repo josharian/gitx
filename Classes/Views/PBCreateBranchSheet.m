@@ -9,7 +9,6 @@
 #import "PBCreateBranchSheet.h"
 #import "PBGitRepository.h"
 #import "GitX-Swift.h"
-#import "PBGitRef.h"
 #import "PBGitWindowController.h"
 
 @interface PBCreateBranchSheet ()
@@ -63,7 +62,7 @@
 	self.shouldCheckoutBranch = [PBGitDefaults shouldCheckoutBranch];
 
 	// when creating a local branch tracking a remote branch preset the branch name to the 	name of the remote branch
-	if ([self.startRefish refishType] == kGitXRemoteBranchType) {
+	if ([[self.startRefish refishType] isEqualToString:@"remote branch"]) {
 		NSMutableArray *components = [[[self.startRefish shortName] componentsSeparatedByString:@"/"] mutableCopy];
 		if ([components count] > 1) {
 			[components removeObjectAtIndex:0];
@@ -82,7 +81,7 @@
 - (IBAction) createBranch:(id)sender
 {
 	NSString *name = [self.branchNameField stringValue];
-	PBGitRef *ref = [PBGitRef refFromString:[kGitXBranchRefPrefix stringByAppendingString:name]];
+	PBGitRef *ref = [PBGitRef refFromString:[@"refs/heads/" stringByAppendingString:name]];
 
 	if (![self.repository checkRefFormat:[ref ref]]) {
 		[self.errorMessageField setStringValue:@"Invalid name"];
