@@ -4,3 +4,4 @@
 #import "PBGitGraphLine.h"
 #import "PBSourceViewItem.h"
 #import "PBGitRevSpecifier.h"
+#import "PBGitIndexController.h"
