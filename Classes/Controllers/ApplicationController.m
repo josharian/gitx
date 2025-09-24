@@ -10,7 +10,6 @@
 #import "PBGitRevisionCell.h"
 #import "PBGitWindowController.h"
 #import "PBPrefsWindowController.h"
-#import "PBNSURLPathUserDefaultsTransfomer.h"
 #import "GitX-Swift.h"
 #import "PBGitBinary.h"
 

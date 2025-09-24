@@ -10,7 +10,6 @@
 #import "PBGitRef.h"
 #import "GitX-Swift.h"
 #import "PBGitRevSpecifier.h"
-#import "RoundedRectangle.h"
 #import "GitXTextFieldCell.h"
 
 

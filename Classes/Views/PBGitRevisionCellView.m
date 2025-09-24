@@ -10,7 +10,7 @@
 #import "PBGitRevSpecifier.h"
 #import "PBGitHistoryController.h"
 #import "GitXTextFieldCell.h"
-#import "RoundedRectangle.h"
+#import "GitX-Swift.h"
 
 static const int COLUMN_WIDTH = 10;
 static const BOOL ENABLE_SHADOW = YES;

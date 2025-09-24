@@ -80,10 +80,10 @@
 		4A5D771314A9A9CC00DF6C68 /* PBChangedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */; };
 		4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */; };
 		4A5D771614A9A9CC00DF6C68 /* PBGraphCellInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769314A9A9CC00DF6C68 /* PBGraphCellInfo.m */; };
-		4A5D771714A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769514A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m */; };
+		B2F5C2BC2CB0C0D500C0C001 /* PBNSURLPathUserDefaultsTransfomer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2B82CB0C0D500C0C001 /* PBNSURLPathUserDefaultsTransfomer.swift */; };
 		4A5D771B14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769F14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m */; };
-		4A5D771C14A9A9CC00DF6C68 /* RoundedRectangle.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76A114A9A9CC00DF6C68 /* RoundedRectangle.m */; };
-		4A5D772014A9A9CC00DF6C68 /* NSString_RegEx.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76AC14A9A9CC00DF6C68 /* NSString_RegEx.m */; };
+		B2F5C2BB2CB0C0D500C0C001 /* NSBezierPath+RoundedRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2B72CB0C0D500C0C001 /* NSBezierPath+RoundedRect.swift */; };
+		B2F5C2BA2CB0C0D500C0C001 /* NSStringRegEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2B62CB0C0D500C0C001 /* NSStringRegEx.swift */; };
 		2C6A608A5F734A5294EA7ECF /* PBEasyPipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140F08D9CFC94A928EFA8773 /* PBEasyPipe.swift */; };
 		4A5D772414A9A9CC00DF6C68 /* GitXTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76B514A9A9CC00DF6C68 /* GitXTextFieldCell.m */; };
 		4A5D772914A9A9CC00DF6C68 /* PBCollapsibleSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76BF14A9A9CC00DF6C68 /* PBCollapsibleSplitView.m */; };
@@ -276,15 +276,12 @@
 		4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBCommitList.m; sourceTree = "<group>"; };
 		4A5D769214A9A9CC00DF6C68 /* PBGraphCellInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGraphCellInfo.h; sourceTree = "<group>"; };
 		4A5D769314A9A9CC00DF6C68 /* PBGraphCellInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGraphCellInfo.m; sourceTree = "<group>"; };
-		4A5D769414A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBNSURLPathUserDefaultsTransfomer.h; sourceTree = "<group>"; };
-		4A5D769514A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBNSURLPathUserDefaultsTransfomer.m; sourceTree = "<group>"; };
+		B2F5C2B82CB0C0D500C0C001 /* PBNSURLPathUserDefaultsTransfomer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBNSURLPathUserDefaultsTransfomer.swift; sourceTree = "<group>"; };
 		4A5D769614A9A9CC00DF6C68 /* PBRefContextDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRefContextDelegate.h; sourceTree = "<group>"; };
 		4A5D769E14A9A9CC00DF6C68 /* PBUnsortableTableHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBUnsortableTableHeader.h; sourceTree = "<group>"; };
 		4A5D769F14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBUnsortableTableHeader.m; sourceTree = "<group>"; };
-		4A5D76A014A9A9CC00DF6C68 /* RoundedRectangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedRectangle.h; sourceTree = "<group>"; };
-		4A5D76A114A9A9CC00DF6C68 /* RoundedRectangle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedRectangle.m; sourceTree = "<group>"; };
-		4A5D76AB14A9A9CC00DF6C68 /* NSString_RegEx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSString_RegEx.h; sourceTree = "<group>"; };
-		4A5D76AC14A9A9CC00DF6C68 /* NSString_RegEx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSString_RegEx.m; sourceTree = "<group>"; };
+		B2F5C2B72CB0C0D500C0C001 /* NSBezierPath+RoundedRect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSBezierPath+RoundedRect.swift"; sourceTree = "<group>"; };
+		B2F5C2B62CB0C0D500C0C001 /* NSStringRegEx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSStringRegEx.swift; sourceTree = "<group>"; };
 		4A5D76B114A9A9CC00DF6C68 /* PBEasyPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBEasyPipe.h; sourceTree = "<group>"; };
 		140F08D9CFC94A928EFA8773 /* PBEasyPipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBEasyPipe.swift; sourceTree = "<group>"; };
 		4A5D76B414A9A9CC00DF6C68 /* GitXTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitXTextFieldCell.h; sourceTree = "<group>"; };
@@ -552,13 +549,10 @@
 				B4A1F99F2D3B0A1200000002 /* PBCommitListRowView.m */,
 				4A5D769214A9A9CC00DF6C68 /* PBGraphCellInfo.h */,
 				4A5D769314A9A9CC00DF6C68 /* PBGraphCellInfo.m */,
-				4A5D769414A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.h */,
-				4A5D769514A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m */,
+				B2F5C2B82CB0C0D500C0C001 /* PBNSURLPathUserDefaultsTransfomer.swift */,
 				4A5D769614A9A9CC00DF6C68 /* PBRefContextDelegate.h */,
 				4A5D769E14A9A9CC00DF6C68 /* PBUnsortableTableHeader.h */,
 				4A5D769F14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m */,
-				4A5D76A014A9A9CC00DF6C68 /* RoundedRectangle.h */,
-				4A5D76A114A9A9CC00DF6C68 /* RoundedRectangle.m */,
 				4A5D76A414A9A9CC00DF6C68 /* Util */,
 				4A5D76B314A9A9CC00DF6C68 /* Views */,
 			);
@@ -668,8 +662,8 @@
 		4A5D76A414A9A9CC00DF6C68 /* Util */ = {
 			isa = PBXGroup;
 			children = (
-				4A5D76AB14A9A9CC00DF6C68 /* NSString_RegEx.h */,
-				4A5D76AC14A9A9CC00DF6C68 /* NSString_RegEx.m */,
+				B2F5C2B62CB0C0D500C0C001 /* NSStringRegEx.swift */,
+				B2F5C2B72CB0C0D500C0C001 /* NSBezierPath+RoundedRect.swift */,
 				4A5D76B114A9A9CC00DF6C68 /* PBEasyPipe.h */,
 				140F08D9CFC94A928EFA8773 /* PBEasyPipe.swift */,
 			);
@@ -934,10 +928,10 @@
 				4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */,
 				B4A1F9A02D3B0A1200000003 /* PBCommitListRowView.m in Sources */,
 				4A5D771614A9A9CC00DF6C68 /* PBGraphCellInfo.m in Sources */,
-				4A5D771714A9A9CC00DF6C68 /* PBNSURLPathUserDefaultsTransfomer.m in Sources */,
+				B2F5C2BC2CB0C0D500C0C001 /* PBNSURLPathUserDefaultsTransfomer.swift in Sources */,
 				4A5D771B14A9A9CC00DF6C68 /* PBUnsortableTableHeader.m in Sources */,
-				4A5D771C14A9A9CC00DF6C68 /* RoundedRectangle.m in Sources */,
-				4A5D772014A9A9CC00DF6C68 /* NSString_RegEx.m in Sources */,
+				B2F5C2BB2CB0C0D500C0C001 /* NSBezierPath+RoundedRect.swift in Sources */,
+				B2F5C2BA2CB0C0D500C0C001 /* NSStringRegEx.swift in Sources */,
 				2C6A608A5F734A5294EA7ECF /* PBEasyPipe.swift in Sources */,
 				4A5D772414A9A9CC00DF6C68 /* GitXTextFieldCell.m in Sources */,
 				4A5D772914A9A9CC00DF6C68 /* PBCollapsibleSplitView.m in Sources */,
