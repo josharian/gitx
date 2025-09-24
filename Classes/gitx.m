@@ -8,7 +8,7 @@
 
 #import "PBGitBinary.h"
 #import "GitXScriptingConstants.h"
-#import "GitRepoFinder.h"
+#import "GitX-Swift.h"
 
 
 #pragma mark Commands handled locally

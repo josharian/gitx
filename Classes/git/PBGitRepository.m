@@ -14,10 +14,8 @@
 #import "PBGitRevList.h"
 #import "GitXScriptingConstants.h"
 #import "PBHistorySearchController.h"
-#import "GitRepoFinder.h"
 #import "PBGitHistoryList.h"
 #import "PBGitSVSubmoduleItem.h"
-#import "GitX-Swift.h"
 
 
 NSString *PBGitRepositoryDocumentType = @"Git Repository";

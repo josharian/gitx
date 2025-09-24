@@ -9,9 +9,8 @@
 #import "PBRepositoryDocumentController.h"
 #import "PBGitRepository.h"
 #import "PBGitRevList.h"
-#import "PBEasyPipe.h"
 #import "PBGitBinary.h"
-#import "GitRepoFinder.h"
+#import "GitX-Swift.h"
 
 // #import <ObjectiveGit/GTRepository.h>
 
