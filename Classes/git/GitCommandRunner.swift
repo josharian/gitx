@@ -107,8 +107,7 @@ final class GitCommandRunner: NSObject {
             return environment
         }
 
-        for (keyAny, valueAny) in overrides {
-            guard let key = keyAny as? String else { continue }
+        for (key, valueAny) in overrides {
             let value: String
             if let string = valueAny as? String {
                 value = string

@@ -110,7 +110,7 @@ static const BOOL SHUFFLE_COLORS = NO;
 
 - (void)drawCircleInRect:(NSRect)r
 {
-	int c = self.cellInfo.position;
+	int c = (int)self.cellInfo.position;
 	NSPoint origin = r.origin;
 	NSPoint columnOrigin = { origin.x + COLUMN_WIDTH * c, origin.y};
 
@@ -145,7 +145,7 @@ static const BOOL SHUFFLE_COLORS = NO;
 
 - (void)drawTriangleInRect:(NSRect)r sign:(char)sign
 {
-	int c = self.cellInfo.position;
+	int c = (int)self.cellInfo.position;
 	int columnHeight = 10;
 	int columnWidth = 8;
 
