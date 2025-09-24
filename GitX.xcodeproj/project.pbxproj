@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0A6858C711F7EA8A00AC2BE4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A6858C611F7EA8A00AC2BE4 /* CoreServices.framework */; };
-		3A453AD042958D1A09B654FD /* PBGitTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B27333E60F67679B05F54E5 /* PBGitTableCellView.m */; };
+		3A453AD042958D1A09B654FD /* PBGitTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B27333E60F67679B05F54E5 /* PBGitTableCellView.swift */; };
 		B2F5C2AC2CB0B5F700C0C001 /* PBCommitData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */; };
 		4A40159714067B6300DB9C07 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159614067B6300DB9C07 /* CoreFoundation.framework */; };
 		4A40159914067B7A00DB9C07 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159814067B7A00DB9C07 /* AppKit.framework */; };
@@ -86,7 +86,7 @@
 		4A5D772C14A9A9CC00DF6C68 /* PBCreateBranchSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76C514A9A9CC00DF6C68 /* PBCreateBranchSheet.m */; };
 		4A5D772D14A9A9CC00DF6C68 /* PBCreateTagSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76C714A9A9CC00DF6C68 /* PBCreateTagSheet.m */; };
 		4A5D772E14A9A9CC00DF6C68 /* PBFileChangesTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76C914A9A9CC00DF6C68 /* PBFileChangesTableView.swift */; };
-		4A5D772F14A9A9CC00DF6C68 /* PBGitGradientBarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.m */; };
+		4A5D772F14A9A9CC00DF6C68 /* PBGitGradientBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.swift */; };
 		4A5D773014A9A9CC00DF6C68 /* PBGitRevisionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CD14A9A9CC00DF6C68 /* PBGitRevisionCell.m */; };
 		4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CF14A9A9CC00DF6C68 /* PBGitXMessageSheet.m */; };
 		4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */; };
@@ -151,7 +151,7 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		2B27333E60F67679B05F54E5 /* PBGitTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitTableCellView.m; sourceTree = "<group>"; };
+		2B27333E60F67679B05F54E5 /* PBGitTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PBGitTableCellView.swift; sourceTree = "<group>"; };
 		4A40159614067B6300DB9C07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4A40159814067B7A00DB9C07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
@@ -271,8 +271,7 @@
 		4A5D76C614A9A9CC00DF6C68 /* PBCreateTagSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBCreateTagSheet.h; sourceTree = "<group>"; };
 		4A5D76C714A9A9CC00DF6C68 /* PBCreateTagSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBCreateTagSheet.m; sourceTree = "<group>"; };
 		4A5D76C914A9A9CC00DF6C68 /* PBFileChangesTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PBFileChangesTableView.swift; sourceTree = "<group>"; };
-		4A5D76CA14A9A9CC00DF6C68 /* PBGitGradientBarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitGradientBarView.h; sourceTree = "<group>"; };
-		4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitGradientBarView.m; sourceTree = "<group>"; };
+		4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PBGitGradientBarView.swift; sourceTree = "<group>"; };
 		4A5D76CC14A9A9CC00DF6C68 /* PBGitRevisionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevisionCell.h; sourceTree = "<group>"; };
 		4A5D76CD14A9A9CC00DF6C68 /* PBGitRevisionCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PBGitRevisionCell.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4A5D76CE14A9A9CC00DF6C68 /* PBGitXMessageSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitXMessageSheet.h; sourceTree = "<group>"; };
@@ -304,7 +303,6 @@
 		B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitRepoFinder.swift; sourceTree = "<group>"; };
 		B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBCommitData.swift; sourceTree = "<group>"; };
 		B2F5C2AD2CB0B5F700C0C001 /* PBCommitData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PBCommitData.h; sourceTree = "<group>"; };
-		56E55625D71CC1C7D86362C4 /* PBGitTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitTableCellView.h; sourceTree = "<group>"; };
 		68C5B6464803943E1AB88185 /* PBGitRevisionCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevisionCellView.h; sourceTree = "<group>"; };
 		77C82804067257F0000B614F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* GitX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitX.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -636,14 +634,12 @@
 				4A5D76C614A9A9CC00DF6C68 /* PBCreateTagSheet.h */,
 				4A5D76C714A9A9CC00DF6C68 /* PBCreateTagSheet.m */,
 				4A5D76C914A9A9CC00DF6C68 /* PBFileChangesTableView.swift */,
-				4A5D76CA14A9A9CC00DF6C68 /* PBGitGradientBarView.h */,
-				4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.m */,
+				4A5D76CB14A9A9CC00DF6C68 /* PBGitGradientBarView.swift */,
 				4A5D76CC14A9A9CC00DF6C68 /* PBGitRevisionCell.h */,
 				4A5D76CD14A9A9CC00DF6C68 /* PBGitRevisionCell.m */,
 				68C5B6464803943E1AB88185 /* PBGitRevisionCellView.h */,
 				DADF25C42DF67F453152F703 /* PBGitRevisionCellView.m */,
-				56E55625D71CC1C7D86362C4 /* PBGitTableCellView.h */,
-				2B27333E60F67679B05F54E5 /* PBGitTableCellView.m */,
+				2B27333E60F67679B05F54E5 /* PBGitTableCellView.swift */,
 				4A5D76CE14A9A9CC00DF6C68 /* PBGitXMessageSheet.h */,
 				4A5D76CF14A9A9CC00DF6C68 /* PBGitXMessageSheet.m */,
 				4A5D76D014A9A9CC00DF6C68 /* PBIconAndTextCell.h */,
@@ -881,10 +877,10 @@
 				4A5D772C14A9A9CC00DF6C68 /* PBCreateBranchSheet.m in Sources */,
 				4A5D772D14A9A9CC00DF6C68 /* PBCreateTagSheet.m in Sources */,
 				4A5D772E14A9A9CC00DF6C68 /* PBFileChangesTableView.swift in Sources */,
-				4A5D772F14A9A9CC00DF6C68 /* PBGitGradientBarView.m in Sources */,
+				4A5D772F14A9A9CC00DF6C68 /* PBGitGradientBarView.swift in Sources */,
 				4A5D773014A9A9CC00DF6C68 /* PBGitRevisionCell.m in Sources */,
 				BB0D6B8DEC50B392017C8841 /* PBGitRevisionCellView.m in Sources */,
-				3A453AD042958D1A09B654FD /* PBGitTableCellView.m in Sources */,
+				3A453AD042958D1A09B654FD /* PBGitTableCellView.swift in Sources */,
 				4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */,
 				4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */,
 				4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */,
