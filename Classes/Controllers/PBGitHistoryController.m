@@ -261,6 +261,33 @@
 
 	[commitList scrollRowToVisible:newIndex];
     commitList.useAdjustScroll = NO;
+
+    CGFloat preferredPadding = (newIndex > oldIndex) ? [commitList rowHeight] : 0.0f;
+    [self ensureSelectionVisibleWithPreferredTopPadding:preferredPadding];
+}
+
+- (void)ensureSelectionVisibleWithPreferredTopPadding:(CGFloat)padding
+{
+	NSInteger selectedRow = [commitList selectedRow];
+	if (selectedRow == NSNotFound)
+		return;
+
+	NSRect rowRect = [commitList rectOfRow:selectedRow];
+	if (NSIsEmptyRect(rowRect))
+		return;
+
+	CGFloat effectivePadding = MAX(padding, 0.0f);
+	NSRect paddedRect = rowRect;
+	if (effectivePadding > 0.0f) {
+		if ([commitList isFlipped]) {
+			paddedRect.origin.y -= effectivePadding;
+			paddedRect.size.height += effectivePadding;
+		} else {
+			paddedRect.size.height += effectivePadding;
+		}
+	}
+
+	[commitList scrollRectToVisible:paddedRect];
 }
 
 - (void)scrollSelectionToCenter
