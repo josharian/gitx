@@ -7,13 +7,5 @@
 //
 
 #import "PBSourceViewItem.h"
-
-#import "PBGitSVStageItem.h"
-
 #import "PBGitRevSpecifier.h"
-#import "PBGitSVBranchItem.h"
-#import "PBGitSVRemoteItem.h"
-#import "PBGitSVRemoteBranchItem.h"
-#import "PBGitSVTagItem.h"
-#import "PBGitSVOtherRevItem.h"
-#import "PBGitSVFolderItem.h"
+#import "GitX-Swift.h"

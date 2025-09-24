@@ -67,13 +67,7 @@
 		4A5D76FF14A9A9CC00DF6C68 /* PBGitRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D766614A9A9CC00DF6C68 /* PBGitRepository.m */; };
 		4A5D770214A9A9CC00DF6C68 /* PBGitRevList.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D766C14A9A9CC00DF6C68 /* PBGitRevList.m */; };
 		4A5D770314A9A9CC00DF6C68 /* PBGitRevSpecifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D766E14A9A9CC00DF6C68 /* PBGitRevSpecifier.m */; };
-		4A5D770514A9A9CC00DF6C68 /* PBGitSVBranchItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767214A9A9CC00DF6C68 /* PBGitSVBranchItem.m */; };
-		4A5D770614A9A9CC00DF6C68 /* PBGitSVFolderItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767414A9A9CC00DF6C68 /* PBGitSVFolderItem.m */; };
-		4A5D770714A9A9CC00DF6C68 /* PBGitSVOtherRevItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767614A9A9CC00DF6C68 /* PBGitSVOtherRevItem.m */; };
-		4A5D770814A9A9CC00DF6C68 /* PBGitSVRemoteBranchItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767814A9A9CC00DF6C68 /* PBGitSVRemoteBranchItem.m */; };
-		4A5D770914A9A9CC00DF6C68 /* PBGitSVRemoteItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767A14A9A9CC00DF6C68 /* PBGitSVRemoteItem.m */; };
-		4A5D770A14A9A9CC00DF6C68 /* PBGitSVStageItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767C14A9A9CC00DF6C68 /* PBGitSVStageItem.m */; };
-		4A5D770B14A9A9CC00DF6C68 /* PBGitSVTagItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D767E14A9A9CC00DF6C68 /* PBGitSVTagItem.m */; };
+		B4D5A3C32F50F100000001 /* PBGitSidebarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D5A3C22F50F100000001 /* PBGitSidebarItems.swift */; };
 		4A5D770D14A9A9CC00DF6C68 /* PBGitXErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */; };
 		4A5D771214A9A9CC00DF6C68 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768B14A9A9CC00DF6C68 /* main.m */; };
 		4A5D771314A9A9CC00DF6C68 /* PBChangedFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768D14A9A9CC00DF6C68 /* PBChangedFile.m */; };
@@ -107,7 +101,6 @@
 		4A90A73514A9D24300D0DA02 /* GitX.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4A90A73414A9D24300D0DA02 /* GitX.sdef */; };
 		B4D5A3A42F50D3F100000001 /* GitRepoFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */; };
 		B4D5A3A52F50D3F100000001 /* GitRepoFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */; };
-		B4D5A3B12F50D5A200000001 /* PBGitSVSubmoduleItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D5A3B02F50D5A200000001 /* PBGitSVSubmoduleItem.swift */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		978357A6189C05B100ADC689 /* FolderClosedTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 978357A4189C05B100ADC689 /* FolderClosedTemplate.pdf */; };
 		978357A7189C05B100ADC689 /* FolderTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 978357A5189C05B100ADC689 /* FolderTemplate.pdf */; };
@@ -244,21 +237,8 @@
 		4A5D766B14A9A9CC00DF6C68 /* PBGitRevList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevList.h; sourceTree = "<group>"; };
 		4A5D766C14A9A9CC00DF6C68 /* PBGitRevList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PBGitRevList.m; sourceTree = "<group>"; };
 		4A5D766D14A9A9CC00DF6C68 /* PBGitRevSpecifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevSpecifier.h; sourceTree = "<group>"; };
+		B4D5A3C22F50F100000001 /* PBGitSidebarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitSidebarItems.swift; sourceTree = "<group>"; };
 		4A5D766E14A9A9CC00DF6C68 /* PBGitRevSpecifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitRevSpecifier.m; sourceTree = "<group>"; };
-		4A5D767114A9A9CC00DF6C68 /* PBGitSVBranchItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVBranchItem.h; sourceTree = "<group>"; };
-		4A5D767214A9A9CC00DF6C68 /* PBGitSVBranchItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVBranchItem.m; sourceTree = "<group>"; };
-		4A5D767314A9A9CC00DF6C68 /* PBGitSVFolderItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVFolderItem.h; sourceTree = "<group>"; };
-		4A5D767414A9A9CC00DF6C68 /* PBGitSVFolderItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVFolderItem.m; sourceTree = "<group>"; };
-		4A5D767514A9A9CC00DF6C68 /* PBGitSVOtherRevItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVOtherRevItem.h; sourceTree = "<group>"; };
-		4A5D767614A9A9CC00DF6C68 /* PBGitSVOtherRevItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVOtherRevItem.m; sourceTree = "<group>"; };
-		4A5D767714A9A9CC00DF6C68 /* PBGitSVRemoteBranchItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVRemoteBranchItem.h; sourceTree = "<group>"; };
-		4A5D767814A9A9CC00DF6C68 /* PBGitSVRemoteBranchItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVRemoteBranchItem.m; sourceTree = "<group>"; };
-		4A5D767914A9A9CC00DF6C68 /* PBGitSVRemoteItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVRemoteItem.h; sourceTree = "<group>"; };
-		4A5D767A14A9A9CC00DF6C68 /* PBGitSVRemoteItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVRemoteItem.m; sourceTree = "<group>"; };
-		4A5D767B14A9A9CC00DF6C68 /* PBGitSVStageItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVStageItem.h; sourceTree = "<group>"; };
-		4A5D767C14A9A9CC00DF6C68 /* PBGitSVStageItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVStageItem.m; sourceTree = "<group>"; };
-		4A5D767D14A9A9CC00DF6C68 /* PBGitSVTagItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitSVTagItem.h; sourceTree = "<group>"; };
-		4A5D767E14A9A9CC00DF6C68 /* PBGitSVTagItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitSVTagItem.m; sourceTree = "<group>"; };
 		4A5D768114A9A9CC00DF6C68 /* PBGitXErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitXErrors.h; sourceTree = "<group>"; };
 		4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitXErrors.m; sourceTree = "<group>"; };
 		4A5D768614A9A9CC00DF6C68 /* gitx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = gitx.m; sourceTree = "<group>"; };
@@ -324,7 +304,6 @@
 		B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBCommitData.swift; sourceTree = "<group>"; };
 		B2F5C2AD2CB0B5F700C0C001 /* PBCommitData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PBCommitData.h; sourceTree = "<group>"; };
 		56E55625D71CC1C7D86362C4 /* PBGitTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitTableCellView.h; sourceTree = "<group>"; };
-		B4D5A3B02F50D5A200000001 /* PBGitSVSubmoduleItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitSVSubmoduleItem.swift; sourceTree = "<group>"; };
 		68C5B6464803943E1AB88185 /* PBGitRevisionCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevisionCellView.h; sourceTree = "<group>"; };
 		77C82804067257F0000B614F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* GitX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitX.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -617,23 +596,9 @@
 				4A5D766C14A9A9CC00DF6C68 /* PBGitRevList.m */,
 				4A5D766D14A9A9CC00DF6C68 /* PBGitRevSpecifier.h */,
 				4A5D766E14A9A9CC00DF6C68 /* PBGitRevSpecifier.m */,
-				4A5D767114A9A9CC00DF6C68 /* PBGitSVBranchItem.h */,
-				4A5D767214A9A9CC00DF6C68 /* PBGitSVBranchItem.m */,
-				4A5D767314A9A9CC00DF6C68 /* PBGitSVFolderItem.h */,
-				4A5D767414A9A9CC00DF6C68 /* PBGitSVFolderItem.m */,
-				4A5D767514A9A9CC00DF6C68 /* PBGitSVOtherRevItem.h */,
-				4A5D767614A9A9CC00DF6C68 /* PBGitSVOtherRevItem.m */,
-				4A5D767714A9A9CC00DF6C68 /* PBGitSVRemoteBranchItem.h */,
-				4A5D767814A9A9CC00DF6C68 /* PBGitSVRemoteBranchItem.m */,
-				4A5D767914A9A9CC00DF6C68 /* PBGitSVRemoteItem.h */,
-				4A5D767A14A9A9CC00DF6C68 /* PBGitSVRemoteItem.m */,
-				4A5D767B14A9A9CC00DF6C68 /* PBGitSVStageItem.h */,
-				4A5D767C14A9A9CC00DF6C68 /* PBGitSVStageItem.m */,
-				4A5D767D14A9A9CC00DF6C68 /* PBGitSVTagItem.h */,
-				4A5D767E14A9A9CC00DF6C68 /* PBGitSVTagItem.m */,
+				B4D5A3C22F50F100000001 /* PBGitSidebarItems.swift */,
 				4A5D768114A9A9CC00DF6C68 /* PBGitXErrors.h */,
 				4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */,
-				B4D5A3B02F50D5A200000001 /* PBGitSVSubmoduleItem.swift */,
 				B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */,
 				B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */,
 				B2F5C2AD2CB0B5F700C0C001 /* PBCommitData.h */,
@@ -896,13 +861,7 @@
 				4A5D76FF14A9A9CC00DF6C68 /* PBGitRepository.m in Sources */,
 				4A5D770214A9A9CC00DF6C68 /* PBGitRevList.m in Sources */,
 				4A5D770314A9A9CC00DF6C68 /* PBGitRevSpecifier.m in Sources */,
-				4A5D770514A9A9CC00DF6C68 /* PBGitSVBranchItem.m in Sources */,
-				4A5D770614A9A9CC00DF6C68 /* PBGitSVFolderItem.m in Sources */,
-				4A5D770714A9A9CC00DF6C68 /* PBGitSVOtherRevItem.m in Sources */,
-				4A5D770814A9A9CC00DF6C68 /* PBGitSVRemoteBranchItem.m in Sources */,
-				4A5D770914A9A9CC00DF6C68 /* PBGitSVRemoteItem.m in Sources */,
-				4A5D770A14A9A9CC00DF6C68 /* PBGitSVStageItem.m in Sources */,
-				4A5D770B14A9A9CC00DF6C68 /* PBGitSVTagItem.m in Sources */,
+				B4D5A3C32F50F100000001 /* PBGitSidebarItems.swift in Sources */,
 				4A5D770D14A9A9CC00DF6C68 /* PBGitXErrors.m in Sources */,
 				4A5D771214A9A9CC00DF6C68 /* main.m in Sources */,
 				4A5D771314A9A9CC00DF6C68 /* PBChangedFile.m in Sources */,
@@ -933,7 +892,6 @@
 				4A5D777314A9AEB000DF6C68 /* PBSourceViewAction.m in Sources */,
 				4A5D777414A9AEB000DF6C68 /* PBSourceViewBadge.m in Sources */,
 				4A5D777514A9AEB000DF6C68 /* PBSourceViewRemote.m in Sources */,
-				B4D5A3B12F50D5A200000001 /* PBGitSVSubmoduleItem.swift in Sources */,
 				B4D5A3A42F50D3F100000001 /* GitRepoFinder.swift in Sources */,
 				B2F5C2AC2CB0B5F700C0C001 /* PBCommitData.swift in Sources */,
 			);
