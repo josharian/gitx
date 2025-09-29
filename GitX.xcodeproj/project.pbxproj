@@ -79,6 +79,8 @@
 		B2F5C2BB2CB0C0D500C0C001 /* NSBezierPath+RoundedRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2B72CB0C0D500C0C001 /* NSBezierPath+RoundedRect.swift */; };
 		B2F5C2BA2CB0C0D500C0C001 /* NSStringRegEx.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2B62CB0C0D500C0C001 /* NSStringRegEx.swift */; };
 		2C6A608A5F734A5294EA7ECF /* PBEasyPipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140F08D9CFC94A928EFA8773 /* PBEasyPipe.swift */; };
+		2A58EC7082AB4A1216478480 /* PBRefMenuItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80F69E11B7E2E414647B3B /* PBRefMenuItem.swift */; };
+		2FF1413862EE11FD28BF6F0F /* PBSourceViewBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85458A6FBD99BFE2D89EC79 /* PBSourceViewBadge.swift */; };
 		4A5D772414A9A9CC00DF6C68 /* GitXTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76B514A9A9CC00DF6C68 /* GitXTextFieldCell.m */; };
 		4A5D772914A9A9CC00DF6C68 /* PBCollapsibleSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76BF14A9A9CC00DF6C68 /* PBCollapsibleSplitView.m */; };
 		4A5D772A14A9A9CC00DF6C68 /* PBCommitHookFailedSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76C114A9A9CC00DF6C68 /* PBCommitHookFailedSheet.m */; };
@@ -91,14 +93,14 @@
 		4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76CF14A9A9CC00DF6C68 /* PBGitXMessageSheet.m */; };
 		4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */; };
 		4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */; };
-		4A5D773614A9A9CC00DF6C68 /* PBRefMenuItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D914A9A9CC00DF6C68 /* PBRefMenuItem.m */; };
 		4A5D773814A9A9CC00DF6C68 /* PBSourceViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76DD14A9A9CC00DF6C68 /* PBSourceViewCell.m */; };
 		4A5D773914A9A9CC00DF6C68 /* PBSourceViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76DF14A9A9CC00DF6C68 /* PBSourceViewItem.m */; };
 		4A5D773A14A9A9F600DF6C68 /* gitx.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768614A9A9CC00DF6C68 /* gitx.m */; };
 		4A5D773C14A9AA2F00DF6C68 /* PBGitBinary.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */; };
 		8331CE22600F4AA0874DF284 /* PBEasyPipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140F08D9CFC94A928EFA8773 /* PBEasyPipe.swift */; };
+		2A58EC7082AB4A1216478480 /* PBRefMenuItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D80F69E11B7E2E414647B3B /* PBRefMenuItem.swift */; };
+		2FF1413862EE11FD28BF6F0F /* PBSourceViewBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85458A6FBD99BFE2D89EC79 /* PBSourceViewBadge.swift */; };
 		4A5D777314A9AEB000DF6C68 /* PBSourceViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D776D14A9AEB000DF6C68 /* PBSourceViewAction.m */; };
-		4A5D777414A9AEB000DF6C68 /* PBSourceViewBadge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D776F14A9AEB000DF6C68 /* PBSourceViewBadge.m */; };
 		4A5D777514A9AEB000DF6C68 /* PBSourceViewRemote.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D777214A9AEB000DF6C68 /* PBSourceViewRemote.m */; };
 		4A90A73514A9D24300D0DA02 /* GitX.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4A90A73414A9D24300D0DA02 /* GitX.sdef */; };
 		B4D5A3A42F50D3F100000001 /* GitRepoFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */; };
@@ -258,6 +260,8 @@
 		B2F5C2B62CB0C0D500C0C001 /* NSStringRegEx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSStringRegEx.swift; sourceTree = "<group>"; };
 		4A5D76B114A9A9CC00DF6C68 /* PBEasyPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBEasyPipe.h; sourceTree = "<group>"; };
 		140F08D9CFC94A928EFA8773 /* PBEasyPipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBEasyPipe.swift; sourceTree = "<group>"; };
+		6D80F69E11B7E2E414647B3B /* PBRefMenuItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBRefMenuItem.swift; sourceTree = "<group>"; };
+		A85458A6FBD99BFE2D89EC79 /* PBSourceViewBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBSourceViewBadge.swift; sourceTree = "<group>"; };
 		4A5D76B414A9A9CC00DF6C68 /* GitXTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitXTextFieldCell.h; sourceTree = "<group>"; };
 		4A5D76B514A9A9CC00DF6C68 /* GitXTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitXTextFieldCell.m; sourceTree = "<group>"; };
 		4A5D76BE14A9A9CC00DF6C68 /* PBCollapsibleSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBCollapsibleSplitView.h; sourceTree = "<group>"; };
@@ -280,16 +284,12 @@
 		4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBIconAndTextCell.m; sourceTree = "<group>"; };
 		4A5D76D214A9A9CC00DF6C68 /* PBNiceSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBNiceSplitView.h; sourceTree = "<group>"; };
 		4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBNiceSplitView.m; sourceTree = "<group>"; };
-		4A5D76D814A9A9CC00DF6C68 /* PBRefMenuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBRefMenuItem.h; sourceTree = "<group>"; };
-		4A5D76D914A9A9CC00DF6C68 /* PBRefMenuItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBRefMenuItem.m; sourceTree = "<group>"; };
 		4A5D76DC14A9A9CC00DF6C68 /* PBSourceViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBSourceViewCell.h; sourceTree = "<group>"; };
 		4A5D76DD14A9A9CC00DF6C68 /* PBSourceViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBSourceViewCell.m; sourceTree = "<group>"; };
 		4A5D76DE14A9A9CC00DF6C68 /* PBSourceViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBSourceViewItem.h; sourceTree = "<group>"; };
 		4A5D76DF14A9A9CC00DF6C68 /* PBSourceViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBSourceViewItem.m; sourceTree = "<group>"; };
 		4A5D776C14A9AEB000DF6C68 /* PBSourceViewAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBSourceViewAction.h; sourceTree = "<group>"; };
 		4A5D776D14A9AEB000DF6C68 /* PBSourceViewAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBSourceViewAction.m; sourceTree = "<group>"; };
-		4A5D776E14A9AEB000DF6C68 /* PBSourceViewBadge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBSourceViewBadge.h; sourceTree = "<group>"; };
-		4A5D776F14A9AEB000DF6C68 /* PBSourceViewBadge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBSourceViewBadge.m; sourceTree = "<group>"; };
 		4A5D777014A9AEB000DF6C68 /* PBSourceViewItems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBSourceViewItems.h; sourceTree = "<group>"; };
 		4A5D777114A9AEB000DF6C68 /* PBSourceViewRemote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBSourceViewRemote.h; sourceTree = "<group>"; };
 		4A5D777214A9AEB000DF6C68 /* PBSourceViewRemote.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBSourceViewRemote.m; sourceTree = "<group>"; };
@@ -646,14 +646,12 @@
 				4A5D76D114A9A9CC00DF6C68 /* PBIconAndTextCell.m */,
 				4A5D76D214A9A9CC00DF6C68 /* PBNiceSplitView.h */,
 				4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */,
-				4A5D76D814A9A9CC00DF6C68 /* PBRefMenuItem.h */,
-				4A5D76D914A9A9CC00DF6C68 /* PBRefMenuItem.m */,
 				4A5D776C14A9AEB000DF6C68 /* PBSourceViewAction.h */,
 				4A5D776D14A9AEB000DF6C68 /* PBSourceViewAction.m */,
-				4A5D776E14A9AEB000DF6C68 /* PBSourceViewBadge.h */,
-				4A5D776F14A9AEB000DF6C68 /* PBSourceViewBadge.m */,
 				4A5D76DC14A9A9CC00DF6C68 /* PBSourceViewCell.h */,
 				4A5D76DD14A9A9CC00DF6C68 /* PBSourceViewCell.m */,
+				6D80F69E11B7E2E414647B3B /* PBRefMenuItem.swift */,
+				A85458A6FBD99BFE2D89EC79 /* PBSourceViewBadge.swift */,
 				4A5D76DE14A9A9CC00DF6C68 /* PBSourceViewItem.h */,
 				4A5D76DF14A9A9CC00DF6C68 /* PBSourceViewItem.m */,
 				4A5D777014A9AEB000DF6C68 /* PBSourceViewItems.h */,
@@ -884,11 +882,11 @@
 				4A5D773114A9A9CC00DF6C68 /* PBGitXMessageSheet.m in Sources */,
 				4A5D773214A9A9CC00DF6C68 /* PBIconAndTextCell.m in Sources */,
 				4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */,
-				4A5D773614A9A9CC00DF6C68 /* PBRefMenuItem.m in Sources */,
 				4A5D773814A9A9CC00DF6C68 /* PBSourceViewCell.m in Sources */,
+				2A58EC7082AB4A1216478480 /* PBRefMenuItem.swift in Sources */,
+				2FF1413862EE11FD28BF6F0F /* PBSourceViewBadge.swift in Sources */,
 				4A5D773914A9A9CC00DF6C68 /* PBSourceViewItem.m in Sources */,
 				4A5D777314A9AEB000DF6C68 /* PBSourceViewAction.m in Sources */,
-				4A5D777414A9AEB000DF6C68 /* PBSourceViewBadge.m in Sources */,
 				4A5D777514A9AEB000DF6C68 /* PBSourceViewRemote.m in Sources */,
 				B4D5A3A42F50D3F100000001 /* GitRepoFinder.swift in Sources */,
 				B2F5C2AC2CB0B5F700C0C001 /* PBCommitData.swift in Sources */,

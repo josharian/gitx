@@ -8,7 +8,7 @@
 
 #import "PBSourceViewCell.h"
 #import "PBGitSidebarController.h"
-#import "PBSourceViewBadge.h"
+#import "GitX-Swift.h"
 
 
 

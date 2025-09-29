@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PBGitHistoryController.h"
 #import "PBCommitList.h"
-#import "GitX-Swift.h"
 #import "PBRefContextDelegate.h"
 
 @class PBRefMenuItem;
