@@ -7,7 +7,7 @@
 //
 
 #import "PBGitIndexController.h"
-#import "PBChangedFile.h"
+#import "GitX-Swift.h"
 #import "PBGitRepository.h"
 #import "PBGitIndex.h"
 

@@ -1,4 +1,167 @@
-import Foundation
+import Cocoa
+
+@objc(PBSourceViewItem)
+@objcMembers
+open class PBSourceViewItem: NSObject {
+    private var childrenSet = NSMutableOrderedSet()
+    private var _title: String?
+    private var _sortedChildren: [PBSourceViewItem]?
+
+    @objc var revSpecifier: PBGitRevSpecifier?
+    @objc var isGroupItem: Bool = false
+    @objc var isUncollapsible: Bool = false
+    @objc var isExpanded: Bool = false
+    @objc weak var parent: PBSourceViewItem?
+
+    @objc var title: String! {
+        get {
+            if let title = _title {
+                return title
+            }
+            return (revSpecifier?.description as NSString?)?.lastPathComponent ?? ""
+        }
+        set {
+            _title = newValue
+        }
+    }
+
+    @objc var sortedChildren: [PBSourceViewItem] {
+        if _sortedChildren == nil {
+            let newArray = childrenSet.sortedArray { obj1, obj2 in
+                let item1 = obj1 as! PBSourceViewItem
+                let item2 = obj2 as! PBSourceViewItem
+                return item1.title.localizedStandardCompare(item2.title)
+            }
+            _sortedChildren = newArray as? [PBSourceViewItem]
+        }
+        return _sortedChildren ?? []
+    }
+
+    @objc var iconName: String! {
+        return ""
+    }
+
+    @objc var icon: NSImage! {
+        return iconNamed(iconName)
+    }
+
+    public required override init() {
+        super.init()
+    }
+
+    @objc(itemWithTitle:)
+    static func item(withTitle title: String) -> Self {
+        let item = self.init()
+        item.title = title
+        return item
+    }
+
+    @objc(groupItemWithTitle:)
+    static func groupItem(withTitle title: String) -> Self {
+        let item = self.item(withTitle: title.uppercased())
+        item.isGroupItem = true
+        return item
+    }
+
+    @objc(itemWithRevSpec:)
+    static func item(withRevSpec revSpecifier: PBGitRevSpecifier) -> PBSourceViewItem {
+        let ref = revSpecifier.ref()
+
+        if ref?.isTag == true {
+            return PBGitSVTagItem.tagItem(with: revSpecifier)
+        } else if ref?.isBranch == true {
+            return PBGitSVBranchItem.branchItem(with: revSpecifier)
+        } else if ref?.isRemoteBranch == true {
+            return PBGitSVRemoteBranchItem.remoteBranchItem(with: revSpecifier)
+        }
+
+        return PBGitSVOtherRevItem.otherItem(with: revSpecifier)
+    }
+
+    @objc func addChild(_ child: PBSourceViewItem?) {
+        guard let child = child else { return }
+
+        childrenSet.add(child)
+        _sortedChildren = nil
+        child.parent = self
+    }
+
+    @objc func removeChild(_ child: PBSourceViewItem?) {
+        guard let child = child else { return }
+
+        childrenSet.remove(child)
+        _sortedChildren = nil
+        if !isGroupItem && childrenSet.count == 0 {
+            parent?.removeChild(self)
+        }
+    }
+
+    @objc func addRev(_ theRevSpecifier: PBGitRevSpecifier, toPath path: [String]) {
+        if path.count == 1 {
+            let item = PBSourceViewItem.item(withRevSpec: theRevSpecifier)
+            addChild(item)
+            return
+        }
+
+        let firstTitle = path[0]
+        var node: PBSourceViewItem? = nil
+        for child in childrenSet {
+            if let item = child as? PBSourceViewItem, item.title == firstTitle {
+                node = item
+                break
+            }
+        }
+
+        if node == nil {
+            if firstTitle == theRevSpecifier.ref()?.remoteName {
+                node = PBGitSVRemoteItem.remoteItem(withTitle: firstTitle)
+            } else {
+                node = PBGitSVFolderItem.folderItem(withTitle: firstTitle)
+                node?.isExpanded = (title == "BRANCHES")
+            }
+            addChild(node)
+        }
+
+        let subpath = Array(path.dropFirst())
+        node?.addRev(theRevSpecifier, toPath: subpath)
+    }
+
+    @objc func findRev(_ rev: PBGitRevSpecifier) -> PBSourceViewItem? {
+        if rev.isEqual(revSpecifier) {
+            return self
+        }
+
+        for child in childrenSet {
+            if let item = child as? PBSourceViewItem,
+               let found = item.findRev(rev) {
+                return found
+            }
+        }
+
+        return nil
+    }
+
+    @objc func iconNamed(_ name: String) -> NSImage {
+        guard let iconImage = NSImage(named: name) else {
+            return NSImage()
+        }
+        iconImage.size = NSSize(width: 16, height: 16)
+        iconImage.cacheMode = .always
+        return iconImage
+    }
+
+    @objc var stringValue: String {
+        return title
+    }
+
+    @objc func ref() -> PBGitRef? {
+        if let revSpecifier = revSpecifier {
+            return revSpecifier.ref()
+        }
+        return nil
+    }
+}
+
 
 @objc(PBSubmoduleInfo)
 @objcMembers
@@ -196,5 +359,24 @@ final class PBGitSVFolderItem: PBSourceViewItem {
 
     override var iconName: String! {
         isExpanded ? "FolderTemplate" : "FolderClosedTemplate"
+    }
+}
+
+@objc(PBSourceViewRemote)
+@objcMembers
+final class PBSourceViewRemote: PBSourceViewItem {
+    override var icon: NSImage! {
+        return NSImage(named: "remote")
+    }
+}
+
+@objc(PBSourceViewAction)
+@objcMembers
+final class PBSourceViewAction: PBSourceViewItem {
+    private var _actionIcon: NSImage?
+
+    @objc override var icon: NSImage! {
+        get { _actionIcon }
+        set { _actionIcon = newValue }
     }
 }

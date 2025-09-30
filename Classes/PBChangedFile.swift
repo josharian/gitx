@@ -1,0 +1,43 @@
+import Cocoa
+
+@objc enum PBChangedFileStatus: Int {
+    case new
+    case modified
+    case deleted
+}
+
+@objc class PBChangedFile: NSObject {
+    @objc var path: String
+    @objc var commitBlobSHA: String?
+    @objc var commitBlobMode: String?
+    @objc var status: PBChangedFileStatus = .modified
+    @objc var hasStagedChanges: Bool = false
+    @objc var hasUnstagedChanges: Bool = false
+
+    @objc init(path: String) {
+        self.path = path
+        super.init()
+    }
+
+    @objc var indexInfo: String {
+        assert(status == .new || commitBlobSHA != nil, "File is not new, but doesn't have an index entry!")
+        if commitBlobSHA == nil {
+            return "0 0000000000000000000000000000000000000000\t\(path)\0"
+        } else {
+            return "\(commitBlobMode!) \(commitBlobSHA!)\t\(path)\0"
+        }
+    }
+
+    @objc var icon: NSImage {
+        let filename: String
+        switch status {
+        case .new:
+            filename = "new_file"
+        case .deleted:
+            filename = "deleted_file"
+        default:
+            filename = "empty_file"
+        }
+        return NSImage(named: filename)!
+    }
+}

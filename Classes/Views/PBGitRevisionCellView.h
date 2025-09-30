@@ -6,7 +6,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "GitX-Swift.h"
 #import "PBRefContextDelegate.h"
 
 @class PBGitHistoryController;

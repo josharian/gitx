@@ -1,11 +1,3 @@
-//
-//  PBSourceViewBadge.swift
-//  GitX
-//
-//  Created by Pieter de Bie on 2/13/10.
-//  Copyright 2010 Nathan Kinsinger. All rights reserved.
-//
-
 import Cocoa
 
 @objc class PBSourceViewBadge: NSObject {

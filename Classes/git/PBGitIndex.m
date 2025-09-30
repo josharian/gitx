@@ -8,7 +8,7 @@
 
 #import "PBGitIndex.h"
 #import "PBGitRepository.h"
-#import "PBChangedFile.h"
+#import "GitX-Swift.h"
 #import "GitX-Swift.h"
 
 NSString *PBGitIndexIndexRefreshStatus = @"PBGitIndexIndexRefreshStatus";

@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PBWebController.h"
 
-#import "GitX-Swift.h"
 #import "PBGitHistoryController.h"
 #import "PBRefContextDelegate.h"
 

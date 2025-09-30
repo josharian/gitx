@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 #import "PBGitCommitController.h"
-#import "PBChangedFile.h"
 
 @interface PBGitIndexController : NSObject {
 	IBOutlet NSArrayController *stagedFilesController, *unstagedFilesController;
