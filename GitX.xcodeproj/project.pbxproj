@@ -16,7 +16,7 @@
 		B2F5C2D12CB0CA0000C0C001 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */; settings = { ATTRIBUTES = (Weak, ); }; };
 		B2F5C2D22CB0CA0000C0C001 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */; settings = { ATTRIBUTES = (Weak, ); }; };
 		4A5D75C114A9A90500DF6C68 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D757D14A9A90500DF6C68 /* Credits.html */; };
-		4A5D75C214A9A90500DF6C68 /* gitx.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D757E14A9A90500DF6C68 /* gitx.icns */; };
+		B2F5C2E12CB0CA0000C0C001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B2F5C2E02CB0CA0000C0C001 /* Assets.xcassets */; };
 		4A5D75DE14A9A90500DF6C68 /* mainSplitterBar.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D759B14A9A90500DF6C68 /* mainSplitterBar.tiff */; };
 		4A5D75DF14A9A90500DF6C68 /* mainSplitterDimple.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D759C14A9A90500DF6C68 /* mainSplitterDimple.tiff */; };
 		4A5D75E214A9A90500DF6C68 /* Updates.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A5D75A014A9A90500DF6C68 /* Updates.png */; };
@@ -158,7 +158,7 @@
 		B2F5C2D02CB0CA0000C0C001 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 		4A4EF0BD142CBC59001B8CDF /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		4A5D757D14A9A90500DF6C68 /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
-		4A5D757E14A9A90500DF6C68 /* gitx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = gitx.icns; sourceTree = "<group>"; };
+		B2F5C2E02CB0CA0000C0C001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4A5D759814A9A90500DF6C68 /* gitx_icon.psd */ = {isa = PBXFileReference; lastKnownFileType = file; path = gitx_icon.psd; sourceTree = "<group>"; };
 		4A5D759B14A9A90500DF6C68 /* mainSplitterBar.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = mainSplitterBar.tiff; sourceTree = "<group>"; };
 		4A5D759C14A9A90500DF6C68 /* mainSplitterDimple.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = mainSplitterDimple.tiff; sourceTree = "<group>"; };
@@ -413,7 +413,7 @@
 				4A90A72814A9C12F00D0DA02 /* Debug.xcconfig */,
 				4A5D760214A9A99E00DF6C68 /* English.lproj */,
 				4A90A73314A9D1E800D0DA02 /* GitX.h */,
-				4A5D757E14A9A90500DF6C68 /* gitx.icns */,
+				B2F5C2E02CB0CA0000C0C001 /* Assets.xcassets */,
 				F5D619ED0EAE62EA00341D73 /* html */,
 				4A5D758114A9A90500DF6C68 /* Images */,
 				4A5D75B414A9A90500DF6C68 /* Info.plist */,
@@ -725,7 +725,7 @@
 				978357A7189C05B100ADC689 /* FolderTemplate.pdf in Resources */,
 				978357A6189C05B100ADC689 /* FolderClosedTemplate.pdf in Resources */,
 				978357BB189C19A000ADC689 /* FetchTemplate.pdf in Resources */,
-				4A5D75C214A9A90500DF6C68 /* gitx.icns in Resources */,
+				B2F5C2E12CB0CA0000C0C001 /* Assets.xcassets in Resources */,
 				978357AE189C074500ADC689 /* RemoteBranchTemplate.pdf in Resources */,
 				97CF01F918A6C5BB00E30F2B /* deleted_file.pdf in Resources */,
 				978357B0189C074500ADC689 /* StageTemplate.pdf in Resources */,
@@ -950,6 +950,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GENERATE_APPINTENTS_METADATA = NO;
 				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
 				INSTALL_PATH = /Applications;
@@ -972,6 +973,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GENERATE_APPINTENTS_METADATA = NO;
 				APPINTENTS_METADATA_PROCESSOR_ADDITIONAL_OPTIONS = "--quiet-warnings";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
 				INSTALL_PATH = /Applications;

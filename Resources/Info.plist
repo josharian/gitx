@@ -22,8 +22,6 @@
 				<string>git</string>
 				<string></string>
 			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>gitx.icns</string>
 			<key>CFBundleTypeName</key>
 			<string>Git Repository</string>
 			<key>CFBundleTypeRole</key>
@@ -36,8 +34,8 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleIconFile</key>
-	<string>gitx.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
