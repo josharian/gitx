@@ -48,6 +48,9 @@
 @property (readonly) PBHistorySearchController *searchController;
 @property (readonly) PBCommitList *commitList;
 
+// Last known selected commit SHA, used to preserve selection across generic updates.
+@property (copy, nonatomic) NSString *lastSelectedSHA;
+
 - (void)selectCommit:(NSString *)commit;
 - (void)scrollSelectionToCenter;
 - (IBAction) refresh:(id)sender;

@@ -9,6 +9,7 @@
 #import "PBGitWindowController.h"
 #import "PBGitHistoryController.h"
 #import "PBGitCommitController.h"
+#import "GitX-Swift.h"
 #import "PBCommitHookFailedSheet.h"
 #import "PBGitXMessageSheet.h"
 #import "PBGitSidebarController.h"

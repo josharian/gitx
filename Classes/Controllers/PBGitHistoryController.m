@@ -37,6 +37,7 @@
 @synthesize webCommit, commitController, refController;
 @synthesize searchController;
 @synthesize commitList;
+@synthesize lastSelectedSHA;
 
 - (void)awakeFromNib
 {
@@ -120,6 +121,8 @@
 			[mergeButton setEnabled:!isOnHeadBranch];
 			[cherryPickButton setEnabled:!isOnHeadBranch];
 			[rebaseButton setEnabled:!isOnHeadBranch];
+			// Track last known selected SHA to restore after updates
+			self.lastSelectedSHA = [selectedCommit sha] ?: @"";
 		}
 	}
 	else {
@@ -178,10 +181,38 @@
 		// Reload table view when commits change
 		[commitList reloadData];
 
-		if ([repository.currentBranch isSimpleRef])
-			[self selectCommit:[repository shaForRef:[repository.currentBranch ref]]];
-		else
-			[self selectCommit:[[self firstCommit] sha]];
+		// Ensure the visual selection matches controller selection after reload
+		NSIndexSet *existingSelection = [commitController selectionIndexes];
+		if (existingSelection && [existingSelection count] > 0) {
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[commitList selectRowIndexes:existingSelection byExtendingSelection:NO];
+			});
+		}
+
+		// Generic preservation: if we have a last selected SHA, restore it,
+		// otherwise only choose a default when no selection exists.
+		NSIndexSet *currentSelection = [commitController selectionIndexes];
+		if (currentSelection == nil || [currentSelection count] == 0) {
+			NSArray *arranged = [commitController arrangedObjects];
+			if (self.lastSelectedSHA.length > 0) {
+				NSInteger idx = NSNotFound;
+				for (NSInteger i = 0; i < (NSInteger)[arranged count]; i++) {
+					id obj = arranged[i];
+					if ([[obj sha] isEqual:self.lastSelectedSHA]) { idx = i; break; }
+				}
+				if (idx != NSNotFound) {
+					NSIndexSet *set = [NSIndexSet indexSetWithIndex:(NSUInteger)idx];
+					[commitController setSelectionIndexes:set];
+					[commitList selectRowIndexes:set byExtendingSelection:NO];
+					return;
+				}
+			}
+
+			if ([repository.currentBranch isSimpleRef])
+				[self selectCommit:[repository shaForRef:[repository.currentBranch ref]]];
+			else
+				[self selectCommit:[[self firstCommit] sha]];
+		}
 		return;
 	}
 
