@@ -57,6 +57,8 @@ extern NSString *PBGitIndexOperationFailed;
 // or for
 @property BOOL amend;
 
++ (NSUInteger)diffPreviewTruncationLimit;
+
 - (id)initWithRepository:(PBGitRepository *)repository;
 
 // A list of PBChangedFile's with differences between the work tree and the index
@@ -76,6 +78,7 @@ extern NSString *PBGitIndexOperationFailed;
 
 // Intra-file changes
 - (BOOL)applyPatch:(NSString *)hunk stage:(BOOL)stage reverse:(BOOL)reverse;
+- (NSString *)diffForFile:(PBChangedFile *)file staged:(BOOL)staged contextLines:(NSUInteger)context truncated:(BOOL *)truncated;
 - (NSString *)diffForFile:(PBChangedFile *)file staged:(BOOL)staged contextLines:(NSUInteger)context;
 
 @end

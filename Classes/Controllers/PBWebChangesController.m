@@ -219,7 +219,8 @@
 		else if ([contextValue respondsToSelector:@selector(integerValue)])
 			contextLines = (NSUInteger)MAX(0, [contextValue integerValue]);
 
-		NSString *diff = [controller.index diffForFile:selectedFile staged:selectedFileIsCached contextLines:contextLines];
+		BOOL diffWasTruncated = NO;
+		NSString *diff = [controller.index diffForFile:selectedFile staged:selectedFileIsCached contextLines:contextLines truncated:&diffWasTruncated];
 		BOOL isBinary = (diff == nil);
 		if (!diff)
 			diff = @"";
@@ -230,7 +231,10 @@
 		response[@"contextLines"] = @(contextLines);
 		response[@"diff"] = diff;
 		response[@"isBinary"] = @(isBinary);
-	response[@"isNewFile"] = @((selectedFile.status == PBChangedFileStatusNew));
+		response[@"isNewFile"] = @((selectedFile.status == PBChangedFileStatusNew));
+		response[@"diffWasTruncated"] = @(diffWasTruncated);
+		if (diffWasTruncated)
+			response[@"truncateLimit"] = @([PBGitIndex diffPreviewTruncationLimit]);
 
 		[self sendBridgeEventWithType:@"commitDiff" payload:response];
 		return;

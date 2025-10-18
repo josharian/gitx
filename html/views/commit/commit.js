@@ -4,8 +4,9 @@
 var contextLines = 0;
 var currentCommitSelection = null;
 
-var showNewFile = function(file, diffContents)
+var showNewFile = function(file, diffContents, options)
 {
+	options = options || {};
 	var path = "";
 	if (file && file.path)
 		path = file.path.toString();
@@ -18,7 +19,12 @@ var showNewFile = function(file, diffContents)
 	}
 
 	var contents = diffContents.toString();
-	diff.innerHTML = "<pre>" + contents.escapeHTML() + "</pre>";
+	var notice = "";
+	if (options.diffWasTruncated) {
+		var limit = typeof options.truncateLimit === "number" && options.truncateLimit > 0 ? options.truncateLimit : 1024;
+		notice = '<div class="truncation-notice">Diff truncated to ' + limit + " characters for preview.</div>";
+	}
+	diff.innerHTML = "<pre>" + contents.escapeHTML() + "</pre>" + notice;
 	diff.style.display = '';
 }
 
@@ -58,6 +64,8 @@ var showFileChanges = function(file, cached, options) {
 
 	var diffData = typeof options.diff === "string" ? options.diff : "";
 	var isBinary = options.isBinary === true;
+	var diffWasTruncated = options.diffWasTruncated === true;
+	var truncateLimit = typeof options.truncateLimit === "number" && options.truncateLimit > 0 ? options.truncateLimit : null;
 	if (typeof options.contextLines !== "undefined") {
 		contextLines = parseInt(options.contextLines, 10) || 0;
 	}
@@ -75,9 +83,9 @@ var showFileChanges = function(file, cached, options) {
 	}
 
 	if (file.status == 0) {
-		if (options.isBinary)
-			return showNewFile(file, null);
-		return showNewFile(file, diffData);
+		if (isBinary)
+			return showNewFile(file, null, { diffWasTruncated: diffWasTruncated, truncateLimit: truncateLimit });
+		return showNewFile(file, diffData, { diffWasTruncated: diffWasTruncated, truncateLimit: truncateLimit });
 	}
 
 	var path = file.path.toString();
@@ -95,7 +103,7 @@ var showFileChanges = function(file, cached, options) {
 		return;
 	}
 
-	displayDiff(diffData, cached);
+	displayDiff(diffData, cached, { diffWasTruncated: diffWasTruncated, truncateLimit: truncateLimit });
 }
 
 var requestCommitDiff = function () {
@@ -249,15 +257,19 @@ var diffHeader;
 var originalDiff;
 var originalCached;
 
-var displayDiff = function(diff, cached)
+var displayDiff = function(diff, cached, options)
 {
+	options = options || {};
+	var diffWasTruncated = options.diffWasTruncated === true;
+	var truncateLimit = typeof options.truncateLimit === "number" && options.truncateLimit > 0 ? options.truncateLimit : 1024;
 	diffHeader = diff.split("\n").slice(0,4).join("\n");
 	originalDiff = diff;
 	originalCached = cached;
 
-	document.getElementById("diff").style.display = "";
-	highlightDiff(diff, document.getElementById("diff"));
-	hunkHeaders = document.getElementById("diff").getElementsByClassName("hunkheader");
+	var diffElement = document.getElementById("diff");
+	diffElement.style.display = "";
+	highlightDiff(diff, diffElement);
+	hunkHeaders = diffElement.getElementsByClassName("hunkheader");
 
 	for (i = 0; i < hunkHeaders.length; ++i) {
 		var header = hunkHeaders[i];
@@ -269,6 +281,12 @@ var displayDiff = function(diff, cached)
 		}
 	}
 	setSelectHandlers();
+	if (diffWasTruncated && diffElement) {
+		var notice = document.createElement("div");
+		notice.setAttribute("class", "truncation-notice");
+		notice.textContent = "Diff truncated to " + truncateLimit + " characters for preview.";
+		diffElement.appendChild(notice);
+	}
 }
 
 var getNextText = function(element)

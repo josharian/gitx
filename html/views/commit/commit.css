@@ -138,3 +138,9 @@ table.diff {
 .top-link {
     display: none;
 }
+
+.truncation-notice {
+	margin-top: 8px;
+	color: #666666;
+	font-style: italic;
+}

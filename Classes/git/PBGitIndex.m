@@ -25,6 +25,8 @@ NSString *PBGitIndexFinishedCommit = @"PBGitIndexFinishedCommit";
 NSString *PBGitIndexAmendMessageAvailable = @"PBGitIndexAmendMessageAvailable";
 NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 
+static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 1024;
+
 @interface PBGitIndex ()
 
 // Returns the tree to compare the index to, based
@@ -38,6 +40,11 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 @end
 
 @implementation PBGitIndex
+
++ (NSUInteger)diffPreviewTruncationLimit
+{
+	return kPBGitIndexDiffPreviewTruncationLimit;
+}
 
 - (id)initWithRepository:(PBGitRepository *)theRepository
 {
@@ -425,35 +432,56 @@ NSString *PBGitIndexOperationFailed = @"PBGitIndexOperationFailed";
 
 - (NSString *)diffForFile:(PBChangedFile *)file staged:(BOOL)staged contextLines:(NSUInteger)context
 {
+	return [self diffForFile:file staged:staged contextLines:context truncated:NULL];
+}
+
+- (NSString *)diffForFile:(PBChangedFile *)file staged:(BOOL)staged contextLines:(NSUInteger)context truncated:(BOOL *)truncated
+{
 	NSString *parameter = [NSString stringWithFormat:@"-U%lu", context];
+	NSString *diff = nil;
+
 	if (staged) {
 		NSString *indexPath = [@":0:" stringByAppendingString:file.path];
 
 		if (file.status == PBChangedFileStatusNew) {
 			NSError *error = nil;
-			return [repository executeGitCommand:[NSArray arrayWithObjects:@"show", indexPath, nil] error:&error];
+			diff = [repository executeGitCommand:@[@"show", indexPath] error:&error];
+		} else {
+			NSError *error = nil;
+			diff = [repository executeGitCommand:@[@"diff-index", parameter, @"--cached", [self parentTree], @"--", file.path]
+									  inWorkingDir:YES
+											 error:&error];
 		}
-
-		NSError *error = nil;
-		return [repository executeGitCommand:[NSArray arrayWithObjects:@"diff-index", parameter, @"--cached", [self parentTree], @"--", file.path, nil] inWorkingDir:YES error:&error];
+	} else {
+		if (file.status == PBChangedFileStatusNew) {
+			NSStringEncoding encoding;
+			NSError *error = nil;
+			NSString *path = [[repository workingDirectory] stringByAppendingPathComponent:file.path];
+			diff = [NSString stringWithContentsOfFile:path
+										 usedEncoding:&encoding
+												error:&error];
+			if (error)
+				diff = nil;
+		} else {
+			NSError *error = nil;
+			diff = [repository executeGitCommand:@[@"diff-files", parameter, @"--", file.path]
+									  inWorkingDir:YES
+											 error:&error];
+		}
 	}
 
-	// unstaged
-	if (file.status == PBChangedFileStatusNew) {
-		NSStringEncoding encoding;
-		NSError *error = nil;
-		NSString *path = [[repository workingDirectory] stringByAppendingPathComponent:file.path];
-		NSString *contents = [NSString stringWithContentsOfFile:path
-												   usedEncoding:&encoding
-														  error:&error];
-		if (error)
-			return nil;
-
-		return contents;
+	BOOL didTruncate = NO;
+	if (diff && (file.status == PBChangedFileStatusNew || file.status == PBChangedFileStatusDeleted)) {
+		if ([diff length] > kPBGitIndexDiffPreviewTruncationLimit) {
+			diff = [diff substringToIndex:kPBGitIndexDiffPreviewTruncationLimit];
+			didTruncate = YES;
+		}
 	}
 
-	NSError *error = nil;
-	return [repository executeGitCommand:[NSArray arrayWithObjects:@"diff-files", parameter, @"--", file.path, nil] inWorkingDir:YES error:&error];
+	if (truncated)
+		*truncated = didTruncate;
+
+	return diff;
 }
 
 - (void)postIndexChange
