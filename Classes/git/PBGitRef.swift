@@ -4,10 +4,12 @@ public let kGitXTagType: NSString = "tag"
 public let kGitXBranchType: NSString = "branch"
 public let kGitXRemoteType: NSString = "remote"
 public let kGitXRemoteBranchType: NSString = "remote branch"
+public let kGitXStashType: NSString = "stash"
 
 public let kGitXTagRefPrefix: NSString = "refs/tags/"
 public let kGitXBranchRefPrefix: NSString = "refs/heads/"
 public let kGitXRemoteRefPrefix: NSString = "refs/remotes/"
+public let kGitXStashRefPrefix: NSString = "refs/stash"
 
 @objcMembers
 @objc(PBGitRef)
@@ -59,6 +61,7 @@ final class PBGitRef: NSObject, PBGitRefish {
         if isBranch { return "head" }
         if isTag { return "tag" }
         if isRemote { return "remote" }
+        if isStash { return kGitXStashType as String }
         return nil
     }
 
@@ -72,6 +75,14 @@ final class PBGitRef: NSObject, PBGitRefish {
 
     var isRemote: Bool {
         ref.hasPrefix(kGitXRemoteRefPrefix as String)
+    }
+
+    @objc var isStash: Bool {
+        let refValue = ref
+        if refValue == (kGitXStashRefPrefix as String) {
+            return true
+        }
+        return refValue.hasPrefix((kGitXStashRefPrefix as String) + "@{")
     }
 
     var isRemoteBranch: Bool {
@@ -106,6 +117,17 @@ final class PBGitRef: NSObject, PBGitRefish {
     }
 
     func shortName() -> String {
+        if isStash {
+            if ref == (kGitXStashRefPrefix as String) {
+                return "stash"
+            }
+            if ref.hasPrefix("refs/") {
+                let index = ref.index(ref.startIndex, offsetBy: 5)
+                return String(ref[index...])
+            }
+            return ref
+        }
+
         guard let type else {
             return ref
         }
@@ -124,6 +146,7 @@ final class PBGitRef: NSObject, PBGitRefish {
         if isTag { return kGitXTagType as String }
         if isRemoteBranch { return kGitXRemoteBranchType as String }
         if isRemote { return kGitXRemoteType as String }
+        if isStash { return kGitXStashType as String }
         return nil
     }
 }

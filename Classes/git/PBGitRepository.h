@@ -108,6 +108,10 @@ static NSString *PBStringFromBranchFilterType(PBGitBranchFilterType type) {
 - (NSString *)shaForRef:(PBGitRef *)ref;
 - (PBGitCommit *)commitForRef:(PBGitRef *)ref;
 - (PBGitCommit *)commitForSHA:(NSString *)sha;
+- (BOOL)shaHasStashReference:(NSString *)sha;
+- (BOOL)isSuppressedStashCommit:(NSString *)sha;
+- (NSArray<NSString *> *)stashCommitSHAs;
+- (BOOL)isStashCommitSHA:(NSString *)sha;
 - (BOOL)isOnSameBranch:(NSString *)baseSHA asSHA:(NSString *)testSHA;
 - (BOOL)isSHAOnHeadBranch:(NSString *)testSHA;
 - (BOOL)isRefOnHeadBranch:(PBGitRef *)testRef;

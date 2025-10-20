@@ -117,6 +117,13 @@
 			[revListArgs addObject:param];
 		}
 	}
+
+	NSArray<NSString *> *stashSHAs = [pbRepo stashCommitSHAs];
+	for (NSString *stashSha in stashSHAs) {
+		if ([stashSha length] >= 40) {
+			[revListArgs addObject:stashSha];
+		}
+	}
 	
 	[self addCommitsFromRevListArgs:revListArgs inPBRepo:pbRepo];
 }
@@ -188,10 +195,19 @@
 			NSString *timestampString = fields[5];
 			NSString *parentSHAsString = fields[6];
 			
-			if ([shaString length] >= 40) {
-				NSTimeInterval timestamp = [timestampString doubleValue];
-				NSArray *parentSHAs = [PBCommitData parentSHAsFromString:parentSHAsString];
-				PBCommitData *commitData = [[PBCommitData alloc] initWithSha:shaString
+				BOOL isSuppressedStash = [pbRepo isSuppressedStashCommit:shaString];
+				if (isSuppressedStash) {
+					continue;
+				}
+				BOOL isStashCommit = [pbRepo isStashCommitSHA:shaString];
+				
+				if ([shaString length] >= 40) {
+					NSTimeInterval timestamp = [timestampString doubleValue];
+					NSArray *parentSHAs = [PBCommitData parentSHAsFromString:parentSHAsString];
+					if (isStashCommit && [parentSHAs count] > 1) {
+						parentSHAs = @[parentSHAs[0]];
+					}
+					PBCommitData *commitData = [[PBCommitData alloc] initWithSha:shaString
 												shortSHA:[shaString substringToIndex:MIN(7, [shaString length])]
 												 message:message
 											messageSummary:messageSummary
@@ -199,21 +215,26 @@
 											 authorName:authorName
 											committerName:committerName
 											 parentSHAs:parentSHAs];
-				
-				dispatch_group_async(loadGroup, loadQueue, ^{
-					PBGitCommit *newCommit = nil;
-					PBGitCommit *cachedCommit = [self.commitCache objectForKey:commitData.sha];
-					if (cachedCommit) {
-						newCommit = cachedCommit;
-					} else {
-						@try {
-							newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andCommitData:commitData];
-							[self.commitCache setObject:newCommit forKey:commitData.sha];
-						} @catch (NSException *exception) {
-							return;
-						}
-					}
 					
+					dispatch_group_async(loadGroup, loadQueue, ^{
+						PBGitCommit *newCommit = nil;
+						if (isStashCommit) {
+							[self.commitCache removeObjectForKey:commitData.sha];
+						}
+						PBGitCommit *cachedCommit = isStashCommit ? nil : [self.commitCache objectForKey:commitData.sha];
+						if (cachedCommit) {
+							newCommit = cachedCommit;
+						} else {
+							@try {
+								newCommit = [[PBGitCommit alloc] initWithRepository:pbRepo andCommitData:commitData];
+								if (!isStashCommit) {
+									[self.commitCache setObject:newCommit forKey:commitData.sha];
+								}
+							} @catch (NSException *exception) {
+								return;
+							}
+						}
+						
 					[revisions addObject:newCommit];
 					
 					if (self.isGraphing) {

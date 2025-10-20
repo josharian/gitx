@@ -234,6 +234,10 @@ a.showdiff {
   background-color: #fced4f;
 }
 
+.refs.stash {
+  background-color: #f19ab5;
+}
+
 .refs.currentBranch {
   background-color: #fca64f;
 }

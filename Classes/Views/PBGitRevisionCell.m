@@ -221,6 +221,8 @@ const BOOL SHUFFLE_COLORS = NO;
 		return [NSColor colorWithCalibratedRed: 0xa2/256.0 green:0Xcf/256.0 blue: 0Xef/256.0 alpha: 1.0];
 	} else if ([type isEqualToString:@"tag"]) {
 		return [NSColor colorWithCalibratedRed: 0Xfc/256.0 green:0Xed/256.0 blue: 0X6f/256.0 alpha: 1.0];
+	} else if ([type isEqualToString:@"stash"]) {
+		return [NSColor colorWithCalibratedRed:0xf1/256.0 green:0x9a/256.0 blue:0xb5/256.0 alpha:1.0];
 	}
 	
 	return [NSColor yellowColor];

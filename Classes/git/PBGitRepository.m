@@ -22,6 +22,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 @interface PBGitRepository ()
 {
 	NSMutableDictionary *refToSHAMapping; // Maps ref strings to SHA strings
+	NSMutableSet *suppressedStashParents; // SHAs for stash helper commits we hide
+	NSMutableArray<NSString *> *stashCommitSHAs; // Ordered list of stash commits for rev-list
 }
 
 @end
@@ -295,6 +297,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	_headSha = nil;
 	self->refs = [NSMutableDictionary dictionary];
 	refToSHAMapping = [NSMutableDictionary dictionary];
+	suppressedStashParents = [NSMutableSet set];
+	stashCommitSHAs = [NSMutableArray array];
 	
 	// Use git for-each-ref to enumerate all references with their commit SHAs
 	NSError *error = nil;
@@ -319,21 +323,26 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 					
 					// Skip symbolic references like origin/HEAD that point to other refs
 					if ([objectType isEqualToString:@"commit"] || [objectType isEqualToString:@"tag"]) {
+						BOOL isBaseStashRef = [referenceName isEqualToString:@"refs/stash"];
 						PBGitRef* gitRef = [PBGitRef refFromString:referenceName];
-						PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
-						[self addBranch:revSpec];
-						[oldBranches removeObject:revSpec];
+						if (!isBaseStashRef) {
+							PBGitRevSpecifier* revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
+							[self addBranch:revSpec];
+							[oldBranches removeObject:revSpec];
+						}
 						
 						// Add ref to commit SHA mapping for branch tags
 						if (commitSHA && [commitSHA length] >= 40) { // Ensure valid SHA
 							NSString *sha = commitSHA;
 							if (sha) {
-								NSMutableArray *refsForCommit = self->refs[sha];
-								if (!refsForCommit) {
-									refsForCommit = [NSMutableArray array];
-									self->refs[sha] = refsForCommit;
+								if (!isBaseStashRef) {
+									NSMutableArray *refsForCommit = self->refs[sha];
+									if (!refsForCommit) {
+										refsForCommit = [NSMutableArray array];
+										self->refs[sha] = refsForCommit;
+									}
+									[refsForCommit addObject:gitRef];
 								}
-								[refsForCommit addObject:gitRef];
 								
 								// Also store ref->SHA mapping for efficient lookup
 								refToSHAMapping[referenceName] = sha;
@@ -344,6 +353,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 			}
 		}
 	}
+    
+    [self loadStashRefsRemovingOld:oldBranches];
 	
 	// Remove old branches that no longer exist
 	for (PBGitRevSpecifier *branch in oldBranches)
@@ -357,6 +368,83 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 	[[[self windowController] window] setTitle:[self displayName]];
 }
+
+- (void)loadStashRefsRemovingOld:(NSMutableOrderedSet *)oldBranches
+{
+    NSError *verifyError = nil;
+    [self executeGitCommand:@[@"rev-parse", @"--verify", @"--quiet", @"refs/stash"] error:&verifyError];
+    if (verifyError) {
+        return;
+    }
+
+    NSError *logError = nil;
+    NSString *logOutput = [self executeGitCommand:@[@"log", @"-g", @"--format=%gd%x00%H", @"refs/stash"] error:&logError];
+    if (logError || !logOutput.length) {
+        return;
+    }
+
+    NSArray<NSString *> *lines = [logOutput componentsSeparatedByString:@"\n"];
+    NSMutableSet<NSString *> *seenRefNames = [NSMutableSet set];
+
+    for (NSString *line in lines) {
+        if (line.length == 0) {
+            continue;
+        }
+
+        NSArray<NSString *> *components = [line componentsSeparatedByString:@"\0"];
+        if (components.count < 2) {
+            continue;
+        }
+
+        NSString *selector = components[0];
+        NSString *sha = components[1];
+
+        if (selector.length == 0 || sha.length < 40) {
+            continue;
+        }
+
+        NSString *refName = [@"refs/" stringByAppendingString:selector];
+        if ([seenRefNames containsObject:refName]) {
+            continue;
+        }
+        [seenRefNames addObject:refName];
+
+        PBGitRef *gitRef = [PBGitRef refFromString:refName];
+        PBGitRevSpecifier *revSpec = [[PBGitRevSpecifier alloc] initWithRef:gitRef];
+        [self addBranch:revSpec];
+        if (oldBranches) {
+            [oldBranches removeObject:revSpec];
+        }
+
+        NSMutableArray *refsForCommit = self->refs[sha];
+        if (!refsForCommit) {
+            refsForCommit = [NSMutableArray array];
+            self->refs[sha] = refsForCommit;
+        }
+		[refsForCommit addObject:gitRef];
+		self->refToSHAMapping[refName] = sha;
+		if (sha && ![stashCommitSHAs containsObject:sha]) {
+			[stashCommitSHAs addObject:sha];
+		}
+
+		NSError *parentsError = nil;
+		NSString *parentsOutput = [self executeGitCommand:@[@"show", @"-s", @"--format=%P", selector] error:&parentsError];
+		if (!parentsError && parentsOutput.length > 0) {
+			NSString *trimmedParents = [parentsOutput stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			if (trimmedParents.length > 0) {
+				NSArray<NSString *> *parentSHAs = [trimmedParents componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+				if ([parentSHAs count] > 1) {
+					for (NSUInteger parentIndex = 1; parentIndex < [parentSHAs count]; parentIndex++) {
+						NSString *parentSHA = parentSHAs[parentIndex];
+						if ([parentSHA length] >= 40) {
+							[suppressedStashParents addObject:parentSHA];
+						}
+					}
+				}
+			}
+		}
+	    }
+	}
 
 - (void) lazyReload
 {
@@ -440,6 +528,42 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	}
 	
 	return nil;
+}
+
+- (BOOL)shaHasStashReference:(NSString *)sha
+{
+	if (!sha)
+		return NO;
+
+	NSArray *refsForSha = self->refs[sha];
+	for (PBGitRef *ref in refsForSha) {
+		if (ref.isStash) {
+			return YES;
+		}
+	}
+
+	return NO;
+}
+
+- (BOOL)isSuppressedStashCommit:(NSString *)sha
+{
+	if (!sha)
+		return NO;
+
+	return [suppressedStashParents containsObject:sha];
+}
+
+- (NSArray<NSString *> *)stashCommitSHAs
+{
+	return [stashCommitSHAs copy];
+}
+
+- (BOOL)isStashCommitSHA:(NSString *)sha
+{
+	if (!sha) {
+		return NO;
+	}
+	return [stashCommitSHAs containsObject:sha];
 }
 
 - (PBGitCommit *)commitForRef:(PBGitRef *)ref
@@ -868,14 +992,32 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	if ([[ref refishType] isEqualToString:@"remote"])
 		return NO;
 
-	NSArray *arguments = [NSArray arrayWithObjects:@"update-ref", @"-d", [ref ref], nil];
+	NSArray *arguments = nil;
 	NSError *error = nil;
-	NSString *output = [self executeGitCommand:arguments error:&error];
-	if (error) {
-		NSString *message = [NSString stringWithFormat:@"There was an error deleting the ref: %@\n\n", [ref shortName]];
-		NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription ?: output ?: @"No additional output.";
-		[self.windowController showErrorSheetTitle:@"Delete ref failed!" message:message arguments:arguments output:errorDetails];
-		return NO;
+	NSString *output = nil;
+
+	if (ref.isStash) {
+		NSString *selector = [ref shortName];
+		if ([selector isEqualToString:@"stash"]) {
+			selector = @"stash@{0}";
+		}
+		arguments = @[@"stash", @"drop", selector];
+		output = [self executeGitCommand:arguments error:&error];
+		if (error) {
+			NSString *message = [NSString stringWithFormat:@"There was an error dropping the stash %@\n\n", [ref shortName]];
+			NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription ?: output ?: @"No additional output.";
+			[self.windowController showErrorSheetTitle:@"Drop stash failed!" message:message arguments:arguments output:errorDetails];
+			return NO;
+		}
+	} else {
+		arguments = @[@"update-ref", @"-d", [ref ref]];
+		output = [self executeGitCommand:arguments error:&error];
+		if (error) {
+			NSString *message = [NSString stringWithFormat:@"There was an error deleting the ref: %@\n\n", [ref shortName]];
+			NSString *errorDetails = error.localizedRecoverySuggestion ?: error.localizedDescription ?: output ?: @"No additional output.";
+			[self.windowController showErrorSheetTitle:@"Delete ref failed!" message:message arguments:arguments output:errorDetails];
+			return NO;
+		}
 	}
 
 	[self removeBranch:[[PBGitRevSpecifier alloc] initWithRef:ref]];
