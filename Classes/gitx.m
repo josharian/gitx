@@ -8,7 +8,12 @@
 
 #import "PBGitBinary.h"
 #import "GitXScriptingConstants.h"
+
+#if __has_include("gitx-Swift.h")
+#import "gitx-Swift.h"
+#elif __has_include("GitX-Swift.h")
 #import "GitX-Swift.h"
+#endif
 
 
 #pragma mark Commands handled locally

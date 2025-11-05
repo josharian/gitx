@@ -26,6 +26,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	NSMutableArray<NSString *> *stashCommitSHAs; // Ordered list of stash commits for rev-list
 }
 
+@property (nonatomic, copy, nullable) NSString *cachedDisplayName;
+
 @end
 
 @implementation PBGitRepository
@@ -135,17 +137,30 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (NSString *)displayName
 {
-    // Build our display name depending on the current HEAD and whether it's detached or not
-    // Check if HEAD is detached using git symbolic-ref
-    NSError *error = nil;
-    NSString *symbolicRef = [self executeGitCommand:@[@"symbolic-ref", @"HEAD"] error:&error];
-    
-    // If symbolic-ref fails, HEAD is detached
-    if (error || !symbolicRef) {
-        return [NSString localizedStringWithFormat:@"%@ (detached HEAD)", self.projectName];
-    }
+	if (!self.cachedDisplayName) {
+		[self refreshCachedHeadInfo];
+	}
 
-    return [NSString localizedStringWithFormat:@"%@ (branch: %@)", self.projectName, [[self headRef] description]];
+	NSString *projectName = self.projectName ?: @"";
+	return self.cachedDisplayName ?: projectName;
+}
+
+- (void)refreshCachedHeadInfo
+{
+	NSString *projectName = self.projectName ?: @"";
+	NSString *symbolicRef = [self parseSymbolicReference:@"HEAD"];
+	if (symbolicRef.length > 0) {
+		PBGitRef *ref = [PBGitRef refFromString:symbolicRef];
+		_headRef = [[PBGitRevSpecifier alloc] initWithRef:ref];
+		_headSha = [self shaForRef:[_headRef ref]];
+		NSString *branchName = ref.shortName ?: symbolicRef;
+		self.cachedDisplayName = [NSString localizedStringWithFormat:@"%@ (branch: %@)", projectName, branchName];
+		return;
+	}
+
+	_headRef = [[PBGitRevSpecifier alloc] initWithRef:[PBGitRef refFromString:@"HEAD"]];
+	_headSha = [self shaForRef:[_headRef ref]];
+	self.cachedDisplayName = [NSString localizedStringWithFormat:@"%@ (detached HEAD)", projectName];
 }
 
 - (void)makeWindowControllers
@@ -295,6 +310,7 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	// clear out ref caches
 	_headRef = nil;
 	_headSha = nil;
+	self.cachedDisplayName = nil;
 	self->refs = [NSMutableDictionary dictionary];
 	refToSHAMapping = [NSMutableDictionary dictionary];
 	suppressedStashParents = [NSMutableSet set];
@@ -366,7 +382,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	[self willChangeValueForKey:@"refs"];
 	[self didChangeValueForKey:@"refs"];
 
-	[[[self windowController] window] setTitle:[self displayName]];
+	[self refreshCachedHeadInfo];
+	NSString *title = [self displayName];
+	[[[self windowController] window] setTitle:title];
 }
 
 - (void)loadStashRefsRemovingOld:(NSMutableOrderedSet *)oldBranches
@@ -457,16 +475,9 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 
 - (PBGitRevSpecifier *)headRef
 {
-	if (_headRef)
-		return _headRef;
-
-	NSString* branch = [self parseSymbolicReference: @"HEAD"];
-	if (branch && [branch hasPrefix:@"refs/heads/"])
-		_headRef = [[PBGitRevSpecifier alloc] initWithRef:[PBGitRef refFromString:branch]];
-	else
-		_headRef = [[PBGitRevSpecifier alloc] initWithRef:[PBGitRef refFromString:@"HEAD"]];
-
-	_headSha = [self shaForRef:[_headRef ref]];
+	if (!_headRef) {
+		[self refreshCachedHeadInfo];
+	}
 
 	return _headRef;
 }
