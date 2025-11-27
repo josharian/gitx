@@ -106,7 +106,7 @@
 - (void) discardHunk:(NSString *)hunk
 {
     [controller.index applyPatch:hunk stage:NO reverse:YES];
-    [self refresh];
+    [self sendBridgeEventWithType:@"commitHunkApplied" payload:@{}];
 }
 
 
@@ -174,7 +174,7 @@
 			stage = [stageValue boolValue];
 
 		[controller.index applyPatch:patch stage:stage reverse:reverse];
-		[self refresh];
+		[self sendBridgeEventWithType:@"commitHunkApplied" payload:@{}];
 		return;
 	}
 

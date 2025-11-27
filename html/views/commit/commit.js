@@ -3,6 +3,15 @@
 
 var contextLines = 0;
 var currentCommitSelection = null;
+var pendingScrollY = null;
+
+// Cross-browser scroll helpers
+var getScrollY = function() {
+	return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+};
+var setScrollY = function(y) {
+	window.scrollTo(0, y);
+};
 
 var showNewFile = function(file, diffContents, options)
 {
@@ -127,6 +136,15 @@ var handleCommitSelectionChanged = function (message) {
 		pathString = fileData.path.toString();
 
 	var cached = !!(message && message.cached);
+
+	// If same file and same staged/unstaged state, skip the refresh
+	// This preserves scroll position when index updates trigger spurious selection changes
+	if (currentCommitSelection &&
+		currentCommitSelection.path === pathString &&
+		currentCommitSelection.cached === cached) {
+		return;
+	}
+
 	currentCommitSelection = null;
 
 	var diffElement = document.getElementById("diff");
@@ -287,6 +305,12 @@ var displayDiff = function(diff, cached, options)
 		notice.textContent = "Diff truncated to " + truncateLimit + " characters for preview.";
 		diffElement.appendChild(notice);
 	}
+	// Restore scroll position if we're refreshing after a hunk operation
+	if (pendingScrollY !== null) {
+		var scrollToRestore = pendingScrollY;
+		pendingScrollY = null;
+		setTimeout(function() { setScrollY(scrollToRestore); }, 0);
+	}
 }
 
 var getNextText = function(element)
@@ -339,7 +363,8 @@ var addHunkText = function(hunkText, reverse)
 /* Add the hunk located below the current element */
 var addHunk = function(hunk, reverse)
 {
-	addHunkText(getFullHunk(hunk),reverse);
+	pendingScrollY = getScrollY();
+	addHunkText(getFullHunk(hunk), reverse);
 }
 
 var discardHunk = function(hunk, event)
@@ -347,6 +372,7 @@ var discardHunk = function(hunk, event)
 	var hunkText = getFullHunk(hunk);
 	var altPressed = event && event.altKey === true;
 
+	pendingScrollY = getScrollY();
 	gitxBridge.post("commitDiscardHunk", {
 		patch: hunkText,
 		altKey: altPressed
@@ -700,6 +726,11 @@ var handleCommitNativeMessage = function (message) {
         var stateText = typeof message.state === "undefined" ? "" : String(message.state);
         setState(stateText);
       }
+      break;
+    case "commitHunkApplied":
+      // Hunk was successfully staged/unstaged/discarded
+      // Request fresh diff - pendingScrollY will be restored in displayDiff
+      requestCommitDiff();
       break;
     case "commitSelectionChanged":
       handleCommitSelectionChanged(message);
