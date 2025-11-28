@@ -19,51 +19,109 @@
 	font-size: 11px;
 }
 
-.diff .file .diffContent .lineno {
-	float: left;
-	padding-left: 2px;
-	padding-right: 2px;
-	background-color: #ECECEC;
-	color: #A9A9A9;
-	border: 1px solid #DDDDDD;
-	text-align: right;
-	font-size: 11px;
-}
-
 .diff .file .diffContent .lines {
 	overflow: auto;
 }
 
+/* Side-by-side diff row layout */
+.diff .file .diffContent .lines .diff-row {
+	display: grid;
+	grid-template-columns: 45px 1fr 45px 1fr;
+	min-height: 1.4em;
+}
+
+.diff .file .diffContent .lines .diff-row .lineno {
+	padding: 0 4px;
+	background-color: #ECECEC;
+	color: #A9A9A9;
+	border-right: 1px solid #DDDDDD;
+	text-align: right;
+	font-size: 11px;
+	user-select: none;
+}
+
+.diff .file .diffContent .lines .diff-row .lineno.old-lineno {
+	border-left: 1px solid #DDDDDD;
+}
+
+.diff .file .diffContent .lines .diff-row .lineno.new-lineno {
+	border-left: 1px solid #DDDDDD;
+}
+
+.diff .file .diffContent .lines .diff-row .line-content {
+	padding: 0 4px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Hunk header - spans full width */
 .diff .file .diffContent .lines .hunkheader {
-  background-color: #f7f7f7;
-  color: #bbb;
-  font-size: 11px;
+	background-color: #f7f7f7;
+	color: #bbb;
+	font-size: 11px;
+	padding: 2px 4px;
+	border-top: 1px solid #DDDDDD;
+	border-bottom: 1px solid #DDDDDD;
+	overflow: hidden; /* clearfix for floated buttons */
 }
 
-
-.diff .file .diffContent .lines .delline {
-  background-color: #FEE;
-  color: #B00;
-  font-size: 11px;
+/* Context lines */
+.diff .file .diffContent .lines .diff-row.noopline .line-content {
+	background-color: #fff;
+	color: #333;
 }
 
-.diff .file .diffContent .lines .addline {
-  background-color: #DFD;
-  color: #080;
-  font-size: 11px;
+/* Deletion lines */
+.diff .file .diffContent .lines .diff-row .line-content.delline {
+	background-color: #FEE;
+	color: #B00;
 }
 
+.diff .file .diffContent .lines .diff-row.delline .lineno.old-lineno {
+	background-color: #fdd;
+}
+
+/* Addition lines */
+.diff .file .diffContent .lines .diff-row .line-content.addline {
+	background-color: #DFD;
+	color: #080;
+}
+
+.diff .file .diffContent .lines .diff-row.addline .lineno.new-lineno {
+	background-color: #cfc;
+}
+
+/* Change lines (paired del/add) */
+.diff .file .diffContent .lines .diff-row.changeline .lineno.old-lineno {
+	background-color: #fdd;
+}
+
+.diff .file .diffContent .lines .diff-row.changeline .lineno.new-lineno {
+	background-color: #cfc;
+}
+
+/* Empty placeholder cells */
+.diff .file .diffContent .lines .diff-row .line-content.empty {
+	background-color: #f5f5f5;
+}
+
+/* Trailing whitespace highlighting */
 .diff .file .diffContent .lines .whitespace {
 	background-color: rgba(255,0,0,0.5);
 }
+
+/* Inline diff highlighting */
 .diff .file .diffContent .lines del,
 .diff .file .diffContent .lines ins {
-	text-decoration: none; border-radius: 0.3em;
+	text-decoration: none;
+	border-radius: 0.3em;
 }
+
 .diff .file .diffContent .lines .delline del {
 	background-color: #febfbf;
 	color: #A00;
 }
+
 .diff .file .diffContent .lines .addline ins {
 	background-color: #b2ffaf;
 	color: #070;
@@ -71,4 +129,28 @@
 
 #CurrentHunk {
 	border-left: 5px solid black;
+}
+
+/* Selection highlight for side-by-side */
+.diff-row.selected-row {
+	outline: 2px solid #4169E1;
+	outline-offset: -2px;
+	position: relative;
+}
+
+.diff-row.selected-row .line-content {
+	background-color: #B5D5FE !important;
+}
+
+.diff-row.selected-row .lineno {
+	background-color: #9FC5F8 !important;
+}
+
+/* Selection action button - positioned absolutely in first selected row */
+#selection-button.selection-action {
+	position: absolute;
+	right: 4px;
+	top: 0;
+	z-index: 10;
+	background-color: #cce5ff;
 }

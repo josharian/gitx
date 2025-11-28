@@ -36,22 +36,20 @@ var highlightDiff = function(diff, element, callbacks) {
 		callbacks = {};
 	var start = new Date().getTime();
 	element.className = "diff"
-	var content = diff.escapeHTML();
+	var content = diff;  // Don't escape here - escape when building HTML
 
 	var file_index = 0;
 
 	var startname = "";
 	var endname = "";
-	var line1 = "";
-	var line2 = "";
-	var diffContent = "";
+	var diffLines = [];  // Array of line objects for side-by-side processing
 	var finalContent = "";
 	var lines = content.split('\n');
 	var binary = false;
 	var mode_change = false;
 	var old_mode = "";
 	var new_mode = "";
-    var linkToTop = "<div class=\"top-link\"><a href=\"#\">Top</a></div>";
+	var linkToTop = "<div class=\"top-link\"><a href=\"#\">Top</a></div>";
 
 	var hunk_start_line_1 = -1;
 	var hunk_start_line_2 = -1;
@@ -79,66 +77,59 @@ var highlightDiff = function(diff, element, callbacks) {
 			title = endname;
 		else if (startname != endname)
 			title = startname + " renamed to " + endname;
-		
-		if (binary && endname == "/dev/null") {	// in cases of a deleted binary file, there is no diff/file to display
-			line1 = "";
-			line2 = "";
-			diffContent = "";
+
+		if (binary && endname == "/dev/null") {
+			diffLines = [];
 			file_index++;
 			startname = "";
 			endname = "";
-			return;				// so printing the filename in the file-list is enough
+			return;
 		}
 
-		if (diffContent != "" || binary) {
+		if (diffLines.length > 0 || binary) {
+			var escapedTitle = title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, "\\'");
 			finalContent += '<div class="file" id="file_index_' + (file_index - 1) + '">' +
-				'<div id="title_' + title + '" class="expanded fileHeader"><a href="javascript:toggleDiff(\'' + title + '\');">' + title + '</a></div>';
+				'<div id="title_' + escapedTitle + '" class="expanded fileHeader"><a href="javascript:toggleDiff(\'' + escapedTitle + '\');">' + escapedTitle + '</a></div>';
 		}
 
-		if (!binary && (diffContent != ""))  {
-			finalContent +=		'<div id="content_' + title + '" class="diffContent">' +
-								'<div class="lineno">' + line1 + "</div>" +
-								'<div class="lineno">' + line2 + "</div>" +
-								'<div class="lines">' + postProcessDiffContents(diffContent).replace(/\t/g, "    ") + "</div>" +
-							'</div>';
+		if (!binary && diffLines.length > 0)  {
+			finalContent += '<div id="content_' + escapedTitle + '" class="diffContent">' +
+				'<div class="lines">' + buildSideBySideHtml(diffLines).replace(/\t/g, "    ") + "</div>" +
+				'</div>';
 		}
 		else {
 			if (binary) {
 				if (callbacks["binaryFile"])
 					finalContent += callbacks["binaryFile"](binaryname);
 				else
-					finalContent += '<div id="content_' + title + '">Binary file differs</div>';
+					finalContent += '<div id="content_' + escapedTitle + '">Binary file differs</div>';
 			}
 		}
 
-		if (diffContent != "" || binary)
+		if (diffLines.length > 0 || binary)
 			finalContent += '</div>' + linkToTop;
 
-		line1 = "";
-		line2 = "";
-		diffContent = "";
+		diffLines = [];
 		file_index++;
 		startname = "";
 		endname = "";
 	}
+
 	for (var lineno = 0, lindex = 0; lineno < lines.length; lineno++) {
 		var l = lines[lineno];
 
 		var firstChar = l.charAt(0);
 
-		if (firstChar == "d" && l.charAt(1) == "i") {			// "diff", i.e. new file, we have to reset everything
-			header = true;						// diff always starts with a header
-
-			finishContent(); // Finish last file
-
+		if (firstChar == "d" && l.charAt(1) == "i") {
+			header = true;
+			finishContent();
 			binary = false;
 			mode_change = false;
 
-			if(match = l.match(/^diff --git (a\/)+(.*) (b\/)+(.*)$/)) {	// there are cases when we need to capture filenames from
-				startname = match[2];					// the diff line, like with mode-changes.
-				endname = match[4];					// this can get overwritten later if there is a diff or if
-			}								// the file is binary
-
+			if(match = l.match(/^diff --git (a\/)+(.*) (b\/)+(.*)$/)) {
+				startname = match[2];
+				endname = match[4];
+			}
 			continue;
 		}
 
@@ -146,7 +137,6 @@ var highlightDiff = function(diff, element, callbacks) {
 			if (firstChar == "n") {
 				if (l.match(/^new file mode .*$/))
 					startname = "/dev/null";
-
 				if (match = l.match(/^new mode (.*)$/)) {
 					mode_change = true;
 					new_mode = match[1];
@@ -160,7 +150,6 @@ var highlightDiff = function(diff, element, callbacks) {
 				}
 				continue;
 			}
-
 			if (firstChar == "d") {
 				if (l.match(/^deleted file mode .*$/))
 					endname = "/dev/null";
@@ -176,12 +165,8 @@ var highlightDiff = function(diff, element, callbacks) {
 					endname = match[2];
 				continue;
 			}
-			// If it is a complete rename, we don't know the name yet
-			// We can figure this out from the 'rename from.. rename to.. thing
-			if (firstChar == 'r')
-			{
-				if (match = l.match(/^rename (from|to) (.*)$/))
-				{
+			if (firstChar == 'r') {
+				if (match = l.match(/^rename (from|to) (.*)$/)) {
 					if (match[1] == "from")
 						startname = match[2];
 					else
@@ -189,64 +174,200 @@ var highlightDiff = function(diff, element, callbacks) {
 				}
 				continue;
 			}
-			if (firstChar == "B") // "Binary files .. and .. differ"
-			{
+			if (firstChar == "B") {
 				binary = true;
-				// We might not have a diff from the binary file if it's new.
-				// So, we use a regex to figure that out
-
-				if (match = l.match(/^Binary files (a\/)?(.*) and (b\/)?(.*) differ$/))
-				{
+				if (match = l.match(/^Binary files (a\/)?(.*) and (b\/)?(.*) differ$/)) {
 					startname = match[2];
 					endname = match[4];
 				}
 			}
-
-			// Finish the header
 			if (firstChar == "@")
 				header = false;
 			else
 				continue;
 		}
 
-		sindex = "index=" + lindex.toString() + " ";
+		// Collect line data for side-by-side processing
 		if (firstChar == "+") {
-			line1 += "\n";
-			line2 += ++hunk_start_line_2 + "\n";
-			diffContent += "<div " + sindex + "class='addline'>" + l + "</div>";
+			diffLines.push({
+				type: 'add',
+				index: lindex,
+				content: l,
+				lineNum: ++hunk_start_line_2
+			});
 		} else if (firstChar == "-") {
-			line1 += ++hunk_start_line_1 + "\n";
-			line2 += "\n";
-			diffContent += "<div " + sindex + "class='delline'>" + l + "</div>";
+			diffLines.push({
+				type: 'del',
+				index: lindex,
+				content: l,
+				lineNum: ++hunk_start_line_1
+			});
 		} else if (firstChar == "@") {
 			if (header) {
 				header = false;
 			}
-
-			if (m = l.match(/@@ \-([0-9]+),?\d* \+(\d+),?\d* @@/))
-			{
+			if (m = l.match(/@@ \-([0-9]+),?\d* \+(\d+),?\d* @@/)) {
 				hunk_start_line_1 = parseInt(m[1]) - 1;
 				hunk_start_line_2 = parseInt(m[2]) - 1;
 			}
-			line1 += "...\n";
-			line2 += "...\n";
-			diffContent += "<div " + sindex + "class='hunkheader'>" + l + "</div>";
+			diffLines.push({
+				type: 'hunk',
+				index: lindex,
+				content: l
+			});
 		} else if (firstChar == " ") {
-			line1 += ++hunk_start_line_1 + "\n";
-			line2 += ++hunk_start_line_2 + "\n";
-			diffContent += "<div " + sindex + "class='noopline'>" + l + "</div>";
+			diffLines.push({
+				type: 'context',
+				index: lindex,
+				content: l,
+				oldLineNum: ++hunk_start_line_1,
+				newLineNum: ++hunk_start_line_2
+			});
 		}
 		lindex++;
 	}
 
 	finishContent();
 
-	// This takes about 7ms
 	element.innerHTML = finalContent;
 
-	// TODO: Replace this with a performance pref call
 	if (false)
-	gitxDiffLog("Total time:" + (new Date().getTime() - start));
+		gitxDiffLog("Total time:" + (new Date().getTime() - start));
+}
+
+// Build side-by-side HTML from collected diff lines
+var buildSideBySideHtml = function(diffLines) {
+	var html = '';
+	var i = 0;
+
+	// Helper to escape content for HTML display
+	var escapeContent = function(text) {
+		if (!text) return '';
+		return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	};
+
+	while (i < diffLines.length) {
+		var line = diffLines[i];
+
+		if (line.type === 'hunk') {
+			// Hunk header spans both sides
+			html += '<div index="' + line.index + '" class="hunkheader">' + escapeContent(line.content) + '</div>';
+			i++;
+		} else if (line.type === 'context') {
+			// Context lines appear on both sides - escape content, strip leading space
+			var escapedContent = escapeContent(line.content.substring(1));
+			html += buildRow(line.index, 'noopline', line.oldLineNum, escapedContent, line.newLineNum, escapedContent);
+			i++;
+		} else if (line.type === 'del' || line.type === 'add') {
+			// Collect consecutive del/add blocks for pairing
+			var delLines = [];
+			var addLines = [];
+
+			// First collect all deletions
+			while (i < diffLines.length && diffLines[i].type === 'del') {
+				delLines.push(diffLines[i]);
+				i++;
+			}
+			// Then collect all additions
+			while (i < diffLines.length && diffLines[i].type === 'add') {
+				addLines.push(diffLines[i]);
+				i++;
+			}
+
+			// Apply inline diff highlighting if we have both deletions and additions
+			if (delLines.length > 0 && addLines.length > 0) {
+				var highlighted = highlightChangePair(delLines, addLines);
+				delLines = highlighted.del;
+				addLines = highlighted.add;
+			} else if (delLines.length > 0) {
+				// Only deletions - apply simple highlighting (strip leading -)
+				for (var d = 0; d < delLines.length; d++) {
+					var text = delLines[d].content.substring(1);
+					delLines[d].highlighted = '<del>' + inlinediff.escape(text) + '</del>';
+				}
+			} else if (addLines.length > 0) {
+				// Only additions - apply simple highlighting (strip leading +)
+				for (var a = 0; a < addLines.length; a++) {
+					var text = addLines[a].content.substring(1);
+					addLines[a].highlighted = '<ins>' + highlightTrailingWhitespace(inlinediff.escape(text)) + '</ins>';
+				}
+			}
+
+			// Build paired rows
+			var maxRows = Math.max(delLines.length, addLines.length);
+			for (var r = 0; r < maxRows; r++) {
+				var delLine = delLines[r];
+				var addLine = addLines[r];
+
+				// Determine the index - use the line that exists, prefer del
+				var rowIndex = delLine ? delLine.index : addLine.index;
+
+				if (delLine && addLine) {
+					// Both sides have content - include add index for staging
+					html += buildRow(rowIndex, 'changeline',
+						delLine.lineNum, delLine.highlighted || delLine.content,
+						addLine.lineNum, addLine.highlighted || addLine.content,
+						'delline', 'addline', addLine.index);
+				} else if (delLine) {
+					// Only deletion
+					html += buildRow(delLine.index, 'delline',
+						delLine.lineNum, delLine.highlighted || delLine.content,
+						'', '',
+						'delline', 'empty');
+				} else if (addLine) {
+					// Only addition
+					html += buildRow(addLine.index, 'addline',
+						'', '',
+						addLine.lineNum, addLine.highlighted || addLine.content,
+						'empty', 'addline');
+				}
+			}
+		} else {
+			i++;
+		}
+	}
+
+	return html;
+};
+
+// Apply inline diff highlighting to paired del/add blocks
+var highlightChangePair = function(delLines, addLines) {
+	var oldText = delLines.map(function(l) { return l.content.substring(1); }).join("\n");
+	var newText = addLines.map(function(l) { return l.content.substring(1); }).join("\n");
+
+	var diffResult = inlinediff.diffString3(oldText, newText);
+	var oldHighlighted = diffResult[1].split(/\n/);
+	var newHighlighted = diffResult[2].split(/\n/);
+
+	// Strip leading +/- since colors indicate add/del
+	for (var d = 0; d < delLines.length; d++) {
+		delLines[d].highlighted = mergeInsDel(oldHighlighted[d] || '');
+	}
+	for (var a = 0; a < addLines.length; a++) {
+		addLines[a].highlighted = mergeInsDel(highlightTrailingWhitespace(newHighlighted[a] || ''));
+	}
+
+	return { del: delLines, add: addLines };
+};
+
+// Build a single row of the side-by-side diff
+var buildRow = function(index, rowClass, oldLineNum, oldContent, newLineNum, newContent, oldClass, newClass, addIndex) {
+	oldClass = oldClass || rowClass;
+	newClass = newClass || rowClass;
+
+	var oldLineNumStr = (oldLineNum === '' || oldLineNum === undefined) ? '' : oldLineNum;
+	var newLineNumStr = (newLineNum === '' || newLineNum === undefined) ? '' : newLineNum;
+	var oldContentStr = oldContent || '';
+	var newContentStr = newContent || '';
+
+	var addIndexAttr = (addIndex !== undefined) ? ' data-add-index="' + addIndex + '"' : '';
+
+	return '<div index="' + index + '"' + addIndexAttr + ' class="diff-row ' + rowClass + '">' +
+		'<div class="lineno old-lineno">' + oldLineNumStr + '</div>' +
+		'<div class="line-content old-content ' + oldClass + '">' + oldContentStr + '</div>' +
+		'<div class="lineno new-lineno">' + newLineNumStr + '</div>' +
+		'<div class="line-content new-content ' + newClass + '">' + newContentStr + '</div>' +
+		'</div>';
 }
 
 var highlightTrailingWhitespace = function (l) {

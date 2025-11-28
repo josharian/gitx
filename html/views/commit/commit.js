@@ -182,6 +182,17 @@ var findParentElementByTag = function (el, tagName)
 	return el;
 }
 
+// Find the diff-row or hunkheader parent element
+var findDiffRow = function(el) {
+	while (el && el.parentNode) {
+		if (el.classList && (el.classList.contains('diff-row') || el.classList.contains('hunkheader'))) {
+			return el;
+		}
+		el = el.parentNode;
+	}
+	return null;
+}
+
 /* Set the event handlers for mouse clicks/drags */
 var setSelectHandlers = function()
 {
@@ -206,29 +217,34 @@ var setSelectHandlers = function()
 	for (i = 0; i < list.length; ++i) {
 		var file = list[i];
 		file.ondblclick = function (event) {
-			var target = findParentElementByTag(event.target, "div");
+			var target = findDiffRow(event.target);
+			if (!target) return false;
+
 			var file = target.parentNode;
-			if (file.id = "selected")
+			if (file.id == "selected")
 				file = file.parentNode;
-			var start = target;
-			var elem_class = start.getAttribute("class");
-			if(!elem_class || !(elem_class == "addline" | elem_class == "delline")) 
-				return false;
-			deselect();
-			var bounds = findsubhunk(start);
-			showSelection(file,bounds[0],bounds[1],true);
+
+			// Check if it's a row that can be selected for sub-hunk
+			var rowClass = target.getAttribute("class") || "";
+			if (rowClass.indexOf("delline") >= 0 || rowClass.indexOf("addline") >= 0 || rowClass.indexOf("changeline") >= 0) {
+				deselect();
+				var bounds = findsubhunk(target);
+				showSelection(file, bounds[0], bounds[1], true);
+			}
 			return false;
 		};
 
 		file.onmousedown = function(event) {
-			if (event.which != 1) 
+			if (event.which != 1)
 				return false;
-			var elem_class = event.target.getAttribute("class")
+			var elem_class = event.target.getAttribute("class") || "";
 			event.stopPropagation();
-			if (elem_class == "hunkheader" || elem_class == "hunkbutton")
+			if (elem_class.indexOf("hunkheader") >= 0 || elem_class.indexOf("hunkbutton") >= 0)
 				return false;
 
-			var target = findParentElementByTag(event.target, "div");
+			var target = findDiffRow(event.target);
+			if (!target) return false;
+
 			var file = target.parentNode;
 			if (file.id && file.id == "selected")
 				file = file.parentNode;
@@ -259,10 +275,14 @@ var setSelectHandlers = function()
 				return false;
 			}
 
-			var srcElement = findParentElementByTag(event.srcElement, "div");
+			var srcElement = findDiffRow(event.srcElement);
+			if (!srcElement) return false;
+
 			file.onmouseover = function(event2) {
-				var target2 = findParentElementByTag(event2.target, "div");
-				showSelection(file, srcElement, target2);
+				var target2 = findDiffRow(event2.target);
+				if (target2) {
+					showSelection(file, srcElement, target2);
+				}
 				return false;
 			};
 			showSelection(file, srcElement, srcElement);
@@ -379,30 +399,41 @@ var discardHunk = function(hunk, event)
 	});
 }
 
+// Extract just the @@ line from hunk header text (strips button text)
+var extractHunkHeaderLine = function(text) {
+	var match = text.match(/@@[^@]+@@/);
+	return match ? match[0] : null;
+};
+
 /* Split a hunk at the selected unchanged line */
 var splitHunk = function(button)
 {
-	var selection = document.getElementById("selected");
-	if (!selection) return false;
-	
-	var selectedLine = selection.childNodes[1]; // First child is the button, second is the line
-	if (!selectedLine || selectedLine.getAttribute("class") != "noopline") return false;
-	
+	// Find the selected row (marked with .selected-row class)
+	var selectedLine = document.querySelector('.selected-row');
+	if (!selectedLine) return false;
+
+	var selectedClass = selectedLine.getAttribute("class") || "";
+	if (selectedClass.indexOf("noopline") < 0) return false;
+
 	var selectedIndex = parseInt(selectedLine.getAttribute("index"));
 	var hunkHeader = null;
-	var preselect = 0;
+	var hunkHeaderIndex = -1;
 
-	// Find the hunk header
-	for(var next = selection.previousSibling; next; next = next.previousSibling) {
-		var elem_class = next.getAttribute("class");
-		if(elem_class == "hunkheader") {
-			hunkHeader = next.lastChild.data;
+	// Find the hunk header by walking siblings
+	for (var next = selectedLine.previousSibling; next; next = next.previousSibling) {
+		var elem_class = next.getAttribute ? (next.getAttribute("class") || "") : "";
+		if (elem_class.indexOf("hunkheader") >= 0) {
+			var rawText = next.textContent || next.innerText;
+			hunkHeader = extractHunkHeaderLine(rawText);
+			hunkHeaderIndex = parseInt(next.getAttribute("index"));
 			break;
 		}
-		preselect++;
 	}
 
 	if (!hunkHeader) return false;
+
+	// Calculate preselect as the difference in indices (accounts for paired rows)
+	var preselect = selectedIndex - hunkHeaderIndex - 1;
 
 	// Parse the original hunk header to get line numbers
 	var m;
@@ -498,57 +529,90 @@ var splitHunk = function(button)
 	displayDiff(modifiedDiff, originalCached);
 }
 
-/* Find all contiguous add/del lines. A quick way to select "just this
+/* Find all contiguous add/del/change lines. A quick way to select "just this
  * chunk". */
-var findsubhunk = function(start) { 
-        var findBound = function(direction) { 
-		var element=start;
-                for (var next = element[direction]; next; next = next[direction]) { 
-                        var elem_class = next.getAttribute("class"); 
-                        if (elem_class == "hunkheader" || elem_class == "noopline") 
-                                break; 
-			element=next;
+var findsubhunk = function(start) {
+	var isChangeRow = function(el) {
+		if (!el || !el.getAttribute) return false;
+		var cls = el.getAttribute("class") || "";
+		return cls.indexOf("delline") >= 0 || cls.indexOf("addline") >= 0 || cls.indexOf("changeline") >= 0;
+	};
+
+	var isStopRow = function(el) {
+		if (!el || !el.getAttribute) return true;
+		var cls = el.getAttribute("class") || "";
+		return cls.indexOf("hunkheader") >= 0 || cls.indexOf("noopline") >= 0;
+	};
+
+	var findBound = function(direction) {
+		var element = start;
+		for (var next = element[direction]; next; next = next[direction]) {
+			if (isStopRow(next)) break;
+			if (isChangeRow(next)) element = next;
 		}
-		return element; 
-        }
-        return [findBound("previousSibling"), findBound("nextSibling")]; 
+		return element;
+	};
+	return [findBound("previousSibling"), findBound("nextSibling")];
 } 
 
 /* Remove existing selection */
 var deselect = function() {
-	var selection = document.getElementById("selected");
-	if (selection) {
-		while (selection.childNodes[1])
-			selection.parentNode.insertBefore(selection.childNodes[1], selection);
-		selection.parentNode.removeChild(selection);
+	// Remove the selection button first
+	var selButton = document.getElementById("selection-button");
+	if (selButton) {
+		selButton.parentNode.removeChild(selButton);
+	}
+	// Remove selection class from all rows
+	var selectedRows = document.querySelectorAll('.selected-row');
+	for (var i = 0; i < selectedRows.length; i++) {
+		selectedRows[i].classList.remove('selected-row');
 	}
 }
 
 /* Stage individual selected lines.  Note that for staging, unselected
  * delete lines are context, and v.v. for unstaging. */
 var stageLines = function(reverse) {
-	var selection = document.getElementById("selected");
-	if(!selection) return false;
+	// Find all selected rows (marked with .selected-row class)
+	var selectedRows = document.querySelectorAll('.selected-row');
+	if (selectedRows.length == 0) return false;
 	currentSelection = false;
-	var hunkHeader = false;
-	var preselect = 0,elem_class;
 
-	for(var next = selection.previousSibling; next; next = next.previousSibling) {
-		elem_class = next.getAttribute("class");
-		if(elem_class == "hunkheader") {
-			hunkHeader = next.lastChild.data;
+	// Find the hunk header by walking backwards from first selected row
+	var hunkHeader = false;
+	var hunkHeaderIndex = -1;
+
+	for (var next = selectedRows[0].previousSibling; next; next = next.previousSibling) {
+		var elem_class = next.getAttribute ? (next.getAttribute("class") || "") : "";
+		if (elem_class.indexOf("hunkheader") >= 0) {
+			var rawText = next.textContent || next.innerText;
+			hunkHeader = extractHunkHeaderLine(rawText);
+			hunkHeaderIndex = parseInt(next.getAttribute("index"));
 			break;
 		}
-		preselect++;
 	}
 
 	if (!hunkHeader) return false;
 
-	var sel_len = selection.children.length-1;
+	// Get selected row indices (accounting for paired changelines)
+	var selectedIndices = {};
+	for (var i = 0; i < selectedRows.length; i++) {
+		var child = selectedRows[i];
+
+		var idx = parseInt(child.getAttribute("index"));
+		if (!isNaN(idx)) {
+			selectedIndices[idx] = true;
+			// For paired changelines, also include the add-index
+			var addIdx = child.getAttribute("data-add-index");
+			if (addIdx) {
+				selectedIndices[parseInt(addIdx)] = true;
+			}
+		}
+	}
+
 	var subhunkText = getLines(hunkHeader);
 	var lines = subhunkText.split('\n');
 	lines.shift();  // Trim old hunk header (we'll compute our own)
-	if (lines[lines.length-1] == "") lines.pop(); // Omit final newline
+	if (lines[lines.length - 1] == "") lines.pop(); // Omit final newline
 
 	var m;
 	if (m = hunkHeader.match(/@@ \-(\d+)(,\d+)? \+(\d+)(,\d+)? @@/)) {
@@ -556,15 +620,20 @@ var stageLines = function(reverse) {
 		var start_new = parseInt(m[3]);
 	} else return false;
 
-	var patch = "", count = [0,0];
+	// Build patch based on selected indices
+	// Each line in the hunk corresponds to hunkHeaderIndex + 1 + lineIndex
+	var patch = "", count = [0, 0];
 	for (var i = 0; i < lines.length; i++) {
 		var l = lines[i];
 		var firstChar = l.charAt(0);
-		if (i < preselect || i >= preselect+sel_len) {    // Before/after select
-			if(firstChar == (reverse?'+':"-"))   // It's context now, make it so!
-				l = ' '+l.substr(1);
-			if(firstChar != (reverse?'-':"+")) { // Skip unincluded changes
-				patch += l+"\n";
+		var lineIndex = hunkHeaderIndex + 1 + i;
+		var isSelected = selectedIndices[lineIndex];
+
+		if (!isSelected) {    // Not selected
+			if (firstChar == (reverse ? '+' : "-"))   // It's context now, make it so!
+				l = ' ' + l.substr(1);
+			if (firstChar != (reverse ? '-' : "+")) { // Skip unincluded changes
+				patch += l + "\n";
 				count[0]++; count[1]++;
 			}
 		} else {                                      // In the selection
@@ -575,53 +644,63 @@ var stageLines = function(reverse) {
 			} else {
 				count[0]++; count[1]++;
 			}
-			patch += l+"\n";
+			patch += l + "\n";
 		}
 	}
 	patch = diffHeader + '\n' + "@@ -" + start_old.toString() + "," + count[0].toString() +
-		" +" + start_new.toString() + "," + count[1].toString() + " @@\n"+patch;
+		" +" + start_new.toString() + "," + count[1].toString() + " @@\n" + patch;
 
-	addHunkText(patch,reverse);
+	pendingScrollY = getScrollY();
+	addHunkText(patch, reverse);
 }
 
 /* Compute the selection before actually making it.  Return as object
  * with 2-element array "bounds", and "good", which indicates if the
  * selection contains add/del lines. */
-var computeSelection = function(list, from,to)
+var computeSelection = function(list, from, to)
 {
 	var startIndex = parseInt(from.getAttribute("index"));
 	var endIndex = parseInt(to.getAttribute("index"));
-	if (startIndex == -1 || endIndex == -1) {
+	if (isNaN(startIndex) || isNaN(endIndex)) {
 		return false;
 	}
 
 	var up = (startIndex < endIndex);
-	var nextelem = up?"nextSibling":"previousSibling";
+	var nextelem = up ? "nextSibling" : "previousSibling";
+
+	var isChangeRow = function(el) {
+		if (!el || !el.getAttribute) return false;
+		var cls = el.getAttribute("class") || "";
+		return cls.indexOf("delline") >= 0 || cls.indexOf("addline") >= 0 || cls.indexOf("changeline") >= 0;
+	};
 
 	var insel = from.parentNode && from.parentNode.id == "selected";
 	var good = false;
-	for(var elem = last = from;;elem = elem[nextelem]) {
-		if(!insel && elem.id && elem.id == "selected") {
+	var last = from;
+
+	for (var elem = from; ; elem = elem[nextelem]) {
+		if (!insel && elem.id && elem.id == "selected") {
 			// Descend into selection div
-			elem = up?elem.childNodes[1]:elem.lastChild;
+			elem = up ? elem.childNodes[1] : elem.lastChild;
 			insel = true;
 		}
 
-		var elem_class = elem.getAttribute("class");
-		if(elem_class) {
-			if(elem_class == "hunkheader") {
+		var elem_class = elem.getAttribute ? (elem.getAttribute("class") || "") : "";
+		if (elem_class) {
+			if (elem_class.indexOf("hunkheader") >= 0) {
 				elem = last;
 				break; // Stay inside this hunk
 			}
-			if(!good && (elem_class == "addline" || elem_class == "delline"))
+			if (!good && isChangeRow(elem)) {
 				good = true; // A good selection
+			}
 		}
 		if (elem == to) break;
 
 		if (insel) {
-			if (up?
-			    elem == elem.parentNode.lastChild:
-			    elem == elem.parentNode.childNodes[1]) {
+			if (up ?
+				elem == elem.parentNode.lastChild :
+				elem == elem.parentNode.childNodes[1]) {
 				// Come up out of selection div
 				last = elem;
 				insel = false;
@@ -632,13 +711,13 @@ var computeSelection = function(list, from,to)
 		last = elem;
 	}
 	to = elem;
-	return {bounds:[from,to],good:good};
+	return { bounds: [from, to], good: good };
 }
 
 
 var currentSelection = false;
 
-/* Highlight the selection (if it is new) 
+/* Highlight the selection (if it is new)
 
    If trust is set, it is assumed that the selection is pre-computed,
    and it is not recomputed.  Trust also assumes deselection has
@@ -646,75 +725,90 @@ var currentSelection = false;
 */
 var showSelection = function(file, from, to, trust)
 {
-	if(trust)  // No need to compute bounds.
-		var sel = {bounds:[from,to],good:true};
-	else 
-		var sel = computeSelection(file,from,to);
-        
+	if (trust)  // No need to compute bounds.
+		var sel = { bounds: [from, to], good: true };
+	else
+		var sel = computeSelection(file, from, to);
+
 	if (!sel) {
 		currentSelection = false;
 		return;
 	}
 
-	if(currentSelection &&
-	   currentSelection.bounds[0] == sel.bounds[0] &&
-	   currentSelection.bounds[1] == sel.bounds[1] &&
-	   currentSelection.good == sel.good) {
+	if (currentSelection &&
+		currentSelection.bounds[0] == sel.bounds[0] &&
+		currentSelection.bounds[1] == sel.bounds[1] &&
+		currentSelection.good == sel.good) {
 		return; // Same selection
 	} else {
 		currentSelection = sel;
 	}
 
-	if(!trust) deselect();
+	if (!trust) deselect();
 
 	var beg = parseInt(sel.bounds[0].getAttribute("index"));
 	var end = parseInt(sel.bounds[1].getAttribute("index"));
 
-	if (beg > end) { 
-		var tmp = beg; 
-		beg = end; 
-		end = tmp; 
-	} 
+	if (beg > end) {
+		var tmp = beg;
+		beg = end;
+		end = tmp;
+	}
 
+	// Collect elements by walking siblings (handles side-by-side structure)
 	var elementList = [];
-	for (var i = beg; i <= end; ++i) 
-		elementList.push(from.parentNode.childNodes[i]); 
-	
-	var selection = document.createElement("div");
-	selection.setAttribute("id", "selected");
+	var linesContainer = from.parentNode;
+	if (linesContainer.classList && linesContainer.classList.contains('selected-row')) {
+		linesContainer = linesContainer.parentNode;
+	}
 
-	// Check if this is a single unchanged line selection for split hunk functionality
-	var isSingleUnchangedLine = (elementList.length == 1 && 
-								elementList[0].getAttribute("class") == "noopline");
-
-	var button = document.createElement('a');
-	button.setAttribute("href","#");
-	
-	if (isSingleUnchangedLine) {
-		button.appendChild(document.createTextNode("Split hunk"));
-		button.setAttribute("class","hunkbutton");
-		button.setAttribute("id","splithunk");
-		button.setAttribute('onclick','splitHunk(this); return false;');
-	} else {
-		button.appendChild(document.createTextNode(
-					   (originalCached?"Uns":"S")+"tage line"+
-					   (elementList.length > 1?"s":"")));
-		button.setAttribute("class","hunkbutton");
-		button.setAttribute("id","stagelines");
-
-		if (sel.good) {
-			button.setAttribute('onclick','stageLines('+
-					    (originalCached?'true':'false')+
-					    '); return false;');
-		} else {
-			button.setAttribute("class","disabled");
+	// Find elements by index
+	var children = linesContainer.children;
+	for (var i = 0; i < children.length; i++) {
+		var child = children[i];
+		var idx = parseInt(child.getAttribute("index"));
+		if (!isNaN(idx) && idx >= beg && idx <= end) {
+			elementList.push(child);
 		}
 	}
-	selection.appendChild(button);
 
-	file.insertBefore(selection, from);
-	for (i = 0; i < elementList.length; i++)
-		selection.appendChild(elementList[i]);
+	if (elementList.length == 0) return;
+
+	// Mark selected rows with a class (don't wrap them)
+	for (var i = 0; i < elementList.length; i++) {
+		elementList[i].classList.add('selected-row');
+	}
+
+	// Check if this is a single unchanged line selection for split hunk functionality
+	var firstClass = elementList[0].getAttribute("class") || "";
+	var isSingleUnchangedLine = (elementList.length == 1 && firstClass.indexOf("noopline") >= 0);
+
+	// Create button - position it absolutely within the first selected row
+	var link = document.createElement('a');
+	link.setAttribute("href", "#");
+	link.setAttribute("id", "selection-button");
+
+	if (isSingleUnchangedLine) {
+		link.appendChild(document.createTextNode("Split hunk"));
+		link.setAttribute("class", "hunkbutton selection-action");
+		link.setAttribute('onclick', 'splitHunk(this); return false;');
+	} else {
+		link.appendChild(document.createTextNode(
+			(originalCached ? "Uns" : "S") + "tage line" +
+			(elementList.length > 1 ? "s" : "")));
+		link.setAttribute("class", "hunkbutton selection-action");
+
+		if (sel.good) {
+			link.setAttribute('onclick', 'stageLines(' +
+				(originalCached ? 'true' : 'false') +
+				'); return false;');
+		} else {
+			link.setAttribute("class", "hunkbutton selection-action disabled");
+		}
+	}
+
+	// Insert button into the first selected row
+	elementList[0].insertBefore(link, elementList[0].firstChild);
 }
 
 
