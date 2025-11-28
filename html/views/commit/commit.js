@@ -300,7 +300,15 @@ var displayDiff = function(diff, cached, options)
 	options = options || {};
 	var diffWasTruncated = options.diffWasTruncated === true;
 	var truncateLimit = typeof options.truncateLimit === "number" && options.truncateLimit > 0 ? options.truncateLimit : 1024;
-	diffHeader = diff.split("\n").slice(0,4).join("\n");
+	// Find the diff header by looking for the first hunk marker
+	// Header ends just before the first @@ line
+	var firstHunkIdx = diff.indexOf("\n@@");
+	if (firstHunkIdx !== -1) {
+		diffHeader = diff.substring(0, firstHunkIdx);
+	} else {
+		// Fallback: no hunk found, use first 4 lines
+		diffHeader = diff.split("\n").slice(0,4).join("\n");
+	}
 	originalDiff = diff;
 	originalCached = cached;
 
@@ -562,10 +570,12 @@ var deselect = function() {
 	if (selButton) {
 		selButton.parentNode.removeChild(selButton);
 	}
-	// Remove selection class from all rows
+	// Remove selection classes from all rows
 	var selectedRows = document.querySelectorAll('.selected-row');
 	for (var i = 0; i < selectedRows.length; i++) {
 		selectedRows[i].classList.remove('selected-row');
+		selectedRows[i].classList.remove('selection-first');
+		selectedRows[i].classList.remove('selection-last');
 	}
 }
 
@@ -593,7 +603,8 @@ var stageLines = function(reverse) {
 
 	if (!hunkHeader) return false;
 
-	// Get selected row indices (accounting for paired changelines)
+	// Build a map of del-index → add-index pairs from selected rows
+	var delToAddPair = {};
 	var selectedIndices = {};
 	for (var i = 0; i < selectedRows.length; i++) {
 		var child = selectedRows[i];
@@ -601,10 +612,12 @@ var stageLines = function(reverse) {
 		var idx = parseInt(child.getAttribute("index"));
 		if (!isNaN(idx)) {
 			selectedIndices[idx] = true;
-			// For paired changelines, also include the add-index
+			// For paired changelines, track the del→add mapping
 			var addIdx = child.getAttribute("data-add-index");
 			if (addIdx) {
-				selectedIndices[parseInt(addIdx)] = true;
+				var addIdxNum = parseInt(addIdx);
+				selectedIndices[addIdxNum] = true;
+				delToAddPair[idx] = addIdxNum;
 			}
 		}
 	}
@@ -620,31 +633,66 @@ var stageLines = function(reverse) {
 		var start_new = parseInt(m[3]);
 	} else return false;
 
-	// Build patch based on selected indices
-	// Each line in the hunk corresponds to hunkHeaderIndex + 1 + lineIndex
+	// Build index→line mapping for the hunk
+	var lineByIndex = {};
+	for (var i = 0; i < lines.length; i++) {
+		var lineIndex = hunkHeaderIndex + 1 + i;
+		lineByIndex[lineIndex] = lines[i];
+	}
+
+	// Build patch, outputting paired add lines right after their del lines
 	var patch = "", count = [0, 0];
+	var usedAddIndices = {};  // Track which add lines we've already output
+
 	for (var i = 0; i < lines.length; i++) {
 		var l = lines[i];
 		var firstChar = l.charAt(0);
 		var lineIndex = hunkHeaderIndex + 1 + i;
+
+		// Skip add lines that were already output as part of a pair
+		if (usedAddIndices[lineIndex]) continue;
+
 		var isSelected = selectedIndices[lineIndex];
 
-		if (!isSelected) {    // Not selected
-			if (firstChar == (reverse ? '+' : "-"))   // It's context now, make it so!
-				l = ' ' + l.substr(1);
-			if (firstChar != (reverse ? '-' : "+")) { // Skip unincluded changes
+		if (firstChar == '-') {
+			// Deletion line
+			if (isSelected) {
+				// Output the deletion
 				patch += l + "\n";
-				count[0]++; count[1]++;
-			}
-		} else {                                      // In the selection
-			if (firstChar == '-') {
 				count[0]++;
-			} else if (firstChar == '+') {
+
+				// If this del is paired with an add, output the add immediately
+				var pairedAddIdx = delToAddPair[lineIndex];
+				if (pairedAddIdx && lineByIndex[pairedAddIdx]) {
+					patch += lineByIndex[pairedAddIdx] + "\n";
+					count[1]++;
+					usedAddIndices[pairedAddIdx] = true;
+				}
+			} else {
+				// Convert to context for staging (or skip for unstaging)
+				if (!reverse) {
+					patch += ' ' + l.substr(1) + "\n";
+					count[0]++; count[1]++;
+				}
+				// For reverse (unstaging), unselected del lines are skipped
+			}
+		} else if (firstChar == '+') {
+			// Addition line (not yet handled as part of a pair)
+			if (isSelected) {
+				patch += l + "\n";
 				count[1]++;
 			} else {
-				count[0]++; count[1]++;
+				// Convert to context for unstaging (or skip for staging)
+				if (reverse) {
+					patch += ' ' + l.substr(1) + "\n";
+					count[0]++; count[1]++;
+				}
+				// For staging, unselected add lines are skipped
 			}
+		} else {
+			// Context line
 			patch += l + "\n";
+			count[0]++; count[1]++;
 		}
 	}
 	patch = diffHeader + '\n' + "@@ -" + start_old.toString() + "," + count[0].toString() +
@@ -774,9 +822,15 @@ var showSelection = function(file, from, to, trust)
 
 	if (elementList.length == 0) return;
 
-	// Mark selected rows with a class (don't wrap them)
+	// Mark selected rows with classes for unified selection styling
 	for (var i = 0; i < elementList.length; i++) {
 		elementList[i].classList.add('selected-row');
+		if (i === 0) {
+			elementList[i].classList.add('selection-first');
+		}
+		if (i === elementList.length - 1) {
+			elementList[i].classList.add('selection-last');
+		}
 	}
 
 	// Check if this is a single unchanged line selection for split hunk functionality

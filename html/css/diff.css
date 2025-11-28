@@ -131,11 +131,26 @@
 	border-left: 5px solid black;
 }
 
-/* Selection highlight for side-by-side */
+/* Selection highlight for side-by-side - unified selection appearance */
 .diff-row.selected-row {
-	outline: 2px solid #4169E1;
-	outline-offset: -2px;
 	position: relative;
+	/* Left and right borders on all selected rows */
+	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1;
+}
+
+/* First selected row gets top border */
+.diff-row.selected-row.selection-first {
+	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1, inset 0 2px 0 #4169E1;
+}
+
+/* Last selected row gets bottom border */
+.diff-row.selected-row.selection-last {
+	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1, inset 0 -2px 0 #4169E1;
+}
+
+/* Single selected row: all borders */
+.diff-row.selected-row.selection-first.selection-last {
+	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1, inset 0 2px 0 #4169E1, inset 0 -2px 0 #4169E1;
 }
 
 .diff-row.selected-row .line-content {
@@ -146,11 +161,15 @@
 	background-color: #9FC5F8 !important;
 }
 
-/* Selection action button - positioned absolutely in first selected row */
+/* Selection action button - positioned within the grid row */
 #selection-button.selection-action {
 	position: absolute;
-	right: 4px;
-	top: 0;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
 	z-index: 10;
 	background-color: #cce5ff;
+	white-space: nowrap;
+	width: auto;
+	padding: 0 4px;
 }
