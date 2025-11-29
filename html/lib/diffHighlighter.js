@@ -293,6 +293,12 @@ var buildSideBySideHtml = function(diffLines) {
 				}
 			}
 
+			// Helper to get display content - use highlighted if set (even if empty), else strip prefix from content
+			var getDisplayContent = function(line) {
+				if (line.highlighted !== undefined) return line.highlighted;
+				return escapeContent(line.content.substring(1));
+			};
+
 			// Build paired rows
 			var maxRows = Math.max(delLines.length, addLines.length);
 			for (var r = 0; r < maxRows; r++) {
@@ -305,20 +311,20 @@ var buildSideBySideHtml = function(diffLines) {
 				if (delLine && addLine) {
 					// Both sides have content - include add index for staging
 					html += buildRow(rowIndex, 'changeline',
-						delLine.lineNum, delLine.highlighted || delLine.content,
-						addLine.lineNum, addLine.highlighted || addLine.content,
+						delLine.lineNum, getDisplayContent(delLine),
+						addLine.lineNum, getDisplayContent(addLine),
 						'delline', 'addline', addLine.index);
 				} else if (delLine) {
 					// Only deletion
 					html += buildRow(delLine.index, 'delline',
-						delLine.lineNum, delLine.highlighted || delLine.content,
+						delLine.lineNum, getDisplayContent(delLine),
 						'', '',
 						'delline', 'empty');
 				} else if (addLine) {
 					// Only addition
 					html += buildRow(addLine.index, 'addline',
 						'', '',
-						addLine.lineNum, addLine.highlighted || addLine.content,
+						addLine.lineNum, getDisplayContent(addLine),
 						'empty', 'addline');
 				}
 			}
