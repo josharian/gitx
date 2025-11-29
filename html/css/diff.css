@@ -131,26 +131,9 @@
 	border-left: 5px solid black;
 }
 
-/* Selection highlight for side-by-side - unified selection appearance */
+/* Selection highlight for side-by-side - background only */
 .diff-row.selected-row {
 	position: relative;
-	/* Left and right borders on all selected rows */
-	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1;
-}
-
-/* First selected row gets top border */
-.diff-row.selected-row.selection-first {
-	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1, inset 0 2px 0 #4169E1;
-}
-
-/* Last selected row gets bottom border */
-.diff-row.selected-row.selection-last {
-	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1, inset 0 -2px 0 #4169E1;
-}
-
-/* Single selected row: all borders */
-.diff-row.selected-row.selection-first.selection-last {
-	box-shadow: inset 2px 0 0 #4169E1, inset -2px 0 0 #4169E1, inset 0 2px 0 #4169E1, inset 0 -2px 0 #4169E1;
 }
 
 .diff-row.selected-row .line-content {
@@ -161,12 +144,11 @@
 	background-color: #9FC5F8 !important;
 }
 
-/* Selection action button - positioned within the grid row */
+/* Selection action button - positioned within the new-content cell */
 #selection-button.selection-action {
 	position: absolute;
-	right: 8px;
-	top: 50%;
-	transform: translateY(-50%);
+	right: 4px;
+	top: 0;
 	z-index: 10;
 	background-color: #cce5ff;
 	white-space: nowrap;

@@ -570,12 +570,10 @@ var deselect = function() {
 	if (selButton) {
 		selButton.parentNode.removeChild(selButton);
 	}
-	// Remove selection classes from all rows
+	// Remove selection class from all rows
 	var selectedRows = document.querySelectorAll('.selected-row');
 	for (var i = 0; i < selectedRows.length; i++) {
 		selectedRows[i].classList.remove('selected-row');
-		selectedRows[i].classList.remove('selection-first');
-		selectedRows[i].classList.remove('selection-last');
 	}
 }
 
@@ -822,15 +820,9 @@ var showSelection = function(file, from, to, trust)
 
 	if (elementList.length == 0) return;
 
-	// Mark selected rows with classes for unified selection styling
+	// Mark selected rows with selection class
 	for (var i = 0; i < elementList.length; i++) {
 		elementList[i].classList.add('selected-row');
-		if (i === 0) {
-			elementList[i].classList.add('selection-first');
-		}
-		if (i === elementList.length - 1) {
-			elementList[i].classList.add('selection-last');
-		}
 	}
 
 	// Check if this is a single unchanged line selection for split hunk functionality
@@ -861,8 +853,15 @@ var showSelection = function(file, from, to, trust)
 		}
 	}
 
-	// Insert button into the first selected row
-	elementList[0].insertBefore(link, elementList[0].firstChild);
+	// Insert button into the new-content cell of the first selected row
+	var newContentCell = elementList[0].querySelector('.new-content');
+	if (newContentCell) {
+		newContentCell.style.position = 'relative';
+		newContentCell.appendChild(link);
+	} else {
+		// Fallback: insert into the row itself
+		elementList[0].insertBefore(link, elementList[0].firstChild);
+	}
 }
 
 

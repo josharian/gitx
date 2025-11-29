@@ -455,15 +455,29 @@ static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 16384;
     [array addObject:@"--reverse"];
 
   NSError *error = nil;
-  NSString *output = [repository executeGitCommand:array
-                                         withInput:hunk
-                                             error:&error];
+  [repository executeGitCommand:array
+                      withInput:hunk
+                          error:&error];
 
   if (error) {
-    [self
-        postOperationFailed:
-            [NSString stringWithFormat:@"Applying patch failed: %@. Output: %@",
-                                       error.localizedDescription, output]];
+    NSString *errorDesc = error.localizedDescription ?: @"Unknown error";
+    NSString *gitError = error.localizedRecoverySuggestion ?: @"(no stderr)";
+    NSString *gitCommand = [error.userInfo objectForKey:@"GitCommand"] ?: @"";
+
+    // Truncate patch for display if too long
+    NSString *patchPreview = hunk;
+    if (patchPreview.length > 2000) {
+      patchPreview = [[patchPreview substringToIndex:2000] stringByAppendingString:@"\n... (truncated)"];
+    }
+
+    NSString *fullMessage = [NSString stringWithFormat:
+      @"%@\n\n"
+      @"Git error:\n%@\n\n"
+      @"%@\n\n"
+      @"Patch attempted:\n%@",
+      errorDesc, gitError, gitCommand, patchPreview];
+
+    [self postOperationFailed:fullMessage];
     return NO;
   }
 
