@@ -464,20 +464,31 @@ static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 16384;
     NSString *gitError = error.localizedRecoverySuggestion ?: @"(no stderr)";
     NSString *gitCommand = [error.userInfo objectForKey:@"GitCommand"] ?: @"";
 
-    // Truncate patch for display if too long
-    NSString *patchPreview = hunk;
-    if (patchPreview.length > 2000) {
-      patchPreview = [[patchPreview substringToIndex:2000] stringByAppendingString:@"\n... (truncated)"];
-    }
+    // Write full details to temp file for debugging
+    NSString *tempDir = NSTemporaryDirectory();
+    NSString *timestamp = [NSString stringWithFormat:@"%.0f", [[NSDate date] timeIntervalSince1970]];
+    NSString *tempPath = [tempDir stringByAppendingPathComponent:
+      [NSString stringWithFormat:@"gitx-patch-error-%@.txt", timestamp]];
 
-    NSString *fullMessage = [NSString stringWithFormat:
+    NSString *fullDetails = [NSString stringWithFormat:
+      @"GitX Patch Application Error\n"
+      @"============================\n\n"
+      @"Error: %@\n\n"
+      @"Git stderr:\n%@\n\n"
+      @"%@\n\n"
+      @"Patch attempted:\n"
+      @"----------------\n%@",
+      errorDesc, gitError, gitCommand, hunk];
+
+    [fullDetails writeToFile:tempPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+
+    NSString *displayMessage = [NSString stringWithFormat:
       @"%@\n\n"
       @"Git error:\n%@\n\n"
-      @"%@\n\n"
-      @"Patch attempted:\n%@",
-      errorDesc, gitError, gitCommand, patchPreview];
+      @"Full details written to:\n%@",
+      errorDesc, gitError, tempPath];
 
-    [self postOperationFailed:fullMessage];
+    [self postOperationFailed:displayMessage];
     return NO;
   }
 
