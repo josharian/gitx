@@ -298,122 +298,59 @@ static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 16384;
                                                        forKey:@"description"]];
 }
 
-- (BOOL)stageFiles:(NSArray *)stageFiles {
-  // Do staging files by chunks of 1000 files each, to prevent program freeze
-  // (because NSPipe has limited capacity)
-
-  NSUInteger filesCount = [stageFiles count];
-
-  // Prepare first iteration
-  int loopFrom = 0;
-  NSUInteger loopTo = 1000;
-  if (loopTo > filesCount)
-    loopTo = filesCount;
-  int loopCount = 0;
-  int i = 0;
-
-  // Staging
-  while (loopCount < filesCount) {
-    // Input string for update-index
-    // This will be a list of filenames that
-    // should be updated. It's similar to
-    // "git add -- <files>
-    NSMutableString *input = [NSMutableString string];
-
-    for (i = loopFrom; i < loopTo; i++) {
-      loopCount++;
-
-      PBChangedFile *file = [stageFiles objectAtIndex:(NSUInteger)i];
-
-      [input appendFormat:@"%@\0", file.path];
-    }
-
-    NSError *error = nil;
-    [repository
-        executeGitCommand:[NSArray arrayWithObjects:@"update-index", @"--add",
-                                                    @"--remove", @"-z",
-                                                    @"--stdin", nil]
-                withInput:input
-                    error:&error];
-
-    if (error) {
-      [self postOperationFailed:
-                [NSString stringWithFormat:@"Error in staging files: %@",
-                                           error.localizedDescription]];
-      return NO;
-    }
-
-    for (i = loopFrom; i < loopTo; i++) {
-      PBChangedFile *file = [stageFiles objectAtIndex:(NSUInteger)i];
-
-      file.hasUnstagedChanges = NO;
-      file.hasStagedChanges = YES;
-    }
-
-    // Prepare next iteration
-    loopFrom = loopCount;
-    loopTo = loopFrom + 1000;
-    if (loopTo > filesCount)
-      loopTo = (int)filesCount;
-  }
-
-  [self postIndexChange];
-  return YES;
+- (BOOL)stageFiles:(NSArray *)files {
+  return [self updateIndexForFiles:files stage:YES];
 }
 
-// TODO: Refactor with above. What's a better name for this?
-- (BOOL)unstageFiles:(NSArray *)unstageFiles {
-  // Do unstaging files by chunks of 1000 files each, to prevent program freeze
-  // (because NSPipe has limited capacity)
+- (BOOL)unstageFiles:(NSArray *)files {
+  return [self updateIndexForFiles:files stage:NO];
+}
 
-  NSUInteger filesCount = [unstageFiles count];
+// Unified staging/unstaging implementation.
+// Processes files in chunks of 1000 to avoid NSPipe capacity limits.
+- (BOOL)updateIndexForFiles:(NSArray *)files stage:(BOOL)stage {
+  NSUInteger filesCount = [files count];
+  if (filesCount == 0) {
+    return YES;
+  }
 
-  // Prepare first iteration
-  int loopFrom = 0;
-  int loopTo = 1000;
-  if (loopTo > filesCount)
-    loopTo = (int)filesCount;
-  int loopCount = 0;
-  int i = 0;
+  NSArray *command = stage
+      ? @[ @"update-index", @"--add", @"--remove", @"-z", @"--stdin" ]
+      : @[ @"update-index", @"-z", @"--index-info" ];
+  NSString *errorContext = stage ? @"staging" : @"unstaging";
 
-  // Unstaging
-  while (loopCount < filesCount) {
+  NSUInteger loopFrom = 0;
+  while (loopFrom < filesCount) {
+    NSUInteger loopTo = MIN(loopFrom + 1000, filesCount);
+
     NSMutableString *input = [NSMutableString string];
-
-    for (i = loopFrom; i < loopTo; i++) {
-      loopCount++;
-
-      PBChangedFile *file = [unstageFiles objectAtIndex:(NSUInteger)i];
-
-      [input appendString:[file indexInfo]];
+    for (NSUInteger i = loopFrom; i < loopTo; i++) {
+      PBChangedFile *file = files[i];
+      if (stage) {
+        [input appendFormat:@"%@\0", file.path];
+      } else {
+        [input appendString:[file indexInfo]];
+      }
     }
 
     NSError *error = nil;
-    [repository
-        executeGitCommand:[NSArray arrayWithObjects:@"update-index", @"-z",
-                                                    @"--index-info", nil]
-                withInput:input
-                    error:&error];
+    [repository executeGitCommand:command withInput:input error:&error];
 
     if (error) {
       [self postOperationFailed:
-                [NSString stringWithFormat:@"Error in unstaging files: %@",
+                [NSString stringWithFormat:@"Error in %@ files: %@",
+                                           errorContext,
                                            error.localizedDescription]];
       return NO;
     }
 
-    for (i = loopFrom; i < loopTo; i++) {
-      PBChangedFile *file = [unstageFiles objectAtIndex:(NSUInteger)i];
-
-      file.hasUnstagedChanges = YES;
-      file.hasStagedChanges = NO;
+    for (NSUInteger i = loopFrom; i < loopTo; i++) {
+      PBChangedFile *file = files[i];
+      file.hasUnstagedChanges = !stage;
+      file.hasStagedChanges = stage;
     }
 
-    // Prepare next iteration
-    loopFrom = loopCount;
-    loopTo = loopFrom + 1000;
-    if (loopTo > filesCount)
-      loopTo = (int)filesCount;
+    loopFrom = loopTo;
   }
 
   [self postIndexChange];
