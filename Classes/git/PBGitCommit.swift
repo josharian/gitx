@@ -8,15 +8,11 @@ final class PBGitCommit: NSObject, PBGitRefish {
     private weak var repositoryRef: PBGitRepository?
     private var commitData: PBCommitData {
         didSet {
-            cachedParents = nil
-            cachedSha = nil
             cachedPatch = nil
         }
     }
 
-    private var cachedParents: [String]?
     private var cachedPatch: String?
-    private var cachedSha: String?
 
     var sign: Int8 = 0
     var lineInfo: PBGraphCellInfo?
@@ -49,21 +45,12 @@ final class PBGitCommit: NSObject, PBGitRefish {
     }
 
     var sha: String {
-        if let cachedSha {
-            return cachedSha
-        }
-        let value = commitData.sha ?? ""
-        cachedSha = value
-        return value
-    }
-
-    var realSHA: String {
         commitData.sha ?? ""
     }
 
-    func realSha() -> String {
-        realSHA
-    }
+    // Alias for ObjC/XIB compatibility (key path "realSha" is used in bindings)
+    var realSHA: String { sha }
+    func realSha() -> String { sha }
 
     var date: Date {
         commitData.commitDate ?? Date(timeIntervalSince1970: 0)
@@ -116,12 +103,7 @@ final class PBGitCommit: NSObject, PBGitRefish {
     }
 
     var parents: [String] {
-        if let cachedParents {
-            return cachedParents
-        }
-        let parentSHAs = commitData.parentSHAs ?? []
-        cachedParents = parentSHAs
-        return parentSHAs
+        commitData.parentSHAs ?? []
     }
 
     var refs: NSMutableArray? {
