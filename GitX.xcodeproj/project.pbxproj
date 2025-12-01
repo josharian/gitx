@@ -787,7 +787,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Get git version info\nGIT_VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo \"unknown\")\n\n# Update Info.plist in the built product\nINFO_PLIST=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nif [ -f \"$INFO_PLIST\" ]; then\n    /usr/libexec/PlistBuddy -c \"Add :CFBundleGitVersion string $GIT_VERSION\" \"$INFO_PLIST\" 2>/dev/null || \\\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleGitVersion $GIT_VERSION\" \"$INFO_PLIST\"\nfi\n";
+			shellScript = "cd \"$SRCROOT\"\n\n# Get git version info\nGIT_VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo \"unknown\")\n\n# If dirty, append a short hash of the working tree state\ncase \"$GIT_VERSION\" in\n    *-dirty)\n        DIRTY_HASH=$(git diff HEAD | shasum | cut -c1-7)\n        GIT_VERSION=\"${GIT_VERSION}-${DIRTY_HASH}\"\n        ;;\nesac\n\n# Update Info.plist in the built product\nINFO_PLIST=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nif [ -f \"$INFO_PLIST\" ]; then\n    /usr/libexec/PlistBuddy -c \"Add :CFBundleGitVersion string $GIT_VERSION\" \"$INFO_PLIST\" 2>/dev/null || \\\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleGitVersion $GIT_VERSION\" \"$INFO_PLIST\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		D81E15ED121CE83D00269E61 /* Scripting Bridge Header Script  */ = {
