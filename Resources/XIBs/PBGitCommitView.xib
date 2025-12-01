@@ -146,7 +146,7 @@ DQ
                                                 </scroller>
                                             </scrollView>
                                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="247">
-                                                <rect key="frame" x="-2" y="9" width="82" height="18"/>
+                                                <rect key="frame" x="2" y="9" width="82" height="18"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <buttonCell key="cell" type="check" title="Amend" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="248">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
