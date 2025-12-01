@@ -480,16 +480,22 @@
 - (void)restoreSplitViewPosition
 {
 	float position = [[NSUserDefaults standardUserDefaults] floatForKey:kHistorySplitViewPositionDefault];
-	if (position < 1.0) {
-		// Default to 40% of the split view height for the top (history) view
-		float splitViewHeight = [historySplitView frame].size.height;
+	float splitViewHeight = [historySplitView frame].size.height;
+	float dividerThickness = [historySplitView dividerThickness];
+	float minPosition = historySplitView.topViewMin;
+	float maxPosition = splitViewHeight - historySplitView.bottomViewMin - dividerThickness;
+
+	// If no saved position or split view not yet laid out, use default
+	if (position < 1.0 || splitViewHeight < 1.0) {
 		position = splitViewHeight * 0.4f;
-		// Ensure position respects minimum constraints
-		if (position < historySplitView.topViewMin)
-			position = historySplitView.topViewMin;
-		else if (position > (splitViewHeight - historySplitView.bottomViewMin - [historySplitView dividerThickness]))
-			position = splitViewHeight - historySplitView.bottomViewMin - [historySplitView dividerThickness];
 	}
+
+	// Always validate position against current bounds to prevent
+	// corrupted state when window size changes between sessions
+	if (position < minPosition)
+		position = minPosition;
+	if (position > maxPosition)
+		position = maxPosition;
 
 	[historySplitView setPosition:position ofDividerAtIndex:0];
 	

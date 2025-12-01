@@ -312,8 +312,21 @@
 - (void)restoreCommitSplitViewPositiion
 {
 	float position = [[NSUserDefaults standardUserDefaults] floatForKey:kCommitSplitViewPositionDefault];
-	if (position < 1.0)
-		position = (float)[commitSplitView frame].size.height - 225;
+	float splitViewHeight = [commitSplitView frame].size.height;
+	float dividerThickness = [commitSplitView dividerThickness];
+	float minPosition = kCommitSplitViewTopViewMin;
+	float maxPosition = splitViewHeight - kCommitSplitViewBottomViewMin - dividerThickness;
+
+	// If no saved position or split view not yet laid out, use default
+	if (position < 1.0 || splitViewHeight < 1.0)
+		position = splitViewHeight - 225;
+
+	// Always validate position against current bounds to prevent
+	// corrupted state when window size changes between sessions
+	if (position < minPosition)
+		position = minPosition;
+	if (position > maxPosition)
+		position = maxPosition;
 
 	[commitSplitView setPosition:position ofDividerAtIndex:0];
 	[commitSplitView setHidden:NO];
