@@ -6,7 +6,6 @@
 //
 
 #import "PBGitRevisionCellView.h"
-#import "PBGitRevSpecifier.h"
 #import "PBGitHistoryController.h"
 #import "GitXTextFieldCell.h"
 #import "GitX-Swift.h"

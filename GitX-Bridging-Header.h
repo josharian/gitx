@@ -1,6 +1,4 @@
 #import "PBGitRepository.h"
 #import "PBGitRefish.h"
-#import "PBGitBinary.h"
 #import "PBGitGraphLine.h"
-#import "PBGitRevSpecifier.h"
 #import "PBGitIndexController.h"

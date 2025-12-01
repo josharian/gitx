@@ -65,7 +65,7 @@ open class PBSourceViewItem: NSObject {
 
     @objc(itemWithRevSpec:)
     static func item(withRevSpec revSpecifier: PBGitRevSpecifier) -> PBSourceViewItem {
-        let ref = revSpecifier.ref()
+        let ref = revSpecifier.ref
 
         if ref?.isTag == true {
             return PBGitSVTagItem.tagItem(with: revSpecifier)
@@ -113,7 +113,7 @@ open class PBSourceViewItem: NSObject {
         }
 
         if node == nil {
-            if firstTitle == theRevSpecifier.ref()?.remoteName {
+            if firstTitle == theRevSpecifier.ref?.remoteName {
                 node = PBGitSVRemoteItem.remoteItem(withTitle: firstTitle)
             } else {
                 node = PBGitSVFolderItem.folderItem(withTitle: firstTitle)
@@ -156,7 +156,7 @@ open class PBSourceViewItem: NSObject {
 
     @objc func ref() -> PBGitRef? {
         if let revSpecifier = revSpecifier {
-            return revSpecifier.ref()
+            return revSpecifier.ref
         }
         return nil
     }
@@ -337,7 +337,7 @@ final class PBGitSVOtherRevItem: PBSourceViewItem {
     @objc(otherItemWithRevSpec:)
     class func otherItem(with revSpecifier: PBGitRevSpecifier) -> PBGitSVOtherRevItem {
         let item = PBGitSVOtherRevItem()
-        item.title = revSpecifier.title()
+        item.title = revSpecifier.title
         item.revSpecifier = revSpecifier
         return item
     }

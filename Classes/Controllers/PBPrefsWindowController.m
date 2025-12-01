@@ -9,7 +9,6 @@
 #import "PBPrefsWindowController.h"
 #import "PBGitRepository.h"
 #import "GitX-Swift.h"
-#import "PBGitBinary.h"
 
 #define kPreferenceViewIdentifier @"PBGitXPreferenceViewIdentifier"
 

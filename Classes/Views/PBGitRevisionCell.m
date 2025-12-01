@@ -8,7 +8,6 @@
 
 #import "PBGitRevisionCell.h"
 #import "GitX-Swift.h"
-#import "PBGitRevSpecifier.h"
 #import "GitXTextFieldCell.h"
 
 

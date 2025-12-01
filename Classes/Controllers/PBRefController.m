@@ -10,7 +10,6 @@
 #import "PBGitRevisionCell.h"
 #import "PBCreateBranchSheet.h"
 #import "PBCreateTagSheet.h"
-#import "PBGitRevSpecifier.h"
 #import "GitX-Swift.h"
 
 #define kDialogDeleteRef @"Delete Ref"

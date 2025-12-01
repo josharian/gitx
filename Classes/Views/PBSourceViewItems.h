@@ -6,4 +6,4 @@
 //  Copyright 2010 Nathan Kinsinger. All rights reserved.
 //
 
-#import "PBGitRevSpecifier.h"
+@class PBGitRevSpecifier;

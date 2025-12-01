@@ -11,7 +11,6 @@
 #import "PBGitWindowController.h"
 #import "PBPrefsWindowController.h"
 #import "GitX-Swift.h"
-#import "PBGitBinary.h"
 
 
 static OpenRecentController* recentsDialog = nil;

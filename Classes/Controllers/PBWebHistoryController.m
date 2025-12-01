@@ -9,7 +9,6 @@
 #import "PBWebHistoryController.h"
 #import "PBWebBridge.h"
 #import "GitX-Swift.h"
-#import "PBGitRevSpecifier.h"
 
 @interface PBWebHistoryController ()
 - (NSDictionary *)bridgeDictionaryForCommit:(PBGitCommit *)commit currentRef:(NSString *)currentRef;

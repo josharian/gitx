@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F1E2D3C4B5A6978800123456 /* PBGitRevSpecifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5678901ABCDEF12 /* PBGitRevSpecifier.swift */; };
+		12345678A1B2C3D4E5F67890 /* PBGitBinary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6789012345678 /* PBGitBinary.swift */; };
+		87654321F6E5D4C3B2A10987 /* PBGitBinary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6789012345678 /* PBGitBinary.swift */; };
 		0A6858C711F7EA8A00AC2BE4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A6858C611F7EA8A00AC2BE4 /* CoreServices.framework */; };
 		3A453AD042958D1A09B654FD /* PBGitTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B27333E60F67679B05F54E5 /* PBGitTableCellView.swift */; };
 		B2F5C2AC2CB0B5F700C0C001 /* PBCommitData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */; };
@@ -57,7 +60,7 @@
 		B2E4C58C7FB04F468C0826DE /* PBWebControllerNativePost.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C58F7FB04F468C0826DE /* PBWebControllerNativePost.js */; };
 		B2E4C58D7FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C5907FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js */; };
 		B2E4C58E7FB04F468C0826DE /* PBWebControllerContextMenuTracking.js in Resources */ = {isa = PBXBuildFile; fileRef = B2E4C5917FB04F468C0826DE /* PBWebControllerContextMenuTracking.js */; };
-		4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */; };
+		12345678A1B2C3D4E5F67890 /* PBGitBinary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6789012345678 /* PBGitBinary.swift */; };
 		B2F5C2AF2CB0C1F100C0C001 /* PBGitCommit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2AE2CB0C1F100C0C001 /* PBGitCommit.swift */; };
 		B2F5C2D12CB0E00000C0C001 /* PBGitRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2D02CB0E00000C0C001 /* PBGitRef.swift */; };
 		B2F5C2D32CB0E00000C0C001 /* PBGitLane.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2D22CB0E00000C0C001 /* PBGitLane.swift */; };
@@ -70,7 +73,6 @@
 		4A5D76FC14A9A9CC00DF6C68 /* PBGitIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765F14A9A9CC00DF6C68 /* PBGitIndex.m */; };
 		4A5D76FF14A9A9CC00DF6C68 /* PBGitRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D766614A9A9CC00DF6C68 /* PBGitRepository.m */; };
 		4A5D770214A9A9CC00DF6C68 /* PBGitRevList.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D766C14A9A9CC00DF6C68 /* PBGitRevList.m */; };
-		4A5D770314A9A9CC00DF6C68 /* PBGitRevSpecifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D766E14A9A9CC00DF6C68 /* PBGitRevSpecifier.m */; };
 		4A5D770D14A9A9CC00DF6C68 /* PBGitXErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */; };
 		4A5D771214A9A9CC00DF6C68 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768B14A9A9CC00DF6C68 /* main.m */; };
 		4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D769114A9A9CC00DF6C68 /* PBCommitList.m */; };
@@ -97,7 +99,6 @@
 		4A5D773314A9A9CC00DF6C68 /* PBNiceSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76D314A9A9CC00DF6C68 /* PBNiceSplitView.m */; };
 		4A5D773814A9A9CC00DF6C68 /* PBSourceViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D76DD14A9A9CC00DF6C68 /* PBSourceViewCell.m */; };
 		4A5D773A14A9A9F600DF6C68 /* gitx.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D768614A9A9CC00DF6C68 /* gitx.m */; };
-		4A5D773C14A9AA2F00DF6C68 /* PBGitBinary.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */; };
 		8331CE22600F4AA0874DF284 /* PBEasyPipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140F08D9CFC94A928EFA8773 /* PBEasyPipe.swift */; };
 		C9DD564730FF4C472D689ABB /* PBChangedFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC97B2E755FC0119D60D01F /* PBChangedFile.swift */; };
 		E22C4D96F5293DA73C67DAD5 /* PBSourceViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28BAEDE6F381A6A843FB6363 /* PBSourceViewItem.swift */; };
@@ -219,9 +220,9 @@
 		B2E4C58F7FB04F468C0826DE /* PBWebControllerNativePost.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = PBWebControllerNativePost.js; sourceTree = "<group>"; };
 		B2E4C5907FB04F468C0826DE /* PBWebControllerBridgeBootstrap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = PBWebControllerBridgeBootstrap.js; sourceTree = "<group>"; };
 		B2E4C5917FB04F468C0826DE /* PBWebControllerContextMenuTracking.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = PBWebControllerContextMenuTracking.js; sourceTree = "<group>"; };
-		4A5D764E14A9A9CC00DF6C68 /* PBGitBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitBinary.h; sourceTree = "<group>"; };
-		4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitBinary.m; sourceTree = "<group>"; };
+		A1B2C3D4E5F6789012345678 /* PBGitBinary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitBinary.swift; sourceTree = "<group>"; };
 		B2F5C2AE2CB0C1F100C0C001 /* PBGitCommit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitCommit.swift; sourceTree = "<group>"; };
+		B1C2D3E4F5678901ABCDEF12 /* PBGitRevSpecifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitRevSpecifier.swift; sourceTree = "<group>"; };
 		B2F5C2D02CB0E00000C0C001 /* PBGitRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitRef.swift; sourceTree = "<group>"; };
 		B2F5C2D22CB0E00000C0C001 /* PBGitLane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitLane.swift; sourceTree = "<group>"; };
 		B2F5C2D42CB0E00000C0C001 /* PBGraphCellInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGraphCellInfo.swift; sourceTree = "<group>"; };
@@ -242,8 +243,6 @@
 		4A5D766614A9A9CC00DF6C68 /* PBGitRepository.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PBGitRepository.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4A5D766B14A9A9CC00DF6C68 /* PBGitRevList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevList.h; sourceTree = "<group>"; };
 		4A5D766C14A9A9CC00DF6C68 /* PBGitRevList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PBGitRevList.m; sourceTree = "<group>"; };
-		4A5D766D14A9A9CC00DF6C68 /* PBGitRevSpecifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevSpecifier.h; sourceTree = "<group>"; };
-		4A5D766E14A9A9CC00DF6C68 /* PBGitRevSpecifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitRevSpecifier.m; sourceTree = "<group>"; };
 		4A5D768114A9A9CC00DF6C68 /* PBGitXErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitXErrors.h; sourceTree = "<group>"; };
 		4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBGitXErrors.m; sourceTree = "<group>"; };
 		4A5D768614A9A9CC00DF6C68 /* gitx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = gitx.m; sourceTree = "<group>"; };
@@ -568,9 +567,9 @@
 		4A5D764D14A9A9CC00DF6C68 /* git */ = {
 			isa = PBXGroup;
 			children = (
-				4A5D764E14A9A9CC00DF6C68 /* PBGitBinary.h */,
-				4A5D764F14A9A9CC00DF6C68 /* PBGitBinary.m */,
+				A1B2C3D4E5F6789012345678 /* PBGitBinary.swift */,
 				B2F5C2AE2CB0C1F100C0C001 /* PBGitCommit.swift */,
+				B1C2D3E4F5678901ABCDEF12 /* PBGitRevSpecifier.swift */,
 				B2F5C2D02CB0E00000C0C001 /* PBGitRef.swift */,
 				B2F5C2D22CB0E00000C0C001 /* PBGitLane.swift */,
 				B2F5C2B32CB0CD3C00C0C001 /* GitCommandRunner.swift */,
@@ -589,8 +588,6 @@
 				4A5D766614A9A9CC00DF6C68 /* PBGitRepository.m */,
 				4A5D766B14A9A9CC00DF6C68 /* PBGitRevList.h */,
 				4A5D766C14A9A9CC00DF6C68 /* PBGitRevList.m */,
-				4A5D766D14A9A9CC00DF6C68 /* PBGitRevSpecifier.h */,
-				4A5D766E14A9A9CC00DF6C68 /* PBGitRevSpecifier.m */,
 				4A5D768114A9A9CC00DF6C68 /* PBGitXErrors.h */,
 				4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */,
 				B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */,
@@ -832,8 +829,9 @@
 				4A5D76F314A9A9CC00DF6C68 /* PBWebHistoryController.m in Sources */,
 				B2E4C5887FB04F468C0826DE /* PBWKWebViewBridge.m in Sources */,
 				B2E4C5897FB04F468C0826DE /* PBWKGitXSchemeHandler.m in Sources */,
-				4A5D76F414A9A9CC00DF6C68 /* PBGitBinary.m in Sources */,
+				12345678A1B2C3D4E5F67890 /* PBGitBinary.swift in Sources */,
 				B2F5C2AF2CB0C1F100C0C001 /* PBGitCommit.swift in Sources */,
+				F1E2D3C4B5A6978800123456 /* PBGitRevSpecifier.swift in Sources */,
 				B2F5C2D12CB0E00000C0C001 /* PBGitRef.swift in Sources */,
 				B2F5C2D32CB0E00000C0C001 /* PBGitLane.swift in Sources */,
 				B2F5C2D52CB0E00000C0C001 /* PBGraphCellInfo.swift in Sources */,
@@ -845,7 +843,6 @@
 				4A5D76FC14A9A9CC00DF6C68 /* PBGitIndex.m in Sources */,
 				4A5D76FF14A9A9CC00DF6C68 /* PBGitRepository.m in Sources */,
 				4A5D770214A9A9CC00DF6C68 /* PBGitRevList.m in Sources */,
-				4A5D770314A9A9CC00DF6C68 /* PBGitRevSpecifier.m in Sources */,
 				4A5D770D14A9A9CC00DF6C68 /* PBGitXErrors.m in Sources */,
 				4A5D771214A9A9CC00DF6C68 /* main.m in Sources */,
 				4A5D771514A9A9CC00DF6C68 /* PBCommitList.m in Sources */,
@@ -886,7 +883,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A5D773A14A9A9F600DF6C68 /* gitx.m in Sources */,
-				4A5D773C14A9AA2F00DF6C68 /* PBGitBinary.m in Sources */,
+				87654321F6E5D4C3B2A10987 /* PBGitBinary.swift in Sources */,
 				8331CE22600F4AA0874DF284 /* PBEasyPipe.swift in Sources */,
 				B4D5A3A52F50D3F100000001 /* GitRepoFinder.swift in Sources */,
 			);

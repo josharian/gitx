@@ -9,7 +9,6 @@
 #import "PBRepositoryDocumentController.h"
 #import "PBGitRepository.h"
 #import "PBGitRevList.h"
-#import "PBGitBinary.h"
 #import "GitX-Swift.h"
 
 @implementation PBRepositoryDocumentController

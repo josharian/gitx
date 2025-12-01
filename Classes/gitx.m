@@ -6,7 +6,7 @@
 //  Copyright 2008 __MyCompanyName__. All rights reserved.
 //
 
-#import "PBGitBinary.h"
+#import <Cocoa/Cocoa.h>
 #import "GitXScriptingConstants.h"
 
 #if __has_include("gitx-Swift.h")
@@ -42,7 +42,7 @@ void version_info()
 	NSString *gitVersion = [[[NSBundle bundleForClass:[PBGitBinary class]] infoDictionary] valueForKey:@"CFBundleGitVersion"];
 	printf("GitX version %s (%s)\n", [version UTF8String], [gitVersion UTF8String]);
 	if ([PBGitBinary path])
-		printf("Using git found at %s, version %s\n", [[PBGitBinary path] UTF8String], [[PBGitBinary version] UTF8String]);
+		printf("Using git found at %s, version %s\n", [[PBGitBinary path] UTF8String], [[PBGitBinary gitVersion] UTF8String]);
 	else
 		printf("GitX cannot find a git binary\n");
 	exit(1);

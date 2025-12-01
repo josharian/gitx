@@ -25,7 +25,7 @@ import Cocoa
 
         let targetRefName = ref.shortName()
 
-        let headRef = repo.headRef()?.ref()
+        let headRef = repo.headRef()?.ref
         let headRefName = headRef?.shortName() ?? ""
         let isHead = ref.isEqual(to: headRef)
         let isOnHeadBranch = isHead ? true : repo.isRef(onHeadBranch: ref)
@@ -98,7 +98,7 @@ import Cocoa
 
         var items: [PBRefMenuItem] = []
 
-        let headBranchName = commit.repository?.headRef()?.ref().shortName() ?? ""
+        let headBranchName = commit.repository?.headRef()?.ref?.shortName() ?? ""
         let isOnHeadBranch = commit.isOnHeadBranch()
 
         items.append(.item(withTitle: "Checkout Commit", action: #selector(checkout(_:)), enabled: true))

@@ -9,8 +9,6 @@
 #import "PBGitRepository.h"
 #import "GitX-Swift.h"
 #import "PBGitWindowController.h"
-#import "PBGitBinary.h"
-#import "PBGitRevSpecifier.h"
 #import "PBGitRevList.h"
 #import "GitXScriptingConstants.h"
 #import "PBHistorySearchController.h"

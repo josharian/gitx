@@ -12,7 +12,6 @@
 #import "PBGitGrapher.h"
 #import "PBGitHistoryGrapher.h"
 #import "GitX-Swift.h"
-#import "PBGitRevSpecifier.h"
 
 @interface PBGitHistoryList ()
 

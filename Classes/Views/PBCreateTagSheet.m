@@ -10,7 +10,6 @@
 #import "PBGitRepository.h"
 #import "GitX-Swift.h"
 #import "PBGitWindowController.h"
-#import "PBGitRevSpecifier.h"
 
 @interface PBCreateTagSheet ()
 
