@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, PBHistorySearchMode) {
 	PBHistorySearchMode searchMode;
 	NSIndexSet *results;
 	NSTimer *searchTimer;
-	NSTask *backgroundSearchTask;
+	NSUInteger currentSearchGeneration;
 	NSPanel *rewindPanel;
 }
 

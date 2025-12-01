@@ -12,46 +12,6 @@ final class PBEasyPipe: NSObject {
 
     // MARK: - Public API (ObjC exposed)
 
-    @objc(handleForCommand:withArgs:)
-    class func handleForCommand(_ command: String, withArgs arguments: [String]) -> FileHandle? {
-        return handleForCommand(command, withArgs: arguments, inDir: nil)
-    }
-
-    @objc(taskForCommand:withArgs:inDir:)
-    class func taskForCommand(_ command: String, withArgs arguments: [String], inDir directory: String?) -> Process? {
-        guard let process = makeProcess(
-            executablePath: command,
-            arguments: arguments,
-            workingDirectory: directory,
-            environmentExtras: nil,
-            combineOutputPipes: true
-        ) else {
-            return nil
-        }
-
-        logIfNeeded(command: command, arguments: arguments, directory: directory)
-        return process
-    }
-
-    @objc(handleForCommand:withArgs:inDir:)
-    class func handleForCommand(_ command: String, withArgs arguments: [String], inDir directory: String?) -> FileHandle? {
-        guard let process = taskForCommand(command, withArgs: arguments, inDir: directory) else {
-            return nil
-        }
-
-        guard let pipe = process.standardOutput as? Pipe else {
-            return nil
-        }
-
-        do {
-            try launch(process)
-        } catch {
-            return nil
-        }
-
-        return pipe.fileHandleForReading
-    }
-
     @objc(outputForCommand:withArgs:inDir:retValue:)
     class func outputForCommand(_ command: String,
                                 withArgs arguments: [String],
@@ -213,6 +173,62 @@ final class PBEasyPipe: NSObject {
         }
 
         return output
+    }
+
+    @objc(gitDataForArgs:inDir:error:)
+    class func gitDataForArgs(_ args: [String],
+                              inDir directory: String?,
+                              error: UnsafeMutablePointer<NSError?>?) -> Data? {
+        guard let gitPath = PBGitBinary.path() else {
+            if let errorPointer = error {
+                let userInfo: [String: Any] = [NSLocalizedDescriptionKey: "Git binary not found"]
+                errorPointer.pointee = NSError(
+                    domain: "PBGitRepositoryErrorDomain",
+                    code: 1004,
+                    userInfo: userInfo
+                )
+            }
+            return nil
+        }
+
+        guard let result = runProcess(
+            executablePath: gitPath,
+            arguments: args,
+            workingDirectory: directory,
+            environmentExtras: nil,
+            input: nil
+        ) else {
+            if let errorPointer = error {
+                errorPointer.pointee = NSError(
+                    domain: "PBGitRepositoryErrorDomain",
+                    code: 1001,
+                    userInfo: [NSLocalizedDescriptionKey: "Failed to execute git command"]
+                )
+            }
+            return nil
+        }
+
+        if result.terminationStatus != 0 {
+            if let errorPointer = error {
+                let description = "Git command failed with exit code \(result.terminationStatus)"
+                var userInfo: [String: Any] = [
+                    NSLocalizedDescriptionKey: description,
+                    "GitArgs": args,
+                    "ExitCode": NSNumber(value: result.terminationStatus)
+                ]
+                if let stderr = decodeToString(result.standardError), !stderr.isEmpty {
+                    userInfo[NSLocalizedRecoverySuggestionErrorKey] = stderr
+                }
+                errorPointer.pointee = NSError(
+                    domain: "PBGitRepositoryErrorDomain",
+                    code: 1001,
+                    userInfo: userInfo
+                )
+            }
+            return nil
+        }
+
+        return result.standardOutput
     }
 
     // MARK: - Private helpers

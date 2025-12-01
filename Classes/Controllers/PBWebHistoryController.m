@@ -77,39 +77,19 @@
 							@"sha": sha ?: @"" }];
 	currentSha = sha;
 
-	// Now we load the extended details. We used to do this in a separate thread,
-	// but this caused some funny behaviour because NSTask's and NSThread's don't really
-	// like each other. Instead, just do it async.
-
+	// Load extended commit details asynchronously
 	NSMutableArray *taskArguments = [NSMutableArray arrayWithObjects:@"show", @"--pretty=raw", @"-M", @"--no-color", currentSha, nil];
 	if (![PBGitDefaults showWhitespaceDifferences])
 		[taskArguments insertObject:@"-w" atIndex:1];
 
-	NSFileHandle *handle = [repository handleForArguments:taskArguments];
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	// Remove notification, in case we have another one running
-	[nc removeObserver:self name:NSFileHandleReadToEndOfFileCompletionNotification object:nil];
-	[nc addObserver:self selector:@selector(commitDetailsLoaded:) name:NSFileHandleReadToEndOfFileCompletionNotification object:handle]; 
-	[handle readToEndOfFileInBackgroundAndNotify];
-}
+	NSString *shaToLoad = currentSha;
+	[repository executeGitCommandAsync:taskArguments completion:^(NSString *output, NSString *error, int exitCode) {
+		if (!output)
+			return;
 
-- (void)commitDetailsLoaded:(NSNotification *)notification
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleReadToEndOfFileCompletionNotification object:nil];
-
-	NSData *data = [[notification userInfo] valueForKey:NSFileHandleNotificationDataItem];
-	if (!data)
-		return;
-
-	NSString *details = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-	if (!details)
-		details = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
-
-	if (!details)
-		return;
-
-	NSDictionary *payload = @{ @"sha": currentSha ?: @"", @"details": details ?: @"" };
-	[self sendBridgeEventWithType:@"commitDetails" payload:payload];
+		NSDictionary *payload = @{ @"sha": shaToLoad ?: @"", @"details": output ?: @"" };
+		[self sendBridgeEventWithType:@"commitDetails" payload:payload];
+	}];
 }
 
 - (void)selectCommit:(NSString *)sha

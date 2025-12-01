@@ -443,11 +443,8 @@
 
 - (void)startBackgroundSearch
 {
-	if (backgroundSearchTask) {
-		NSFileHandle *handle = [[backgroundSearchTask standardOutput] fileHandleForReading];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleReadToEndOfFileCompletionNotification object:handle];
-		[backgroundSearchTask terminate];
-	}
+	// Increment search generation to invalidate any in-flight searches
+	currentSearchGeneration++;
 
 	NSString *searchString = [[searchField stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 	if ([searchString isEqualToString:@""]) {
@@ -472,24 +469,23 @@
 			return;
 	}
 
-	backgroundSearchTask = [PBEasyPipe taskForCommand:[PBGitBinary path] withArgs:searchArguments inDir:[[historyController.repository fileURL] path]];
-	[backgroundSearchTask launch];
-
-	NSFileHandle *handle = [[backgroundSearchTask standardOutput] fileHandleForReading];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(parseBackgroundSearchResults:) name:NSFileHandleReadToEndOfFileCompletionNotification object:handle];
-	[handle readToEndOfFileInBackgroundAndNotify];
-
 	[self startProgressIndicator];
+
+	NSUInteger searchGeneration = currentSearchGeneration;
+	[historyController.repository executeGitCommandAsync:searchArguments completion:^(NSString *output, NSString *error, int exitCode) {
+		// Ignore results if a newer search has started
+		if (searchGeneration != currentSearchGeneration) {
+			return;
+		}
+		[self parseBackgroundSearchResultsFromOutput:output];
+	}];
 }
 
-- (void)parseBackgroundSearchResults:(NSNotification *)notification
+- (void)parseBackgroundSearchResultsFromOutput:(NSString *)resultsString
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSFileHandleReadToEndOfFileCompletionNotification object:[notification object]];
-	backgroundSearchTask = nil;
-
-	NSData *data = [[notification userInfo] valueForKey:NSFileHandleNotificationDataItem];
-
-	NSString *resultsString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	if (!resultsString) {
+		resultsString = @"";
+	}
 	NSArray *resultsArray = [resultsString componentsSeparatedByString:@"\n"];
 
 	NSMutableSet *matches = [NSMutableSet new];

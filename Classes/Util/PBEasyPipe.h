@@ -12,17 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PBEasyPipe : NSObject
 
-+ (nullable NSTask *)taskForCommand:(NSString *)command
-                            withArgs:(NSArray<NSString *> *)arguments
-                               inDir:(nullable NSString *)directory;
-
-+ (nullable NSFileHandle *)handleForCommand:(NSString *)command
-                                    withArgs:(NSArray<NSString *> *)arguments;
-
-+ (nullable NSFileHandle *)handleForCommand:(NSString *)command
-                                    withArgs:(NSArray<NSString *> *)arguments
-                                       inDir:(nullable NSString *)directory;
-
 + (nullable NSString *)outputForCommand:(NSString *)command
                                  withArgs:(NSArray<NSString *> *)arguments;
 
@@ -59,6 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)gitOutputForArgs:(NSArray<NSString *> *)arguments
                                    inDir:(nullable NSString *)directory
                                    error:(NSError * _Nullable * _Nullable)error;
+
++ (nullable NSData *)gitDataForArgs:(NSArray<NSString *> *)arguments
+                              inDir:(nullable NSString *)directory
+                              error:(NSError * _Nullable * _Nullable)error;
 
 @end
 

@@ -66,6 +66,7 @@
 		B2F5C2D32CB0E00000C0C001 /* PBGitLane.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2D22CB0E00000C0C001 /* PBGitLane.swift */; };
 		B2F5C2D52CB0E00000C0C001 /* PBGraphCellInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2D42CB0E00000C0C001 /* PBGraphCellInfo.swift */; };
 		B2F5C2B42CB0CD3C00C0C001 /* GitCommandRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2B32CB0CD3C00C0C001 /* GitCommandRunner.swift */; };
+		176D8B1F5AD841F588ECCEAD /* GitAsyncCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C13C58B7624C4AA326374C /* GitAsyncCommand.swift */; };
 		4A5D76F714A9A9CC00DF6C68 /* PBGitDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.swift */; };
 		4A5D76F814A9A9CC00DF6C68 /* PBGitGrapher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765714A9A9CC00DF6C68 /* PBGitGrapher.m */; };
 		4A5D76FA14A9A9CC00DF6C68 /* PBGitHistoryGrapher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A5D765B14A9A9CC00DF6C68 /* PBGitHistoryGrapher.m */; };
@@ -227,6 +228,7 @@
 		B2F5C2D22CB0E00000C0C001 /* PBGitLane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitLane.swift; sourceTree = "<group>"; };
 		B2F5C2D42CB0E00000C0C001 /* PBGraphCellInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGraphCellInfo.swift; sourceTree = "<group>"; };
 		B2F5C2B32CB0CD3C00C0C001 /* GitCommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitCommandRunner.swift; sourceTree = "<group>"; };
+		E0C13C58B7624C4AA326374C /* GitAsyncCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitAsyncCommand.swift; sourceTree = "<group>"; };
 		B2F5C2B02CB0C1F100C0C001 /* GitX-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GitX-Bridging-Header.h"; sourceTree = "<group>"; };
 		4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBGitDefaults.swift; sourceTree = "<group>"; };
 		4A5D765614A9A9CC00DF6C68 /* PBGitGrapher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitGrapher.h; sourceTree = "<group>"; };
@@ -573,6 +575,7 @@
 				B2F5C2D02CB0E00000C0C001 /* PBGitRef.swift */,
 				B2F5C2D22CB0E00000C0C001 /* PBGitLane.swift */,
 				B2F5C2B32CB0CD3C00C0C001 /* GitCommandRunner.swift */,
+				E0C13C58B7624C4AA326374C /* GitAsyncCommand.swift */,
 				4A5D765514A9A9CC00DF6C68 /* PBGitDefaults.swift */,
 				4A5D765614A9A9CC00DF6C68 /* PBGitGrapher.h */,
 				4A5D765714A9A9CC00DF6C68 /* PBGitGrapher.m */,
@@ -836,6 +839,7 @@
 				B2F5C2D32CB0E00000C0C001 /* PBGitLane.swift in Sources */,
 				B2F5C2D52CB0E00000C0C001 /* PBGraphCellInfo.swift in Sources */,
 				B2F5C2B42CB0CD3C00C0C001 /* GitCommandRunner.swift in Sources */,
+				176D8B1F5AD841F588ECCEAD /* GitAsyncCommand.swift in Sources */,
 				4A5D76F714A9A9CC00DF6C68 /* PBGitDefaults.swift in Sources */,
 				4A5D76F814A9A9CC00DF6C68 /* PBGitGrapher.m in Sources */,
 				4A5D76FA14A9A9CC00DF6C68 /* PBGitHistoryGrapher.m in Sources */,

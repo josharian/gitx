@@ -117,26 +117,114 @@ static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 16384;
 }
 
 - (void)refresh {
-  // If we were already refreshing the index, we don't want
-  // double notifications. As we can't stop the tasks anymore,
-  // just cancel the notifications
+  // Cancel any in-progress refresh
   refreshStatus = 0;
-  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  [nc removeObserver:self];
 
-  // Ask Git to refresh the index
-  NSFileHandle *updateHandle = [repository
-      handleInWorkDirForArguments:[NSArray arrayWithObjects:@"update-index",
-                                                            @"-q",
-                                                            @"--unmerged",
-                                                            @"--ignore-missing",
-                                                            @"--refresh", nil]];
+  // Ask Git to refresh the index first
+  [repository executeGitCommandAsync:@[@"update-index", @"-q", @"--unmerged", @"--ignore-missing", @"--refresh"]
+                          completion:^(NSString *output, NSString *error, int exitCode) {
+    if (exitCode != 0) {
+      [[NSNotificationCenter defaultCenter]
+          postNotificationName:PBGitIndexIndexRefreshFailed
+                        object:self
+                      userInfo:@{@"description": @"update-index failed"}];
+      return;
+    }
 
-  [nc addObserver:self
-         selector:@selector(indexRefreshFinished:)
-             name:NSFileHandleReadToEndOfFileCompletionNotification
-           object:updateHandle];
-  [updateHandle readToEndOfFileInBackgroundAndNotify];
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:PBGitIndexIndexRefreshStatus
+                      object:self
+                    userInfo:@{@"description": @"update-index success"}];
+
+    if ([repository isBareRepository]) {
+      return;
+    }
+
+    // Now run the three index queries in parallel
+    [self refreshIndexContents];
+  }];
+}
+
+- (void)refreshIndexContents {
+  NSString *parentTree = [self parentTree];
+
+  // Run all three queries in parallel:
+  // 0: Other files (untracked, not ignored)
+  // 1: Unstaged files (diff-files)
+  // 2: Staged files (diff-index)
+  NSArray *commands = @[
+    @[@"ls-files", @"--others", @"--exclude-standard", @"-z"],
+    @[@"diff-files", @"-z"],
+    @[@"diff-index", @"--cached", @"-z", parentTree]
+  ];
+
+  [repository executeGitCommandsAsync:commands completion:^(NSArray<NSDictionary *> *results) {
+    // Process "other" files (untracked)
+    NSDictionary *otherResult = results[0];
+    NSArray *otherLines = [self linesFromOutput:otherResult[@"output"]];
+    NSMutableDictionary *otherDict = [[NSMutableDictionary alloc] initWithCapacity:[otherLines count]];
+    NSArray *fakeStatus = @[@":000000", @"100644",
+                           @"0000000000000000000000000000000000000000",
+                           @"0000000000000000000000000000000000000000", @"A"];
+    for (NSString *path in otherLines) {
+      if ([path length] > 0) {
+        [otherDict setObject:fakeStatus forKey:path];
+      }
+    }
+    [self addFilesFromDictionary:otherDict staged:NO tracked:NO];
+
+    // Process unstaged files
+    NSDictionary *unstagedResult = results[1];
+    NSArray *unstagedLines = [self linesFromOutput:unstagedResult[@"output"]];
+    NSMutableDictionary *unstagedDict = [self dictionaryForLines:unstagedLines];
+    [self addFilesFromDictionary:unstagedDict staged:NO tracked:YES];
+
+    // Process staged files
+    NSDictionary *stagedResult = results[2];
+    NSArray *stagedLines = [self linesFromOutput:stagedResult[@"output"]];
+    NSMutableDictionary *stagedDict = [self dictionaryForLines:stagedLines];
+    [self addFilesFromDictionary:stagedDict staged:YES tracked:YES];
+
+    // All done - clean up files with no changes
+    [self finalizeRefresh];
+  }];
+}
+
+- (NSArray *)linesFromOutput:(NSString *)output {
+  if (!output || [output length] == 0) {
+    return @[];
+  }
+  // Strip trailing NUL if present
+  if ([output hasSuffix:@"\0"]) {
+    output = [output substringToIndex:[output length] - 1];
+  }
+  if ([output length] == 0) {
+    return @[];
+  }
+  return [output componentsSeparatedByString:@"\0"];
+}
+
+- (void)finalizeRefresh {
+  // Find all files that don't have either staged or unstaged changes and remove them
+  NSMutableArray *deleteFiles = [NSMutableArray array];
+  for (PBChangedFile *file in files) {
+    if (!file.hasStagedChanges && !file.hasUnstagedChanges) {
+      [deleteFiles addObject:file];
+    }
+  }
+
+  if ([deleteFiles count]) {
+    [self willChangeValueForKey:@"indexChanges"];
+    for (PBChangedFile *file in deleteFiles) {
+      [files removeObject:file];
+    }
+    [self didChangeValueForKey:@"indexChanges"];
+  }
+
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:PBGitIndexFinishedIndexRefresh
+                    object:self];
+  [self postIndexChange];
 }
 
 - (NSString *)parentTree {
@@ -506,107 +594,6 @@ static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 16384;
       postNotificationName:PBGitIndexIndexUpdated
                     object:self];
 }
-#pragma mark Index Refresh
-
-- (void)indexRefreshFinished:(NSNotification *)notification {
-  if ([(NSNumber *)[(NSDictionary *)[notification userInfo]
-          objectForKey:@"NSFileHandleError"] intValue]) {
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:PBGitIndexIndexRefreshFailed
-                      object:self
-                    userInfo:[NSDictionary
-                                 dictionaryWithObject:@"update-index failed"
-                                               forKey:@"description"]];
-    return;
-  }
-
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:PBGitIndexIndexRefreshStatus
-                    object:self
-                  userInfo:[NSDictionary
-                               dictionaryWithObject:@"update-index success"
-                                             forKey:@"description"]];
-
-  // Now that the index is refreshed, we need to read the information from the
-  // index
-  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-
-  if ([repository isBareRepository]) {
-    return;
-  }
-
-  // Other files (not tracked, not ignored)
-  refreshStatus++;
-  NSFileHandle *handle = [repository
-      handleInWorkDirForArguments:[NSArray
-                                      arrayWithObjects:@"ls-files", @"--others",
-                                                       @"--exclude-standard",
-                                                       @"-z", nil]];
-  [nc addObserver:self
-         selector:@selector(readOtherFiles:)
-             name:NSFileHandleReadToEndOfFileCompletionNotification
-           object:handle];
-  [handle readToEndOfFileInBackgroundAndNotify];
-
-  // Unstaged files
-  refreshStatus++;
-  handle = [repository
-      handleInWorkDirForArguments:[NSArray arrayWithObjects:@"diff-files",
-                                                            @"-z", nil]];
-  [nc addObserver:self
-         selector:@selector(readUnstagedFiles:)
-             name:NSFileHandleReadToEndOfFileCompletionNotification
-           object:handle];
-  [handle readToEndOfFileInBackgroundAndNotify];
-
-  // Staged files
-  refreshStatus++;
-  handle = [repository
-      handleInWorkDirForArguments:[NSArray arrayWithObjects:@"diff-index",
-                                                            @"--cached", @"-z",
-                                                            [self parentTree],
-                                                            nil]];
-  [nc addObserver:self
-         selector:@selector(readStagedFiles:)
-             name:NSFileHandleReadToEndOfFileCompletionNotification
-           object:handle];
-  [handle readToEndOfFileInBackgroundAndNotify];
-}
-
-- (void)readOtherFiles:(NSNotification *)notification {
-  NSArray *lines = [self linesFromNotification:notification];
-  NSMutableDictionary *dictionary =
-      [[NSMutableDictionary alloc] initWithCapacity:[lines count]];
-  // Other files are untracked, so we don't have any real index information.
-  // Instead, we can just fake it. The line below is not used at all, as for
-  // these files the commitBlob isn't set
-  NSArray *fileStatus = [NSArray
-      arrayWithObjects:@":000000", @"100644",
-                       @"0000000000000000000000000000000000000000",
-                       @"0000000000000000000000000000000000000000", @"A", nil];
-  for (NSString *path in lines) {
-    if ([path length] == 0)
-      continue;
-    [dictionary setObject:fileStatus forKey:path];
-  }
-
-  [self addFilesFromDictionary:dictionary staged:NO tracked:NO];
-  [self indexStepComplete];
-}
-
-- (void)readStagedFiles:(NSNotification *)notification {
-  NSArray *lines = [self linesFromNotification:notification];
-  NSMutableDictionary *dic = [self dictionaryForLines:lines];
-  [self addFilesFromDictionary:dic staged:YES tracked:YES];
-  [self indexStepComplete];
-}
-
-- (void)readUnstagedFiles:(NSNotification *)notification {
-  NSArray *lines = [self linesFromNotification:notification];
-  NSMutableDictionary *dic = [self dictionaryForLines:lines];
-  [self addFilesFromDictionary:dic staged:NO tracked:YES];
-  [self indexStepComplete];
-}
 
 - (void)addFilesFromDictionary:(NSMutableDictionary *)dictionary
                         staged:(BOOL)staged
@@ -689,27 +676,6 @@ static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 16384;
 }
 
 #pragma mark Utility methods
-- (NSArray *)linesFromNotification:(NSNotification *)notification {
-  NSData *data =
-      [[notification userInfo] valueForKey:NSFileHandleNotificationDataItem];
-  if (!data)
-    return [NSArray array];
-
-  NSString *string = [[NSString alloc] initWithData:data
-                                           encoding:NSUTF8StringEncoding];
-  // FIXME: throw an error?
-  if (!string)
-    return [NSArray array];
-
-  // Strip trailing null
-  if ([string hasSuffix:@"\0"])
-    string = [string substringToIndex:[string length] - 1];
-
-  if ([string length] == 0)
-    return [NSArray array];
-
-  return [string componentsSeparatedByString:@"\0"];
-}
 
 - (NSMutableDictionary *)dictionaryForLines:(NSArray *)lines {
   NSMutableDictionary *dictionary =
@@ -730,39 +696,6 @@ static const NSUInteger kPBGitIndexDiffPreviewTruncationLimit = 16384;
   }
 
   return dictionary;
-}
-
-// This method is called for each of the three processes from above.
-// If all three are finished (self.busy == 0), then we can delete
-// all files previously marked as deletable
-- (void)indexStepComplete {
-  // if we're still busy, do nothing :)
-  if (--refreshStatus) {
-    [self postIndexChange];
-    return;
-  }
-
-  // At this point, all index operations have finished.
-  // We need to find all files that don't have either
-  // staged or unstaged files, and delete them
-
-  NSMutableArray *deleteFiles = [NSMutableArray array];
-  for (PBChangedFile *file in files) {
-    if (!file.hasStagedChanges && !file.hasUnstagedChanges)
-      [deleteFiles addObject:file];
-  }
-
-  if ([deleteFiles count]) {
-    [self willChangeValueForKey:@"indexChanges"];
-    for (PBChangedFile *file in deleteFiles)
-      [files removeObject:file];
-    [self didChangeValueForKey:@"indexChanges"];
-  }
-
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:PBGitIndexFinishedIndexRefresh
-                    object:self];
-  [self postIndexChange];
 }
 
 @end

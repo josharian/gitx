@@ -87,11 +87,16 @@ static NSString *PBStringFromBranchFilterType(PBGitBranchFilterType type) {
 - (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input error:(NSError **)error;
 - (NSString *)executeGitCommand:(NSArray *)arguments withInput:(NSString *)input environment:(NSDictionary *)env error:(NSError **)error;
 
-// Handle-based methods (for streaming data operations)
-- (NSFileHandle*) handleForArguments:(NSArray*) args;
-- (NSFileHandle *) handleInWorkDirForArguments:(NSArray *)args;
 - (BOOL)executeHook:(NSString *)name output:(NSString **)output;
 - (BOOL)executeHook:(NSString *)name withArgs:(NSArray*) arguments output:(NSString **)output;
+
+// Async Git Execution (preferred for background operations)
+// Completion block is called on main thread with: output (nil on error), stderr, exit code
+- (void)executeGitCommandAsync:(NSArray<NSString *> *)arguments completion:(void (^)(NSString *output, NSString *error, int exitCode))completion;
+- (void)executeGitCommandsAsync:(NSArray<NSArray<NSString *> *> *)commands completion:(void (^)(NSArray<NSDictionary *> *results))completion;
+
+// Binary data execution (for blob content that may not be valid UTF-8)
+- (NSData *)executeGitCommandReturningData:(NSArray<NSString *> *)arguments error:(NSError **)error;
 
 - (NSString *)workingDirectory;
 - (NSString *) projectName;

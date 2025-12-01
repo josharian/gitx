@@ -79,30 +79,9 @@ static NSString * const PBWKGitXSchemeHandlerErrorDomain = @"PBWKGitXSchemeHandl
 
         NSString *specifier = [NSString stringWithFormat:@"%@:%@", host, path];
         NSArray *arguments = @[ @"cat-file", @"blob", specifier ];
-        NSFileHandle *handle = [repository handleInWorkDirForArguments:arguments];
-        if (!handle) {
-            NSError *error = [NSError errorWithDomain:PBWKGitXSchemeHandlerErrorDomain
-                                                 code:4
-                                             userInfo:@{ NSLocalizedDescriptionKey: @"Failed to obtain repository handle" }];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [urlSchemeTask didFailWithError:error];
-            });
-            return;
-        }
 
-        NSData *data = nil;
-        @try {
-            data = [handle readDataToEndOfFile];
-        }
-        @catch (__unused NSException *exception) {
-            data = nil;
-        }
-        @finally {
-            @try {
-                [handle closeFile];
-            } @catch (__unused NSException *closeException) {
-            }
-        }
+        NSError *gitError = nil;
+        NSData *data = [repository executeGitCommandReturningData:arguments error:&gitError];
 
         if (!data) {
             NSError *error = [NSError errorWithDomain:PBWKGitXSchemeHandlerErrorDomain

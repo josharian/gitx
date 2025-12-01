@@ -1081,23 +1081,24 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return error ? (int)error.code : 0;
 }
 
-- (NSFileHandle*) handleForArguments:(NSArray *)args
+#pragma mark Async Git Execution
+
+- (void)executeGitCommandAsync:(NSArray<NSString *> *)arguments completion:(void (^)(NSString *output, NSString *error, int exitCode))completion
 {
-	NSString* gitDirArg = [@"--git-dir=" stringByAppendingString:self.gitURL.path];
-	NSMutableArray* arguments =  [NSMutableArray arrayWithObject: gitDirArg];
-	[arguments addObjectsFromArray: args];
-	return [PBEasyPipe handleForCommand:[PBGitBinary path] withArgs:arguments];
+	NSString *workDir = [self workingDirectory];
+	[GitAsyncCommand runWithArguments:arguments workingDirectory:workDir completion:completion];
 }
 
-- (NSFileHandle*) handleInWorkDirForArguments:(NSArray *)args
+- (void)executeGitCommandsAsync:(NSArray<NSArray<NSString *> *> *)commands completion:(void (^)(NSArray<NSDictionary *> *results))completion
 {
-	NSString* gitDirArg = [@"--git-dir=" stringByAppendingString:self.gitURL.path];
-	NSMutableArray* arguments =  [NSMutableArray arrayWithObject: gitDirArg];
-	[arguments addObjectsFromArray: args];
-	return [PBEasyPipe handleForCommand:[PBGitBinary path] withArgs:arguments inDir:[self workingDirectory]];
+	NSString *workDir = [self workingDirectory];
+	[GitAsyncCommand runParallelCommands:commands workingDirectory:workDir completion:completion];
 }
 
-
+- (NSData *)executeGitCommandReturningData:(NSArray<NSString *> *)arguments error:(NSError **)error
+{
+	return [PBEasyPipe gitDataForArgs:arguments inDir:[self workingDirectory] error:error];
+}
 
 - (BOOL)executeHook:(NSString *)name output:(NSString **)output
 {
