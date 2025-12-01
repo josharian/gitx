@@ -10,6 +10,8 @@
 		0A6858C711F7EA8A00AC2BE4 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A6858C611F7EA8A00AC2BE4 /* CoreServices.framework */; };
 		3A453AD042958D1A09B654FD /* PBGitTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B27333E60F67679B05F54E5 /* PBGitTableCellView.swift */; };
 		B2F5C2AC2CB0B5F700C0C001 /* PBCommitData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */; };
+		29EA5CD5A201E373B21270DB /* GitXProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A577FAD709A84D39ACA96B /* GitXProtocols.swift */; };
+		B8B133044F130F9503EC7AA3 /* GitServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346A39168C577090C0E3EB55 /* GitServices.swift */; };
 		4A40159714067B6300DB9C07 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159614067B6300DB9C07 /* CoreFoundation.framework */; };
 		4A40159914067B7A00DB9C07 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A40159814067B7A00DB9C07 /* AppKit.framework */; };
 		4A4EF0BE142CBC59001B8CDF /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A4EF0BD142CBC59001B8CDF /* libz.dylib */; };
@@ -294,7 +296,8 @@
 		4A90A73414A9D24300D0DA02 /* GitX.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = GitX.sdef; sourceTree = SOURCE_ROOT; };
 		B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitRepoFinder.swift; sourceTree = "<group>"; };
 		B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBCommitData.swift; sourceTree = "<group>"; };
-		B2F5C2AD2CB0B5F700C0C001 /* PBCommitData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PBCommitData.h; sourceTree = "<group>"; };
+		00A577FAD709A84D39ACA96B /* GitXProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitXProtocols.swift; sourceTree = "<group>"; };
+		346A39168C577090C0E3EB55 /* GitServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitServices.swift; sourceTree = "<group>"; };
 		68C5B6464803943E1AB88185 /* PBGitRevisionCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBGitRevisionCellView.h; sourceTree = "<group>"; };
 		77C82804067257F0000B614F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* GitX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitX.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -591,8 +594,9 @@
 				4A5D768114A9A9CC00DF6C68 /* PBGitXErrors.h */,
 				4A5D768214A9A9CC00DF6C68 /* PBGitXErrors.m */,
 				B4D5A3A32F50D3F100000001 /* GitRepoFinder.swift */,
+				00A577FAD709A84D39ACA96B /* GitXProtocols.swift */,
+				346A39168C577090C0E3EB55 /* GitServices.swift */,
 				B2F5C2AB2CB0B5F700C0C001 /* PBCommitData.swift */,
-				B2F5C2AD2CB0B5F700C0C001 /* PBCommitData.h */,
 			);
 			path = git;
 			sourceTree = "<group>";
@@ -871,6 +875,8 @@
 				2A58EC7082AB4A1216478480 /* PBRefMenuItem.swift in Sources */,
 				2FF1413862EE11FD28BF6F0F /* PBSourceViewBadge.swift in Sources */,
 				B4D5A3A42F50D3F100000001 /* GitRepoFinder.swift in Sources */,
+				29EA5CD5A201E373B21270DB /* GitXProtocols.swift in Sources */,
+				B8B133044F130F9503EC7AA3 /* GitServices.swift in Sources */,
 				B2F5C2AC2CB0B5F700C0C001 /* PBCommitData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

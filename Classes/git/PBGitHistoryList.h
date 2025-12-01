@@ -8,9 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
- // Import GTOID definition
-
 @class PBGitRepository;
 @class PBGitRevSpecifier;
 @class PBGitRef;

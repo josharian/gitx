@@ -9,7 +9,6 @@
 #import "PBWebHistoryController.h"
 #import "PBWebBridge.h"
 #import "GitX-Swift.h"
-// #import <ObjectiveGit/GTConfiguration.h>
 #import "PBGitRevSpecifier.h"
 
 @interface PBWebHistoryController ()

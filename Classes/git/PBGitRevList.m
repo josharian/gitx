@@ -12,12 +12,6 @@
 #import "PBGitGrapher.h"
 #import "PBGitRevSpecifier.h"
 
-
-// #import <ObjectiveGit/ObjectiveGit.h>
-
-// #import <ObjectiveGit/GTOID.h>
-
-
 @interface PBGitRevList ()
 
 @property (nonatomic, assign) BOOL isGraphing;

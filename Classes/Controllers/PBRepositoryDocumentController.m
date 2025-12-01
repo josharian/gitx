@@ -12,8 +12,6 @@
 #import "PBGitBinary.h"
 #import "GitX-Swift.h"
 
-// #import <ObjectiveGit/GTRepository.h>
-
 @implementation PBRepositoryDocumentController
 // This method is overridden to configure the open panel to only allow
 // selection of directories

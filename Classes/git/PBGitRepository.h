@@ -12,7 +12,6 @@
 @class PBGitRevSpecifier;
 @protocol PBGitRefish;
 @class PBGitRef;
-@class GTConfiguration;
 
 extern NSString* PBGitRepositoryErrorDomain;
 extern NSString *PBGitRepositoryDocumentType;

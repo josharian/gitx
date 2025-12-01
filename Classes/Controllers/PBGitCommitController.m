@@ -13,9 +13,6 @@
 #import "PBNiceSplitView.h"
 #import "PBCommitMessageView.h"
 
-// #import <ObjectiveGit/GTRepository.h>
-// #import <ObjectiveGit/GTConfiguration.h>
-
 #define kCommitSplitViewPositionDefault @"Commit SplitView Position"
 
 @interface PBGitCommitController ()
