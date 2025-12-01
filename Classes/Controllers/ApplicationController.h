@@ -22,6 +22,5 @@
 
 
 - (IBAction)showHelp:(id)sender;
-- (IBAction)reportAProblem:(id)sender;
 
 @end

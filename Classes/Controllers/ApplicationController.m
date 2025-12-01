@@ -81,14 +81,17 @@ static OpenRecentController* recentsDialog = nil;
 {
 	NSString *gitversion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleGitVersion"];
 	NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-	if (gitversion)
-		[dict addEntriesFromDictionary:[[NSDictionary alloc] initWithObjectsAndKeys:gitversion, @"Version", nil]];
+	if (gitversion) {
+		NSString *versionString = [NSString stringWithFormat:@"Version: %@", gitversion];
+		[dict setObject:versionString forKey:@"ApplicationVersion"];
+		[dict setObject:@"" forKey:@"Version"];
+	}
 
 	#ifdef DEBUG_BUILD
-		[dict addEntriesFromDictionary:[[NSDictionary alloc] initWithObjectsAndKeys:@"GitX-dev (DEBUG)", @"ApplicationName", nil]];
+		[dict setObject:@"GitX (DEBUG)" forKey:@"ApplicationName"];
+	#else
+		[dict setObject:@"GitX" forKey:@"ApplicationName"];
 	#endif
-
-	[dict addEntriesFromDictionary:[[NSDictionary alloc] initWithObjectsAndKeys:@"GitX-dev (rowanj fork)", @"ApplicationName", nil]];
 
 	[NSApp orderFrontStandardAboutPanelWithOptions:dict];
 }
@@ -100,12 +103,7 @@ static OpenRecentController* recentsDialog = nil;
 
 - (IBAction)showHelp:(id)sender
 {
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://rowanj.github.io/gitx/"]];
-}
-
-- (IBAction)reportAProblem:(id)sender
-{
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/rowanj/gitx/issues"]];
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/josharian/gitx"]];
 }
 
 @end

@@ -50,4 +50,5 @@ cp build/Release/gitx /Applications/GitX.app/Contents/Resources/
 sudo mkdir -p /usr/local/bin
 sudo ln -sf "/Applications/GitX.app/Contents/Resources/gitx" /usr/local/bin/gitx
 
-echo "✅ GitX installed successfully!"
+VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleGitVersion" /Applications/GitX.app/Contents/Info.plist 2>/dev/null || echo "unknown")
+echo "✅ GitX: $VERSION"

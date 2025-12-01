@@ -662,6 +662,7 @@
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				F580E6BD0E73329C009E2D3F /* CopyFiles */,
 				F5CF04A20EAE696C00D75C81 /* Copy HTML files */,
+				5668CA58375C46E9AF103C42 /* Set Git Version */,
 				D81E15ED121CE83D00269E61 /* Scripting Bridge Header Script  */,
 			);
 			buildRules = (
@@ -773,6 +774,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		5668CA58375C46E9AF103C42 /* Set Git Version */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Set Git Version";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Get git version info\nGIT_VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo \"unknown\")\n\n# Update Info.plist in the built product\nINFO_PLIST=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nif [ -f \"$INFO_PLIST\" ]; then\n    /usr/libexec/PlistBuddy -c \"Add :CFBundleGitVersion string $GIT_VERSION\" \"$INFO_PLIST\" 2>/dev/null || \\\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleGitVersion $GIT_VERSION\" \"$INFO_PLIST\"\nfi\n";
+			showEnvVarsInLog = 0;
+		};
 		D81E15ED121CE83D00269E61 /* Scripting Bridge Header Script  */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

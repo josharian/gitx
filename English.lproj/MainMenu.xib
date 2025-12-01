@@ -362,15 +362,6 @@
                                     <action selector="showHelp:" target="205" id="932"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Report a problem" id="969">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="reportAProblem:" target="205" id="971"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Discuss GitX" id="972">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
