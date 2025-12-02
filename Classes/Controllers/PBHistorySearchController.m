@@ -153,8 +153,7 @@
 		NSLog(@"GITX_SEARCH: Selecting row index %lu", index);
 		PBGitCommit *commit = [[commitController arrangedObjects] objectAtIndex:index];
 		[historyController selectCommit:[commit sha]];
-		// Center the selected search result
-		[historyController scrollSelectionToCenter];
+		[historyController scrollSelectionToVisible];
 		
 		// Verify the selection took
 		NSInteger selectedRow = [historyController.commitList selectedRow];

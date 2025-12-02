@@ -271,7 +271,7 @@
 	return commitList;
 }
 
-- (void)scrollSelectionToCenter
+- (void)scrollSelectionToVisible
 {
 	NSInteger selectedRow = [commitList selectedRow];
 	if (selectedRow == NSNotFound || selectedRow < 0)
@@ -305,7 +305,7 @@
 		[commitList selectRowIndexes:selectionIndexes byExtendingSelection:NO];
 	}
 
-	[self scrollSelectionToCenter];
+	[self scrollSelectionToVisible];
 
 	forceSelectionUpdate = NO;
 }

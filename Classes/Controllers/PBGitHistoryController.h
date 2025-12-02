@@ -52,7 +52,7 @@
 @property (copy, nonatomic) NSString *lastSelectedSHA;
 
 - (void)selectCommit:(NSString *)commit;
-- (void)scrollSelectionToCenter;
+- (void)scrollSelectionToVisible;
 - (IBAction) refresh:(id)sender;
 
 // Repository Methods
