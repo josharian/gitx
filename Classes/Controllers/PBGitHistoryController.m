@@ -271,12 +271,6 @@
 	return commitList;
 }
 
-- (void) scrollSelectionToTopOfViewFrom:(NSInteger)oldIndex
-{
-	(void)oldIndex;
-	[self scrollSelectionToCenter];
-}
-
 - (void)scrollSelectionToCenter
 {
 	NSInteger selectedRow = [commitList selectedRow];
@@ -302,8 +296,6 @@
 	if (!forceSelectionUpdate && [[[[commitController selectedObjects] lastObject] sha] isEqual:commitSHA])
 		return;
 
-	NSInteger oldIndex = (NSInteger)[[commitController selectionIndexes] firstIndex];
-
 	NSArray *selectedCommits = [self selectedObjectsForSHA:commitSHA];
 	[commitController setSelectedObjects:selectedCommits];
 	
@@ -313,7 +305,7 @@
 		[commitList selectRowIndexes:selectionIndexes byExtendingSelection:NO];
 	}
 
-	[self scrollSelectionToTopOfViewFrom:oldIndex];
+	[self scrollSelectionToCenter];
 
 	forceSelectionUpdate = NO;
 }
