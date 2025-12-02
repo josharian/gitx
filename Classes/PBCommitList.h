@@ -18,10 +18,6 @@ typedef void(^PBFindPanelActionBlock)(id sender);
 	IBOutlet PBWebHistoryController *webController;
 	IBOutlet PBGitHistoryController *controller;
 	IBOutlet PBHistorySearchController *searchController;
-
-    BOOL useAdjustScroll;
 }
-
-@property (assign) BOOL useAdjustScroll;
 @property (copy) PBFindPanelActionBlock findPanelActionBlock;
 @end

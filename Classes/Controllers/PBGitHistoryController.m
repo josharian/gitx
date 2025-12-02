@@ -167,6 +167,10 @@
 	}
 
 	if([strContext isEqualToString:@"branchChange"]) {
+		// Select the commit for the newly selected branch
+		if ([repository.currentBranch isSimpleRef]) {
+			[self selectCommit:[repository shaForRef:[repository.currentBranch ref]]];
+		}
 		return;
 	}
 
@@ -269,73 +273,17 @@
 
 - (void) scrollSelectionToTopOfViewFrom:(NSInteger)oldIndex
 {
-	if (oldIndex == NSNotFound)
-		oldIndex = 0;
-
-	NSInteger newIndex = (NSInteger)[[commitController selectionIndexes] firstIndex];
-
-	if (newIndex > oldIndex) {
-        CGFloat sviewHeight = [[commitList superview] bounds].size.height;
-        CGFloat rowHeight = [commitList rowHeight];
-		NSInteger visibleRows = (NSInteger)roundf((float)(sviewHeight / rowHeight));
-		newIndex += (visibleRows - 1);
-		if (newIndex >= (NSInteger)[[commitController content] count])
-			newIndex = (NSInteger)[[commitController content] count] - 1;
-	}
-
-    if (newIndex != oldIndex) {
-        commitList.useAdjustScroll = YES;
-    }
-
-	[commitList scrollRowToVisible:newIndex];
-    commitList.useAdjustScroll = NO;
-
-    CGFloat preferredPadding = (newIndex > oldIndex) ? [commitList rowHeight] : 0.0f;
-    [self ensureSelectionVisibleWithPreferredTopPadding:preferredPadding];
-}
-
-- (void)ensureSelectionVisibleWithPreferredTopPadding:(CGFloat)padding
-{
-	NSInteger selectedRow = [commitList selectedRow];
-	if (selectedRow == NSNotFound)
-		return;
-
-	NSRect rowRect = [commitList rectOfRow:selectedRow];
-	if (NSIsEmptyRect(rowRect))
-		return;
-
-	CGFloat effectivePadding = MAX(padding, 0.0f);
-	NSRect paddedRect = rowRect;
-	if (effectivePadding > 0.0f) {
-		if ([commitList isFlipped]) {
-			paddedRect.origin.y -= effectivePadding;
-			paddedRect.size.height += effectivePadding;
-		} else {
-			paddedRect.size.height += effectivePadding;
-		}
-	}
-
-	[commitList scrollRectToVisible:paddedRect];
+	(void)oldIndex;
+	[self scrollSelectionToCenter];
 }
 
 - (void)scrollSelectionToCenter
 {
 	NSInteger selectedRow = [commitList selectedRow];
-	if (selectedRow == NSNotFound)
+	if (selectedRow == NSNotFound || selectedRow < 0)
 		return;
-	
-	NSRect visibleRect = [commitList visibleRect];
-	NSRect rowRect = [commitList rectOfRow:selectedRow];
-	
-	// Calculate the center position
-	CGFloat centerY = rowRect.origin.y + (rowRect.size.height / 2.0) - (visibleRect.size.height / 2.0);
-	
-	// Ensure we don't scroll past bounds
-	if (centerY < 0)
-		centerY = 0;
-	
-	NSPoint scrollPoint = NSMakePoint(0, centerY);
-	[[commitList superview] scrollPoint:scrollPoint];
+
+	[commitList scrollRowToVisible:selectedRow];
 }
 
 - (NSArray *) selectedObjectsForSHA:(NSString *)commitSHA
