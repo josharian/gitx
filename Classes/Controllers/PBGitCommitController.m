@@ -134,6 +134,11 @@
 	[repository reloadRefs];
 }
 
+- (void)refreshDiff
+{
+	[webController refresh];
+}
+
 - (void) updateView
 {
 	[self refresh:nil];

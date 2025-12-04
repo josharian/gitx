@@ -22,7 +22,9 @@ final class PBFileChangesTableView: NSTableView {
         let isUnstagedView = tag == 0
         let commandDown = event.modifierFlags.contains(.command)
 
-        if characters == "s" && commandDown && isUnstagedView {
+        if characters == "r" && commandDown {
+            (delegate as? PBGitIndexController)?.refreshDiff()
+        } else if characters == "s" && commandDown && isUnstagedView {
             stageSelectedFiles()
         } else if characters == "u" && commandDown && !isUnstagedView {
             unstageSelectedFiles()

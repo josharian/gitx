@@ -204,6 +204,11 @@
 	[commitController.index unstageFiles:[stagedFilesController selectedObjects]];
 }
 
+- (void) refreshDiff
+{
+	[commitController refreshDiff];
+}
+
 
 - (void) stageFilesAction:(id) sender
 {

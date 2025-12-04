@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (IBAction)commit:(nullable id)sender;
 - (IBAction)forceCommit:(nullable id)sender;
 - (IBAction)signOff:(nullable id)sender;
+- (void)refreshDiff;
 @end
 
 NS_ASSUME_NONNULL_END
