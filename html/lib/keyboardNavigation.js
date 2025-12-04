@@ -11,6 +11,14 @@ var triggerCopySource = function() {
 };
 
 var handleKeys = function(event) {
+	// Cmd+R to refresh the diff
+	if (event.metaKey && event.keyCode == 82) {
+		if (typeof requestCommitDiff === "function") {
+			requestCommitDiff();
+			return false;
+		}
+		return;
+	}
 	if (event.altKey || event.metaKey || event.shiftKey)
 		return;
 	if (event.keyCode == 74)
