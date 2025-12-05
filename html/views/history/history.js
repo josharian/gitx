@@ -232,8 +232,6 @@ var showDiff = function () {
     if (name1 == name2) {
       finalFile = name1;
       img.src = "../../images/modified.svg";
-      img.title = "Modified file";
-      p.title = "Modified file";
       if (mode_change)
         p.appendChild(
           document.createTextNode(" mode " + old_mode + " → " + new_mode)
