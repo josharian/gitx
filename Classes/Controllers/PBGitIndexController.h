@@ -24,6 +24,5 @@
 
 - (void) stageSelectedFiles;
 - (void) unstageSelectedFiles;
-- (void) refreshDiff;
 
 @end

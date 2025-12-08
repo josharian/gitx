@@ -187,6 +187,7 @@
 {
 	self.isBusy = NO;
 	self.status = @"Index refresh finished";
+	[self refreshDiff];
 }
 
 - (void)commitStatusUpdated:(NSNotification *)notification
