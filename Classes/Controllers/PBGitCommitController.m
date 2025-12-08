@@ -136,7 +136,7 @@
 
 - (void)refreshDiff
 {
-	[webController refresh];
+	[webController forceRefresh];
 }
 
 - (void) updateView

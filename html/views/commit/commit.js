@@ -136,10 +136,13 @@ var handleCommitSelectionChanged = function (message) {
 		pathString = fileData.path.toString();
 
 	var cached = !!(message && message.cached);
+	var forceRefresh = !!(message && message.forceRefresh);
 
 	// If same file and same staged/unstaged state, skip the refresh
 	// This preserves scroll position when index updates trigger spurious selection changes
-	if (currentCommitSelection &&
+	// Unless forceRefresh is set (e.g., from cmd+r)
+	if (!forceRefresh &&
+		currentCommitSelection &&
 		currentCommitSelection.path === pathString &&
 		currentCommitSelection.cached === cached) {
 		return;

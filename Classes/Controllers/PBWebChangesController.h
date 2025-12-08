@@ -23,6 +23,7 @@
 }
 
 - (void) refresh;
+- (void) forceRefresh;
 - (void) setStateMessage:(NSString *)state;
 
 - (void) showMultiple:(NSArray *)files;

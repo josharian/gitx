@@ -95,8 +95,19 @@
 
 - (void) refresh
 {
+	[self refreshWithForce:NO];
+}
+
+- (void) forceRefresh
+{
+	[self refreshWithForce:YES];
+}
+
+- (void) refreshWithForce:(BOOL)force
+{
 	NSMutableDictionary *payload = [NSMutableDictionary dictionary];
 	payload[@"cached"] = @(selectedFileIsCached);
+	payload[@"forceRefresh"] = @(force);
 	if (selectedFile)
 		payload[@"file"] = [self bridgeDictionaryForChangedFile:selectedFile];
 
