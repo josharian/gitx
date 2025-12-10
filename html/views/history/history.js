@@ -119,13 +119,14 @@ var showRefs = function () {
           : refName;
       shortName = shortName.toString();
       var cssType = (ref.type || "").toString();
-      refs.innerHTML +=
-        '<span class="refs ' +
-        cssType +
-        (commit.currentRef === refName && refName !== "" ? " currentBranch" : "") +
-        '">' +
-        shortName.escapeHTML() +
-        "</span> ";
+      var span = document.createElement("span");
+      span.className = "refs " + cssType + (commit.currentRef === refName && refName !== "" ? " currentBranch" : "");
+      span.textContent = shortName;
+      span.onclick = function () {
+        copyToClipboard(this.textContent, null);
+      };
+      refs.appendChild(span);
+      refs.appendChild(document.createTextNode(" "));
     }
   } else refs.parentNode.style.display = "none";
 };
