@@ -123,7 +123,13 @@ var showRefs = function () {
       span.className = "refs " + cssType + (commit.currentRef === refName && refName !== "" ? " currentBranch" : "");
       span.textContent = shortName;
       span.onclick = function () {
-        copyToClipboard(this.textContent, null);
+        var el = this;
+        var originalText = el.textContent;
+        copyToClipboard(originalText, null);
+        el.textContent = "copied";
+        setTimeout(function () {
+          el.textContent = originalText;
+        }, 1000);
       };
       refs.appendChild(span);
       refs.appendChild(document.createTextNode(" "));
@@ -435,7 +441,7 @@ var copyShaToClipboard = function () {
 
   var showCopied = function () {
     if (!button) return;
-    button.textContent = "copied!";
+    button.textContent = "copied";
     setTimeout(function () {
       button.textContent = originalText;
     }, 1000);
@@ -483,7 +489,7 @@ var copyToClipboard = function (text, button) {
 
   var showCopied = function () {
     if (!button) return;
-    button.textContent = "copied!";
+    button.textContent = "copied";
     setTimeout(function () {
       button.textContent = originalText;
     }, 1000);
