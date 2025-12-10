@@ -324,11 +324,44 @@ var loadCommitDetails = function (data) {
       : name;
   };
 
+  var formatDate = function (date) {
+    if (!date) return "";
+    var now = new Date();
+    var isToday = date.getFullYear() === now.getFullYear() &&
+                  date.getMonth() === now.getMonth() &&
+                  date.getDate() === now.getDate();
+    var isCurrentYear = date.getFullYear() === now.getFullYear();
+
+    // Format time as HH:MM:SS
+    var hours = date.getHours().toString().padStart(2, "0");
+    var minutes = date.getMinutes().toString().padStart(2, "0");
+    var seconds = date.getSeconds().toString().padStart(2, "0");
+    var time = hours + ":" + minutes + ":" + seconds;
+
+    if (isToday) {
+      return time;
+    }
+
+    // Day names and month names
+    var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var dayName = days[date.getDay()];
+    var monthName = months[date.getMonth()];
+    var dayNum = date.getDate().toString().padStart(2, "0");
+
+    if (isCurrentYear) {
+      return dayName + " " + monthName + " " + dayNum + " " + time;
+    }
+
+    return dayName + " " + monthName + " " + dayNum + " " + date.getFullYear() + " " + time;
+  };
+
   document.getElementById("authorID").innerHTML = formatEmail(
     commit.author_name,
     commit.author_email
   );
-  document.getElementById("date").innerHTML = commit.author_date;
+  document.getElementById("date").innerHTML = formatDate(commit.author_date);
   setGravatar(commit.author_email, document.getElementById("author_gravatar"));
 
   if (commit.committer_name != commit.author_name) {
@@ -339,7 +372,7 @@ var loadCommitDetails = function (data) {
     );
 
     document.getElementById("committerDate").parentNode.style.display = "";
-    document.getElementById("committerDate").innerHTML = commit.committer_date;
+    document.getElementById("committerDate").innerHTML = formatDate(commit.committer_date);
   } else {
     document.getElementById("committerID").parentNode.style.display = "none";
     document.getElementById("committerDate").parentNode.style.display = "none";
