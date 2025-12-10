@@ -338,32 +338,27 @@ var loadCommitDetails = function (data) {
                   date.getDate() === now.getDate();
     var isCurrentYear = date.getFullYear() === now.getFullYear();
 
-    // Format time as h:MM:SS am/pm
+    // Format time as h:MMam/pm
     var hours = date.getHours();
     var ampm = hours >= 12 ? "pm" : "am";
     hours = hours % 12;
     if (hours === 0) hours = 12;
     var minutes = date.getMinutes().toString().padStart(2, "0");
-    var seconds = date.getSeconds().toString().padStart(2, "0");
-    var time = hours + ":" + minutes + ":" + seconds + " " + ampm;
+    var time = hours + ":" + minutes + ampm;
 
     if (isToday) {
       return time;
     }
 
-    // Day names and month names
-    var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    var dayName = days[date.getDay()];
-    var monthName = months[date.getMonth()];
-    var dayNum = date.getDate().toString().padStart(2, "0");
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var year = date.getFullYear() % 100;
 
     if (isCurrentYear) {
-      return dayName + " " + monthName + " " + dayNum + " " + time;
+      return month + "/" + day + ", " + time;
     }
 
-    return dayName + " " + monthName + " " + dayNum + " " + date.getFullYear() + " " + time;
+    return month + "/" + day + "/" + year + ", " + time;
   };
 
   document.getElementById("authorID").innerHTML = formatEmail(

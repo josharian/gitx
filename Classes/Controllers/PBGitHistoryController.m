@@ -569,14 +569,36 @@
 			]];
 		}
 		
-		static NSDateFormatter *dateFormatter = nil;
-		if (!dateFormatter) {
-			dateFormatter = [[NSDateFormatter alloc] init];
-			[dateFormatter setDateStyle:NSDateFormatterShortStyle];
-			[dateFormatter setTimeStyle:NSDateFormatterShortStyle];
+		NSDate *commitDate = [commit date];
+		NSString *dateString = @"";
+		if (commitDate) {
+			NSCalendar *calendar = [NSCalendar currentCalendar];
+			NSDate *now = [NSDate date];
+			NSDateComponents *commitComponents = [calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:commitDate];
+			NSDateComponents *nowComponents = [calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay) fromDate:now];
+
+			BOOL isToday = (commitComponents.year == nowComponents.year &&
+							commitComponents.month == nowComponents.month &&
+							commitComponents.day == nowComponents.day);
+			BOOL isCurrentYear = (commitComponents.year == nowComponents.year);
+
+			// Format time as h:MMam/pm
+			NSInteger hour = commitComponents.hour;
+			NSString *ampm = (hour >= 12) ? @"pm" : @"am";
+			hour = hour % 12;
+			if (hour == 0) hour = 12;
+			NSString *time = [NSString stringWithFormat:@"%ld:%02ld%@", (long)hour, (long)commitComponents.minute, ampm];
+
+			if (isToday) {
+				dateString = time;
+			} else if (isCurrentYear) {
+				dateString = [NSString stringWithFormat:@"%ld/%ld, %@", (long)commitComponents.month, (long)commitComponents.day, time];
+			} else {
+				dateString = [NSString stringWithFormat:@"%ld/%ld/%ld, %@", (long)commitComponents.month, (long)commitComponents.day, (long)(commitComponents.year % 100), time];
+			}
 		}
-		
-		cellView.textField.stringValue = [dateFormatter stringFromDate:[commit date]] ?: @"";
+
+		cellView.textField.stringValue = dateString;
 		// Text color will be handled by the table view's background style
 		return cellView;
 	}
