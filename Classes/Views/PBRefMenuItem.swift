@@ -111,6 +111,11 @@ import Cocoa
         items.append(.item(withTitle: "Copy SHA", action: #selector(copySHA(_:)), enabled: true))
         items.append(.item(withTitle: "Copy short SHA", action: #selector(copyShortSHA(_:)), enabled: true))
         items.append(.item(withTitle: "Copy Patch", action: #selector(copyPatch(_:)), enabled: true))
+
+        // Only show "Copy GitHub URL" if we can infer one from the origin
+        if let repo = commit.repository, repo.gitHubURL(forCommitSHA: commit.realSha()) != nil {
+            items.append(.item(withTitle: "Copy GitHub URL", action: #selector(copyGitHubURL(_:)), enabled: true))
+        }
         items.append(.separator())
 
         // merge commit
@@ -152,5 +157,6 @@ import Cocoa
     @objc private func copySHA(_ sender: Any?) {}
     @objc private func copyShortSHA(_ sender: Any?) {}
     @objc private func copyPatch(_ sender: Any?) {}
+    @objc private func copyGitHubURL(_ sender: Any?) {}
     @objc private func cherryPick(_ sender: Any?) {}
 }

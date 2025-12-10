@@ -800,6 +800,47 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 	return ([self remotes] != nil);
 }
 
+- (NSString *)gitHubURLForCommitSHA:(NSString *)sha
+{
+	if (!sha || sha.length == 0)
+		return nil;
+
+	NSError *error = nil;
+	NSString *originURL = [self executeGitCommand:@[@"config", @"--get", @"remote.origin.url"] error:&error];
+
+	if (error || !originURL)
+		return nil;
+
+	originURL = [originURL stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	if (originURL.length == 0)
+		return nil;
+
+	NSString *gitHubBase = nil;
+
+	// Handle SSH format: git@github.com:user/repo.git
+	if ([originURL hasPrefix:@"git@github.com:"]) {
+		NSString *path = [originURL substringFromIndex:@"git@github.com:".length];
+		if ([path hasSuffix:@".git"])
+			path = [path substringToIndex:path.length - 4];
+		gitHubBase = [NSString stringWithFormat:@"https://github.com/%@", path];
+	}
+	// Handle HTTPS format: https://github.com/user/repo.git
+	else if ([originURL hasPrefix:@"https://github.com/"] || [originURL hasPrefix:@"http://github.com/"]) {
+		NSString *url = originURL;
+		if ([url hasSuffix:@".git"])
+			url = [url substringToIndex:url.length - 4];
+		// Normalize to https
+		if ([url hasPrefix:@"http://"])
+			url = [@"https://" stringByAppendingString:[url substringFromIndex:@"http://".length]];
+		gitHubBase = url;
+	}
+
+	if (!gitHubBase)
+		return nil;
+
+	return [NSString stringWithFormat:@"%@/commit/%@", gitHubBase, sha];
+}
+
 - (PBGitRef *) remoteRefForBranch:(PBGitRef *)branch error:(NSError **)error
 {
 	if ([branch isRemote]) {

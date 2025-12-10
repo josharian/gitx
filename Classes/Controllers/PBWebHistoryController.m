@@ -213,6 +213,40 @@
 	return defaultMenuItems;
 }
 
+- (NSString *)gitHubBaseURLFromOrigin
+{
+	NSError *error = nil;
+	NSString *originURL = [historyController.repository executeGitCommand:@[@"config", @"--get", @"remote.origin.url"] error:&error];
+
+	if (error || !originURL)
+		return nil;
+
+	originURL = [originURL stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	if (originURL.length == 0)
+		return nil;
+
+	// Handle SSH format: git@github.com:user/repo.git
+	if ([originURL hasPrefix:@"git@github.com:"]) {
+		NSString *path = [originURL substringFromIndex:@"git@github.com:".length];
+		if ([path hasSuffix:@".git"])
+			path = [path substringToIndex:path.length - 4];
+		return [NSString stringWithFormat:@"https://github.com/%@", path];
+	}
+
+	// Handle HTTPS format: https://github.com/user/repo.git
+	if ([originURL hasPrefix:@"https://github.com/"] || [originURL hasPrefix:@"http://github.com/"]) {
+		NSString *url = originURL;
+		if ([url hasSuffix:@".git"])
+			url = [url substringToIndex:url.length - 4];
+		// Normalize to https
+		if ([url hasPrefix:@"http://"])
+			url = [@"https://" stringByAppendingString:[url substringFromIndex:@"http://".length]];
+		return url;
+	}
+
+	return nil;
+}
+
 - (NSDictionary *)bridgeDictionaryForCommit:(PBGitCommit *)commit currentRef:(NSString *)currentRef
 {
 	if (!commit)
@@ -235,6 +269,12 @@
 	dictionary[@"parents"] = parents ? [parents copy] : @[];
 	dictionary[@"refs"] = [self bridgeRefsForCommit:commit];
 	dictionary[@"currentRef"] = currentRef ?: @"";
+
+	// Add GitHub URL if available
+	NSString *gitHubBase = [self gitHubBaseURLFromOrigin];
+	if (gitHubBase && sha.length > 0) {
+		dictionary[@"gitHubUrl"] = [NSString stringWithFormat:@"%@/commit/%@", gitHubBase, sha];
+	}
 
 	return dictionary;
 }

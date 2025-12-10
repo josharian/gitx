@@ -45,6 +45,7 @@ body {
 .committer-row,
 .committer-date-row,
 .sha-row,
+.copy-row,
 .refs-row {
   display: flex;
   align-items: center;
@@ -68,9 +69,33 @@ body {
 .committer-row > div:last-child,
 .committer-date-row > div:last-child,
 .sha-row > div:last-child,
+.copy-row > div:last-child,
 .refs-row > div:last-child {
   flex: 1;
   margin-left: 0.5em;
+}
+
+/* Copy buttons styling */
+.copy-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.copy-btn {
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #f5f5f5;
+}
+
+.copy-btn:hover {
+  background: #e5e5e5;
+}
+
+.copy-btn:active {
+  background: #d5d5d5;
 }
 
 /* SHA and refs styling */

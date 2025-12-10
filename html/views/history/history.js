@@ -12,6 +12,8 @@ var Commit = function (data) {
   this.author_name = data.authorName || data.author || "";
   this.committer_name = data.committerName || data.committer || "";
   this.sha = data.sha || data.realSha || "";
+  this.shortSha = data.shortSha || "";
+  this.gitHubUrl = data.gitHubUrl || "";
   this.parents = isArray(data.parents) ? data.parents : [];
   this.subject = data.subject || "";
   this.currentRef = typeof data.currentRef !== "undefined" ? data.currentRef : null;
@@ -149,6 +151,12 @@ var loadCommit = function (commitObject, currentRef) {
   document.getElementById("files").innerHTML = "";
   document.getElementById("date").innerHTML = "";
   showRefs();
+
+  // Show/hide GitHub URL button based on availability
+  var ghButton = document.getElementById("copyGitHubUrlButton");
+  if (ghButton) {
+    ghButton.style.display = commit.gitHubUrl ? "" : "none";
+  }
 
   for (
     var i = 0;
@@ -432,4 +440,64 @@ var copyShaToClipboard = function () {
   } else {
     fallbackCopy();
   }
+};
+
+var copyToClipboard = function (text, button) {
+  if (!text) return;
+
+  var originalText = button ? button.textContent : null;
+
+  var showCopied = function () {
+    if (!button) return;
+    button.textContent = "copied!";
+    setTimeout(function () {
+      button.textContent = originalText;
+    }, 1000);
+  };
+
+  var fallbackCopy = function () {
+    try {
+      var tempInput = document.createElement("textarea");
+      tempInput.value = text;
+      tempInput.setAttribute("readonly", "");
+      tempInput.style.position = "fixed";
+      tempInput.style.top = "0";
+      tempInput.style.left = "-9999px";
+      tempInput.style.opacity = "0";
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      tempInput.setSelectionRange(0, tempInput.value.length);
+      var copied = document.execCommand("copy");
+      document.body.removeChild(tempInput);
+      if (copied) {
+        showCopied();
+      }
+    } catch (error) {
+      console.error("Failed to copy to clipboard:", error);
+    }
+  };
+
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    navigator.clipboard
+      .writeText(text)
+      .then(showCopied)
+      .catch(function (error) {
+        console.error("navigator.clipboard.writeText failed:", error);
+        fallbackCopy();
+      });
+  } else {
+    fallbackCopy();
+  }
+};
+
+var copyShortShaToClipboard = function () {
+  if (!commit || !commit.shortSha) return;
+  var button = document.getElementById("copyShortShaButton");
+  copyToClipboard(commit.shortSha, button);
+};
+
+var copyGitHubUrlToClipboard = function () {
+  if (!commit || !commit.gitHubUrl) return;
+  var button = document.getElementById("copyGitHubUrlButton");
+  copyToClipboard(commit.gitHubUrl, button);
 };

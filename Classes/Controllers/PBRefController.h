@@ -30,6 +30,7 @@
 - (void) copySHA:(PBRefMenuItem *)sender;
 - (void) copyShortSHA:(PBRefMenuItem *)sender;
 - (void) copyPatch:(PBRefMenuItem *)sender;
+- (void) copyGitHubURL:(PBRefMenuItem *)sender;
 - (void) createTag:(PBRefMenuItem *)sender;
 - (void) showTagInfoSheet:(PBRefMenuItem *)sender;
 

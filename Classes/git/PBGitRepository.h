@@ -126,6 +126,7 @@ static NSString *PBStringFromBranchFilterType(PBGitBranchFilterType type) {
 - (NSArray *) remotes;
 - (BOOL) hasRemotes;
 - (PBGitRef *) remoteRefForBranch:(PBGitRef *)branch error:(NSError **)error;
+- (NSString *)gitHubURLForCommitSHA:(NSString *)sha;
 
 - (void) readCurrentBranch;
 - (PBGitRevSpecifier*) addBranch: (PBGitRevSpecifier*) rev;

@@ -128,6 +128,22 @@
 	[pasteboard setString:[commit patch] forType:NSPasteboardTypeString];
 }
 
+
+- (void) copyGitHubURL:(PBRefMenuItem *)sender
+{
+	PBGitCommit *commit = [self commitForMenuItem:sender];
+	if (!commit)
+		return;
+
+	NSString *gitHubURL = [historyController.repository gitHubURLForCommitSHA:[commit realSha]];
+	if (!gitHubURL)
+		return;
+
+	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
+	[pasteboard setString:gitHubURL forType:NSPasteboardTypeString];
+}
+
 #pragma mark Tags
 
 - (void) createTag:(PBRefMenuItem *)sender

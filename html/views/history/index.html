@@ -51,7 +51,15 @@
 			<div id="commit_header">
 				<div class="sha-row">
 					<div class="property_name">SHA:</div>
-					<div><span id="commitID" class="SHA"></span><button id="copyShaButton" onclick="copyShaToClipboard()" style="margin-left: 8px; padding: 2px 6px; font-size: 11px;">copy</button></div>
+					<div><span id="commitID" class="SHA"></span></div>
+				</div>
+				<div class="copy-row">
+					<div class="property_name">Copy:</div>
+					<div class="copy-buttons">
+						<button id="copyShaButton" class="copy-btn" onclick="copyShaToClipboard()">sha</button>
+						<button id="copyShortShaButton" class="copy-btn" onclick="copyShortShaToClipboard()">short</button>
+						<button id="copyGitHubUrlButton" class="copy-btn" onclick="copyGitHubUrlToClipboard()" style="display:none;">gh</button>
+					</div>
 				</div>
 				<div class="refs-row" style="display:none">
 					<div class="property_name">Refs:</div>
