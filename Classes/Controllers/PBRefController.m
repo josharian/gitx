@@ -90,10 +90,8 @@
 - (void) copySHA:(PBRefMenuItem *)sender
 {
 	PBGitCommit *commit = [self commitForMenuItem:sender];
-	if (!commit) {
-		NSBeep();
+	if (!commit)
 		return;
-	}
 
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
 	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
@@ -104,11 +102,9 @@
 - (void) copyShortSHA:(PBRefMenuItem *)sender
 {
 	PBGitCommit *commit = [self commitForMenuItem:sender];
-	if (!commit) {
-		NSBeep();
+	if (!commit)
 		return;
-	}
-    
+
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
 	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
 	[pasteboard setString:[commit shortName] forType:NSPasteboardTypeString];
@@ -118,10 +114,8 @@
 - (void) copyPatch:(PBRefMenuItem *)sender
 {
 	PBGitCommit *commit = [self commitForMenuItem:sender];
-	if (!commit) {
-		NSBeep();
+	if (!commit)
 		return;
-	}
 
 	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
 	[pasteboard declareTypes:@[NSPasteboardTypeString] owner:nil];
