@@ -148,10 +148,6 @@
 
 - (void) showTagInfoSheet:(PBRefMenuItem *)sender
 {
-	NSString *refishType = [[sender refish] refishType];
-	if (![refishType isEqualToString:@"tag"])
-		return;
-
 	NSString *tagName = [(PBGitRef *)[sender refish] tagName];
 	NSString* title = [NSString stringWithFormat:@"Info for tag: %@", tagName];
 	NSString* info = @"";
@@ -186,9 +182,6 @@
 
 - (void)showDeleteRefSheet:(PBRefMenuItem *)sender
 {
-	if ([[sender refish] isKindOfClass:[PBGitCommit class]])
-		return;
-
 	PBGitRef *ref = (PBGitRef *)[sender refish];
 
 	if ([PBGitDefaults isDialogWarningSuppressedForDialog:kDialogDeleteRef]) {
@@ -239,9 +232,5 @@
 	return [self menuItemsForCommit:[commits objectAtIndex:(NSUInteger)rowIndex]];
 }
 
-
-- (void)dealloc {
-    historyController = nil;
-}
 
 @end
