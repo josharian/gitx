@@ -338,11 +338,14 @@ var loadCommitDetails = function (data) {
                   date.getDate() === now.getDate();
     var isCurrentYear = date.getFullYear() === now.getFullYear();
 
-    // Format time as HH:MM:SS
-    var hours = date.getHours().toString().padStart(2, "0");
+    // Format time as h:MM:SS am/pm
+    var hours = date.getHours();
+    var ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
     var minutes = date.getMinutes().toString().padStart(2, "0");
     var seconds = date.getSeconds().toString().padStart(2, "0");
-    var time = hours + ":" + minutes + ":" + seconds;
+    var time = hours + ":" + minutes + ":" + seconds + " " + ampm;
 
     if (isToday) {
       return time;
