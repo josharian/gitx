@@ -634,86 +634,17 @@ var stageLines = function(reverse) {
 		var start_new = parseInt(m[3]);
 	} else return false;
 
-	// Build index→line mapping for the hunk (needed for paired line output)
-	var lineByIndex = {};
-	for (var i = 0; i < lines.length; i++) {
-		lineByIndex[hunkHeaderIndex + 1 + i] = lines[i];
-	}
+	// Generate the patch content using shared logic
+	var result = PatchGenerator.generatePatchContent({
+		lines: lines,
+		selectedIndices: selectedIndices,
+		delToAddPair: delToAddPair,
+		reverse: reverse,
+		baseIndex: hunkHeaderIndex + 1
+	});
 
-	// Build patch. For paired del/add changes, we need them together at the right position:
-	// - For staging: output at del position (matches working tree)
-	// - For unstaging (reverse): output at add position (matches index)
-	var patch = "", count = [0, 0];
-	var deferredDels = {};  // For reverse: addIdx -> del line text
-	var usedAddIndices = {};  // For !reverse: track adds already output with their del
-
-	for (var i = 0; i < lines.length; i++) {
-		var l = lines[i];
-		var firstChar = l.charAt(0);
-		var lineIndex = hunkHeaderIndex + 1 + i;
-
-		var isSelected = selectedIndices[lineIndex];
-
-		if (firstChar == '-') {
-			// Deletion line
-			if (isSelected) {
-				var pairedAddIdx = delToAddPair[lineIndex];
-				if (pairedAddIdx !== undefined && reverse) {
-					// For reverse: defer del until we reach paired add (to match index order)
-					deferredDels[pairedAddIdx] = l;
-				} else if (pairedAddIdx !== undefined && !reverse) {
-					// For staging: output del now, then paired add immediately (to match worktree order)
-					patch += l + "\n";
-					count[0]++;
-					if (lineByIndex[pairedAddIdx]) {
-						patch += lineByIndex[pairedAddIdx] + "\n";
-						count[1]++;
-						usedAddIndices[pairedAddIdx] = true;
-					}
-				} else {
-					// Unpaired del - output now
-					patch += l + "\n";
-					count[0]++;
-				}
-			} else {
-				// Convert to context for staging (or skip for unstaging)
-				if (!reverse) {
-					patch += ' ' + l.substr(1) + "\n";
-					count[0]++; count[1]++;
-				}
-				// For reverse (unstaging), unselected del lines are skipped
-			}
-		} else if (firstChar == '+') {
-			// For reverse: check if there's a deferred del to output first
-			if (deferredDels[lineIndex]) {
-				patch += deferredDels[lineIndex] + "\n";
-				count[0]++;
-				delete deferredDels[lineIndex];
-			}
-
-			// Skip if already output as part of a pair (staging mode)
-			if (usedAddIndices[lineIndex]) continue;
-
-			// Addition line
-			if (isSelected) {
-				patch += l + "\n";
-				count[1]++;
-			} else {
-				// Convert to context for unstaging (or skip for staging)
-				if (reverse) {
-					patch += ' ' + l.substr(1) + "\n";
-					count[0]++; count[1]++;
-				}
-				// For staging, unselected add lines are skipped
-			}
-		} else {
-			// Context line
-			patch += l + "\n";
-			count[0]++; count[1]++;
-		}
-	}
-	patch = diffHeader + '\n' + "@@ -" + start_old.toString() + "," + count[0].toString() +
-		" +" + start_new.toString() + "," + count[1].toString() + " @@\n" + patch;
+	var patch = diffHeader + '\n' + "@@ -" + start_old.toString() + "," + result.oldCount.toString() +
+		" +" + start_new.toString() + "," + result.newCount.toString() + " @@\n" + result.content;
 
 	pendingScrollY = getScrollY();
 	addHunkText(patch, reverse);
