@@ -34,7 +34,7 @@
 #define kGitXSearchDirectionNext 1
 #define kGitXSearchDirectionPrevious -1
 
-#define kGitXBasicSearchLabel @"Subject, Author, SHA"
+#define kGitXBasicSearchLabel @"Message, Author, SHA"
 #define kGitXPickaxeSearchLabel @"Commit (pickaxe)"
 #define kGitXRegexSearchLabel @"Commit (pickaxe regex)"
 #define kGitXPathSearchLabel @"File path"
@@ -415,7 +415,7 @@
 	}
 
 	NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
-	NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"subject CONTAINS[cd] %@ OR author CONTAINS[cd] %@ OR realSha BEGINSWITH[c] %@", searchString, searchString, searchString];
+	NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"message CONTAINS[cd] %@ OR author CONTAINS[cd] %@ OR realSha BEGINSWITH[c] %@", searchString, searchString, searchString];
 
 	NSUInteger index = 0;
 	for (PBGitCommit *commit in [commitController arrangedObjects]) {

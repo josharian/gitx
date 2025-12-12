@@ -66,6 +66,10 @@ final class PBGitCommit: NSObject, PBGitRefish {
         commitData.messageSummary ?? ""
     }
 
+    var message: String {
+        commitData.message ?? ""
+    }
+
     var author: String {
         commitData.authorName ?? ""
     }
