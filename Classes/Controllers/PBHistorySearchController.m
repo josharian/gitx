@@ -459,6 +459,7 @@
 			[searchArguments addObject:@"--pickaxe-regex"];
 		case PBHistorySearchModePickaxe:
 			[searchArguments addObject:[NSString stringWithFormat:@"-S%@", searchString]];
+			[searchArguments addObject:@"-i"];
 			break;
 		case PBHistorySearchModePath:
 			[searchArguments addObject:@"--"];
