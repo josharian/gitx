@@ -604,16 +604,16 @@ var stageLines = function(reverse) {
 
 	if (!hunkHeader) return false;
 
-	// Build a map of del-index → add-index pairs from selected rows
-	var delToAddPair = {};
+	// Build set of selected line indices and del→add pairing from selected rows
 	var selectedIndices = {};
+	var delToAddPair = {};
 	for (var i = 0; i < selectedRows.length; i++) {
 		var child = selectedRows[i];
 
 		var idx = parseInt(child.getAttribute("index"));
 		if (!isNaN(idx)) {
 			selectedIndices[idx] = true;
-			// For paired changelines, track the del→add mapping
+			// For paired changelines, also mark the add line as selected and track pairing
 			var addIdx = child.getAttribute("data-add-index");
 			if (addIdx) {
 				var addIdxNum = parseInt(addIdx);
@@ -634,40 +634,46 @@ var stageLines = function(reverse) {
 		var start_new = parseInt(m[3]);
 	} else return false;
 
-	// Build index→line mapping for the hunk
+	// Build index→line mapping for the hunk (needed for paired line output)
 	var lineByIndex = {};
 	for (var i = 0; i < lines.length; i++) {
-		var lineIndex = hunkHeaderIndex + 1 + i;
-		lineByIndex[lineIndex] = lines[i];
+		lineByIndex[hunkHeaderIndex + 1 + i] = lines[i];
 	}
 
-	// Build patch, outputting paired add lines right after their del lines
+	// Build patch. For paired del/add changes, we need them together at the right position:
+	// - For staging: output at del position (matches working tree)
+	// - For unstaging (reverse): output at add position (matches index)
 	var patch = "", count = [0, 0];
-	var usedAddIndices = {};  // Track which add lines we've already output
+	var deferredDels = {};  // For reverse: addIdx -> del line text
+	var usedAddIndices = {};  // For !reverse: track adds already output with their del
 
 	for (var i = 0; i < lines.length; i++) {
 		var l = lines[i];
 		var firstChar = l.charAt(0);
 		var lineIndex = hunkHeaderIndex + 1 + i;
 
-		// Skip add lines that were already output as part of a pair
-		if (usedAddIndices[lineIndex]) continue;
-
 		var isSelected = selectedIndices[lineIndex];
 
 		if (firstChar == '-') {
 			// Deletion line
 			if (isSelected) {
-				// Output the deletion
-				patch += l + "\n";
-				count[0]++;
-
-				// If this del is paired with an add, output the add immediately
 				var pairedAddIdx = delToAddPair[lineIndex];
-				if (pairedAddIdx && lineByIndex[pairedAddIdx]) {
-					patch += lineByIndex[pairedAddIdx] + "\n";
-					count[1]++;
-					usedAddIndices[pairedAddIdx] = true;
+				if (pairedAddIdx !== undefined && reverse) {
+					// For reverse: defer del until we reach paired add (to match index order)
+					deferredDels[pairedAddIdx] = l;
+				} else if (pairedAddIdx !== undefined && !reverse) {
+					// For staging: output del now, then paired add immediately (to match worktree order)
+					patch += l + "\n";
+					count[0]++;
+					if (lineByIndex[pairedAddIdx]) {
+						patch += lineByIndex[pairedAddIdx] + "\n";
+						count[1]++;
+						usedAddIndices[pairedAddIdx] = true;
+					}
+				} else {
+					// Unpaired del - output now
+					patch += l + "\n";
+					count[0]++;
 				}
 			} else {
 				// Convert to context for staging (or skip for unstaging)
@@ -678,7 +684,17 @@ var stageLines = function(reverse) {
 				// For reverse (unstaging), unselected del lines are skipped
 			}
 		} else if (firstChar == '+') {
-			// Addition line (not yet handled as part of a pair)
+			// For reverse: check if there's a deferred del to output first
+			if (deferredDels[lineIndex]) {
+				patch += deferredDels[lineIndex] + "\n";
+				count[0]++;
+				delete deferredDels[lineIndex];
+			}
+
+			// Skip if already output as part of a pair (staging mode)
+			if (usedAddIndices[lineIndex]) continue;
+
+			// Addition line
 			if (isSelected) {
 				patch += l + "\n";
 				count[1]++;
