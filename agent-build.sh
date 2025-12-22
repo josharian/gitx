@@ -60,7 +60,6 @@ if [[ "$BUILD_STATUS" -eq 0 ]]; then
       echo "Line staging tests failed"
       exit 1
     fi
-    echo "Build succeeded"
     exit 0
   else
     BUILD_STATUS=$?
