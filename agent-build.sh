@@ -55,6 +55,11 @@ if [[ "$BUILD_STATUS" -eq 0 ]]; then
     if [[ -s "$EXCERPT_RESULT" ]]; then
       cat "$EXCERPT_RESULT"
     fi
+    # Run line staging tests (silent on success)
+    if ! "$SCRIPT_DIR/tests/line-staging/run.sh"; then
+      echo "Line staging tests failed"
+      exit 1
+    fi
     echo "Build succeeded"
     exit 0
   else
