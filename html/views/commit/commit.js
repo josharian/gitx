@@ -91,7 +91,9 @@ var showFileChanges = function(file, cached, options) {
 			contextLines = parseInt(slider.value, 10) || 0;
 	}
 
-	if (file.status == 0) {
+	// Use isNewFile from response if available (most up-to-date), fall back to file.status
+	var isNewFile = (typeof options.isNewFile !== "undefined") ? options.isNewFile : (file.status == 0);
+	if (isNewFile) {
 		if (isBinary)
 			return showNewFile(file, null, { diffWasTruncated: diffWasTruncated, truncateLimit: truncateLimit });
 		return showNewFile(file, diffData, { diffWasTruncated: diffWasTruncated, truncateLimit: truncateLimit });
