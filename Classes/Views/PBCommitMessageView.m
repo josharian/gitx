@@ -38,6 +38,12 @@
     [self setNeedsDisplay:YES];
 }
 
+- (void)didChangeText
+{
+	[super didChangeText];
+	[self setNeedsDisplay:YES];
+}
+
 - (void)drawRect:(NSRect)aRect
 {
 	[super drawRect:aRect];
