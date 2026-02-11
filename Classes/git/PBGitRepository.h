@@ -70,6 +70,8 @@ static NSString *PBStringFromBranchFilterType(PBGitBranchFilterType type) {
 @property (nonatomic, strong) NSMutableDictionary* refs;
 
 @property (nonatomic, strong) NSMutableArray* submodules;
+@property (nonatomic, strong) NSSet* noteSHAs;
+@property (nonatomic, strong) NSArray<NSString *>* noteRefs;
 
 - (BOOL) checkoutRefish:(id <PBGitRefish>)ref;
 - (BOOL) mergeWithRefish:(id <PBGitRefish>)ref;

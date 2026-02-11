@@ -323,9 +323,12 @@ static const BOOL SHUFFLE_COLORS = NO;
 			[self drawCircleInRect: ownRect];
 	}
 
+	if ([self.commit hasNotes])
+		[self drawNotesBadgeInRect:&rect];
+
 	if ([self.commit refs] && [[self.commit refs] count])
 		[self drawRefsInRect:&rect];
-	
+
 	// Draw the subject text
 	NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
 	[attributes setObject:[NSFont systemFontOfSize:12] forKey:NSFontAttributeName];
@@ -350,6 +353,48 @@ static const BOOL SHUFFLE_COLORS = NO;
 		rect.size.width -= 8;
 		[subject drawInRect:rect withAttributes:attributes];
 	}
+}
+
+- (void)drawNotesBadgeInRect:(NSRect *)refRect
+{
+	static const int ref_padding = 10;
+	static const int ref_spacing = 4;
+
+	NSMutableDictionary *attributes = [self attributesForRefLabelSelected:NO];
+	NSString *label = @"\U0001F4CC"; // 📌
+	NSSize textSize = [label sizeWithAttributes:attributes];
+
+	NSRect badgeRect;
+	badgeRect.origin.x = round(refRect->origin.x);
+	badgeRect.size.width = textSize.width + ref_padding;
+	badgeRect.size.height = textSize.height;
+	badgeRect.origin.y = refRect->origin.y + (refRect->size.height - badgeRect.size.height) / 2;
+
+	if (!NSContainsRect(*refRect, badgeRect))
+		return;
+
+	// Lavender color for notes badge
+	NSColor *notesColor = [NSColor colorWithCalibratedRed:0xc4/256.0 green:0xa8/256.0 blue:0xe0/256.0 alpha:1.0];
+
+	NSBezierPath *border = [NSBezierPath bezierPathWithRoundedRect:badgeRect cornerRadius:3.0];
+
+	if (ENABLE_SHADOW) {
+		[NSGraphicsContext saveGraphicsState];
+		NSShadow *shadow = [NSShadow new];
+		[shadow setShadowColor:[NSColor grayColor]];
+		[shadow setShadowOffset:NSMakeSize(0.5f, -0.5f)];
+		[shadow setShadowBlurRadius:2.0f];
+		[shadow set];
+	}
+	[notesColor set];
+	[border fill];
+	if (ENABLE_SHADOW) {
+		[NSGraphicsContext restoreGraphicsState];
+	}
+	[label drawInRect:badgeRect withAttributes:attributes];
+
+	refRect->size.width -= badgeRect.origin.x - refRect->origin.x + badgeRect.size.width + ref_spacing;
+	refRect->origin.x    = badgeRect.origin.x + badgeRect.size.width + ref_spacing;
 }
 
 - (int)indexAtX:(float)x

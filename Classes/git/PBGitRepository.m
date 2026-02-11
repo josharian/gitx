@@ -376,7 +376,8 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 			[self removeBranch:branch];
 
     [self loadSubmodules];
-    
+    [self loadNoteSHAs];
+
 	[self willChangeValueForKey:@"refs"];
 	[self didChangeValueForKey:@"refs"];
 
@@ -461,6 +462,51 @@ NSString *PBGitRepositoryDocumentType = @"Git Repository";
 		}
 	    }
 	}
+
+- (void)loadNoteSHAs
+{
+	// Discover all note refs
+	NSError *refsError = nil;
+	NSString *refsOutput = [self executeGitCommand:@[@"for-each-ref", @"--format=%(refname)", @"refs/notes/"] error:&refsError];
+
+	NSMutableArray<NSString *> *discoveredRefs = [NSMutableArray array];
+	if (!refsError && refsOutput.length > 0) {
+		NSArray *refLines = [refsOutput componentsSeparatedByString:@"\n"];
+		for (NSString *refLine in refLines) {
+			if (refLine.length > 0) {
+				[discoveredRefs addObject:refLine];
+			}
+		}
+	}
+	self.noteRefs = [discoveredRefs copy];
+
+	if (discoveredRefs.count == 0) {
+		self.noteSHAs = [NSSet set];
+		return;
+	}
+
+	// Collect SHAs from all note refs
+	NSMutableSet *shas = [NSMutableSet set];
+	for (NSString *noteRef in discoveredRefs) {
+		NSError *error = nil;
+		NSString *output = [self executeGitCommand:@[@"notes", @"--ref", noteRef, @"list"] error:&error];
+		if (error || !output || output.length == 0) continue;
+
+		NSArray *lines = [output componentsSeparatedByString:@"\n"];
+		for (NSString *line in lines) {
+			if (line.length == 0) continue;
+			// Format: <blob-sha> <commit-sha>
+			NSArray *components = [line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+			if (components.count >= 2) {
+				NSString *commitSHA = components[1];
+				if (commitSHA.length >= 40) {
+					[shas addObject:commitSHA];
+				}
+			}
+		}
+	}
+	self.noteSHAs = [shas copy];
+}
 
 - (void) lazyReload
 {

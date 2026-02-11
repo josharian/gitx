@@ -90,6 +90,31 @@
 		NSDictionary *payload = @{ @"sha": shaToLoad ?: @"", @"details": output ?: @"" };
 		[self sendBridgeEventWithType:@"commitDetails" payload:payload];
 	}];
+
+	// Fetch git notes if this commit has them
+	if ([content hasNotes]) {
+		NSArray<NSString *> *noteRefs = [(PBGitRepository *)repository noteRefs];
+		if (noteRefs.count > 0) {
+			NSMutableArray<NSArray<NSString *> *> *commands = [NSMutableArray array];
+			for (NSString *noteRef in noteRefs) {
+				[commands addObject:@[@"notes", @"--ref", noteRef, @"show", shaToLoad]];
+			}
+			[repository executeGitCommandsAsync:commands completion:^(NSArray<NSDictionary *> *results) {
+				NSMutableArray *notes = [NSMutableArray array];
+				for (NSDictionary *result in results) {
+					int exitCode = [result[@"exitCode"] intValue];
+					NSString *output = result[@"output"];
+					if (exitCode == 0 && output.length > 0) {
+						[notes addObject:output];
+					}
+				}
+				if (notes.count > 0) {
+					NSDictionary *notesPayload = @{ @"sha": shaToLoad ?: @"", @"notes": [notes copy] };
+					[self sendBridgeEventWithType:@"commitNotes" payload:notesPayload];
+				}
+			}];
+		}
+	}
 }
 
 - (void)selectCommit:(NSString *)sha
@@ -322,6 +347,7 @@
 	NSArray *parents = [commit parents];
 	dictionary[@"parents"] = parents ? [parents copy] : @[];
 	dictionary[@"refs"] = [self bridgeRefsForCommit:commit];
+	dictionary[@"hasNotes"] = @([commit hasNotes]);
 	dictionary[@"currentRef"] = currentRef ?: @"";
 
 	// Add GitHub URL if available

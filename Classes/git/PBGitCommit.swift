@@ -78,6 +78,10 @@ final class PBGitCommit: NSObject, PBGitRefish {
         commitData.committerName ?? ""
     }
 
+    var hasNotes: Bool {
+        repository?.noteSHAs?.contains(sha) ?? false
+    }
+
     var details: String {
         ""
     }
