@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+pgrep -xq GitX && { echo "❌ GitX is currently running. Quit it first."; exit 1; }
+
 # Lock the build to a single macOS destination for scheme-based builds.
 DESTINATION="platform=macOS,arch=arm64"
 
